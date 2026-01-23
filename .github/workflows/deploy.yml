@@ -23,6 +23,9 @@ jobs:
           script: |
             set -e
             
+            # 1. Add NPM/PM2 to path (Critical for non-interactive shells)
+            export PATH=$PATH:/home/ubunt/.nvm/versions/node/v22.0.0/bin:/usr/bin:/usr/local/bin
+            
             cd /var/www/app
             
             # 2. Force Git to trust this directory
