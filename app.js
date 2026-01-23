@@ -1,7 +1,29 @@
+const express = require('express');
 const http = require('http');
-const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  res.end('Hello from GitOps! Version 1.0.3');
+const WebSocket = require('ws');
+
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocket.Server({server});
+
+app.get('/', (req, res) =>{
+	res.sendFile(__dirname + './index.html');
 });
+
+wss.on('connection', function connection(ws){
+	consol.log('A new client connected');
+	ws.send("Welcome to the Real-Time web!");
+
+	ws.on('message', function incoming(message){
+		console.log('received: %s', message);
+
+		was.clients.forEach(function each(client){
+			if(client.readyState == WebSocket.OPEN){
+				client.send(message.toString());
+			}
+		});
+
+	});
+});
+
 server.listen(3000, () => console.log('Server ready'));

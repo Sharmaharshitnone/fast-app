@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h2>WebSocket Chat</h2>
+    <div id="messages" style="height: 200px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;"></div>
+    <input type="text" id="msgBox" placeholder="Type a message..." />
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        // Connect to the WebSocket (Automatic wss:// detection)
+        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+        const ws = new WebSocket(`${protocol}://${window.location.host}`);
+
+        ws.onmessage = (event) => {
+            const messages = document.getElementById('messages');
+            messages.innerHTML += `<p>${event.data}</p>`;
+        };
+
+        function sendMessage() {
+            const input = document.getElementById('msgBox');
+            ws.send(input.value);
+            input.value = '';
+        }
+    </script>
+</body>
+</html>
