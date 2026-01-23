@@ -23,18 +23,26 @@ jobs:
           script: |
             set -e
             
-            # 1. Add NPM/PM2 to path (Critical for non-interactive shells)
-            export PATH=$PATH:/home/ubunt/.nvm/versions/node/v22.0.0/bin:/usr/bin:/usr/local/bin
+            # --- CRITICAL FIX START ---
+            # 1. Force load the user configuration (This initializes fnm)
+            source $HOME/.bashrc
             
+            # 2. If that fails, try to manually find fnm (Backup plan)
+            if ! command -v npm &> /dev/null; then
+              export PATH="/home/ubuntu/.local/share/fnm:$PATH"
+              eval "`fnm env`"
+            fi
+            # --- CRITICAL FIX END ---
+
             cd /var/www/app
             
-            # 2. Force Git to trust this directory
-            git config --global --add safe.directory /var/www/app
+            # Debug: Verify we found it
+            echo "Using Node: $(node -v)"
+            echo "Using NPM: $(npm -v)"
 
-            # 3. NUCLEAR OPTION: Discard server changes and match GitHub exactly
+            git config --global --add safe.directory /var/www/app
             git fetch --all
             git reset --hard origin/master
             
-            # 4. Install & Restart
             npm install
             pm2 restart fast-app
