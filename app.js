@@ -7,7 +7,7 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({server});
 
 app.get('/', (req, res) =>{
-	res.sendFile(__dirname + './index.html');
+	res.sendFile(__dirname + '/index.html');
 });
 
 wss.on('connection', function connection(ws){
