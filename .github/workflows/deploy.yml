@@ -3,7 +3,7 @@ name: Deploy to Amazon EC2
 on:
   push:
     branches:
-      - master  # Trigger on push to main branch
+      - master
 
 jobs:
   deploy:
@@ -21,17 +21,20 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            # Stop if any command fails
             set -e
-
-            # Navigate to the app folder
+            
+            # 1. Add NPM/PM2 to path (Critical for non-interactive shells)
+            export PATH=$PATH:/home/ubuntu/.nvm/versions/node/v22.0.0/bin:/usr/bin:/usr/local/bin
+            
             cd /var/www/app
+            
+            # 2. Force Git to trust this directory
+            git config --global --add safe.directory /var/www/app
 
-            # Pull the latest code
-            git pull origin main
-
-            # Install new dependencies (if any)
+            # 3. NUCLEAR OPTION: Discard server changes and match GitHub exactly
+            git fetch --all
+            git reset --hard origin/main
+            
+            # 4. Install & Restart
             npm install
-
-            # Restart the app
             pm2 restart fast-app
