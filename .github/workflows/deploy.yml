@@ -23,9 +23,6 @@ jobs:
           script: |
             set -e
             
-            # 1. Add NPM/PM2 to path (Critical for non-interactive shells)
-            export PATH=$PATH:/home/ubuntu/.nvm/versions/node/v22.0.0/bin:/usr/bin:/usr/local/bin
-            
             cd /var/www/app
             
             # 2. Force Git to trust this directory
@@ -33,7 +30,7 @@ jobs:
 
             # 3. NUCLEAR OPTION: Discard server changes and match GitHub exactly
             git fetch --all
-            git reset --hard origin/main
+            git reset --hard origin/master
             
             # 4. Install & Restart
             npm install
