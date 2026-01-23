@@ -1,0 +1,37 @@
+name: Deploy to Amazon EC2
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            # Stop if any command fails
+            set -e
+
+            # Navigate to the app folder
+            cd /var/www/app
+
+            # Pull the latest code
+            git pull origin main
+
+            # Install new dependencies (if any)
+            npm install
+
+            # Restart the app
+            pm2 restart fast-app
