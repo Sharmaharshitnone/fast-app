@@ -1,26 +1,610 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Activity | Hacker Terminal</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --cell-size: 12px;
+            --cell-gap: 3px;
+        }
+
+        body {
+            font-family: 'Fira Code', monospace;
+            background: #0a0a0a;
+            min-height: 100vh;
+            padding: 30px;
+            color: #00ff00;
+        }
+
+        /* Terminal scanline effect */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15),
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .bento-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
+            letter-spacing: 3px;
+        }
+
+        .header p {
+            color: #39ff14;
+            opacity: 0.7;
+            font-size: 0.85rem;
+            margin-top: 8px;
+        }
+
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: auto auto;
+            gap: 20px;
+        }
+
+        .bento-card {
+            background: linear-gradient(145deg, #0d1117, #161b22);
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bento-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ff00, transparent);
+            opacity: 0.5;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .card-title .icon {
+            color: #00ff00;
+            text-shadow: 0 0 8px #00ff00;
+        }
+
+        /* Latest Commit Card */
+        .commit-card {
+            position: relative;
+        }
+
+        .commit-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .commit-hash {
+            background: #1a1f2e;
+            padding: 4px 10px;
+            border-radius: 6px;
+            color: #39ff14;
+            font-size: 0.8rem;
+            border: 1px solid #39ff14;
+            text-shadow: 0 0 5px #39ff14;
+        }
+
+        .commit-time {
+            color: #6e7681;
+            font-size: 0.75rem;
+        }
+
+        .commit-message {
+            color: #c9d1d9;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            padding-left: 12px;
+            border-left: 2px solid #00ff00;
+            box-shadow: -3px 0 10px rgba(0, 255, 0, 0.2);
+        }
+
+        .code-snippet {
+            background: #010409;
+            border: 1px solid #21262d;
+            border-radius: 8px;
+            padding: 15px;
+            overflow-x: auto;
+        }
+
+        .code-snippet pre {
+            margin: 0;
+            font-size: 0.8rem;
+            line-height: 1.6;
+        }
+
+        .code-line {
+            display: flex;
+            gap: 15px;
+        }
+
+        .line-number {
+            color: #484f58;
+            user-select: none;
+            min-width: 20px;
+            text-align: right;
+        }
+
+        .line-content {
+            color: #c9d1d9;
+        }
+
+        .line-added {
+            color: #3fb950;
+            background: rgba(46, 160, 67, 0.15);
+            margin: 0 -15px;
+            padding: 0 15px;
+        }
+
+        .line-removed {
+            color: #f85149;
+            background: rgba(248, 81, 73, 0.15);
+            margin: 0 -15px;
+            padding: 0 15px;
+        }
+
+        .syntax-keyword { color: #ff79c6; }
+        .syntax-string { color: #a5d6ff; }
+        .syntax-function { color: #d2a8ff; }
+        .syntax-comment { color: #8b949e; }
+        .syntax-number { color: #79c0ff; }
+
+        /* Top Languages Card */
+        .languages-card {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            flex: 1;
+        }
+
+        .pie-chart {
+            position: relative;
+            width: 150px;
+            height: 150px;
+        }
+
+        .pie-chart svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+            filter: drop-shadow(0 0 15px rgba(0, 255, 0, 0.3));
+        }
+
+        .pie-chart circle {
+            fill: none;
+            stroke-width: 30;
+        }
+
+        .language-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        .legend-name {
+            color: #c9d1d9;
+            flex: 1;
+        }
+
+        .legend-percent {
+            color: #00ff00;
+            font-weight: 600;
+            text-shadow: 0 0 5px #00ff00;
+        }
+
+        /* Contribution Graph Card */
+        .contribution-card {
+            grid-column: 1 / -1;
+        }
+
+        .contribution-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .contribution-stats {
+            display: flex;
+            gap: 30px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            color: #00ff00;
+            font-weight: 600;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: #6e7681;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .contribution-graph {
+            display: flex;
+            flex-direction: column;
+            gap: var(--cell-gap);
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .graph-row {
+            display: flex;
+            gap: var(--cell-gap);
+            align-items: center;
+        }
+
+        .day-label {
+            width: 30px;
+            font-size: 0.65rem;
+            color: #6e7681;
+            text-align: right;
+            padding-right: 8px;
+        }
+
+        .contribution-cell {
+            width: var(--cell-size);
+            height: var(--cell-size);
+            border-radius: 2px;
+            background: #161b22;
+            transition: all 0.2s ease;
+        }
+
+        .contribution-cell:hover {
+            transform: scale(1.3);
+            z-index: 10;
+        }
+
+        .contribution-cell.level-0 {
+            background: #161b22;
+            border: 1px solid #21262d;
+        }
+
+        .contribution-cell.level-1 {
+            background: #0e4429;
+            box-shadow: 0 0 5px #00ff00, inset 0 0 3px rgba(0, 255, 0, 0.3);
+        }
+
+        .contribution-cell.level-2 {
+            background: #006d32;
+            box-shadow: 0 0 8px #00ff00, inset 0 0 5px rgba(0, 255, 0, 0.4);
+        }
+
+        .contribution-cell.level-3 {
+            background: #26a641;
+            box-shadow: 0 0 12px #00ff00, inset 0 0 8px rgba(0, 255, 0, 0.5);
+        }
+
+        .contribution-cell.level-4 {
+            background: #39ff14;
+            box-shadow: 0 0 20px #39ff14, 0 0 40px #00ff00, inset 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .month-labels {
+            display: flex;
+            padding-left: 38px;
+            margin-top: 8px;
+        }
+
+        .month-label {
+            font-size: 0.65rem;
+            color: #6e7681;
+            width: calc(var(--cell-size) * 4 + var(--cell-gap) * 4);
+            text-align: left;
+        }
+
+        .legend-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 5px;
+            margin-top: 15px;
+            font-size: 0.7rem;
+            color: #6e7681;
+        }
+
+        .legend-cells {
+            display: flex;
+            gap: 3px;
+        }
+
+        /* Terminal cursor blink */
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background: #00ff00;
+            animation: blink 1s infinite;
+            box-shadow: 0 0 10px #00ff00;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .bento-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .contribution-card {
+                grid-column: 1;
+            }
+
+            .chart-container {
+                flex-direction: column;
+            }
+
+            .contribution-stats {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
 <body>
-    <h2>WebSocket Chat</h2>
-    <div id="messages" style="height: 200px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;"></div>
-    <input type="text" id="msgBox" placeholder="Type a message..." />
-    <button onclick="sendMessage()">Send</button>
+    <div class="bento-container">
+        <div class="header">
+            <h1>&gt;_ GITHUB ACTIVITY</h1>
+            <p>// Developer metrics dashboard<span class="cursor"></span></p>
+        </div>
+
+        <div class="bento-grid">
+            <!-- Latest Commit Card -->
+            <div class="bento-card commit-card">
+                <div class="card-title">
+                    <span class="icon">⚡</span>
+                    Latest Commit
+                </div>
+                <div class="commit-info">
+                    <span class="commit-hash">#a7f3d2e</span>
+                    <span class="commit-time">2 hours ago</span>
+                </div>
+                <div class="commit-message">
+                    feat: Add neon glow effects to contribution graph
+                </div>
+                <div class="code-snippet">
+                    <pre><div class="code-line"><span class="line-number">42</span><span class="line-content">  <span class="syntax-keyword">const</span> <span class="syntax-function">renderGraph</span> = () => {</span></div><div class="code-line line-added"><span class="line-number">43</span><span class="line-content">+   <span class="syntax-keyword">const</span> glow = <span class="syntax-string">'neon-effect'</span>;</span></div><div class="code-line line-added"><span class="line-number">44</span><span class="line-content">+   element.<span class="syntax-function">classList</span>.<span class="syntax-function">add</span>(glow);</span></div><div class="code-line"><span class="line-number">45</span><span class="line-content">    <span class="syntax-keyword">return</span> data.<span class="syntax-function">map</span>(renderCell);</span></div><div class="code-line"><span class="line-number">46</span><span class="line-content">  };</span></div></pre>
+                </div>
+            </div>
+
+            <!-- Top Languages Card -->
+            <div class="bento-card languages-card">
+                <div class="card-title">
+                    <span class="icon">◉</span>
+                    Top Languages
+                </div>
+                <div class="chart-container">
+                    <div class="pie-chart">
+                        <svg viewBox="0 0 100 100">
+                            <!-- JavaScript - 45% -->
+                            <circle cx="50" cy="50" r="35" stroke="#f1e05a" stroke-dasharray="98.96 220" stroke-dashoffset="0"></circle>
+                            <!-- TypeScript - 25% -->
+                            <circle cx="50" cy="50" r="35" stroke="#3178c6" stroke-dasharray="54.98 220" stroke-dashoffset="-98.96"></circle>
+                            <!-- Python - 18% -->
+                            <circle cx="50" cy="50" r="35" stroke="#3572A5" stroke-dasharray="39.58 220" stroke-dashoffset="-153.94"></circle>
+                            <!-- Rust - 12% -->
+                            <circle cx="50" cy="50" r="35" stroke="#dea584" stroke-dasharray="26.39 220" stroke-dashoffset="-193.52"></circle>
+                        </svg>
+                    </div>
+                    <div class="language-legend">
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #f1e05a; color: #f1e05a;"></span>
+                            <span class="legend-name">JavaScript</span>
+                            <span class="legend-percent">45%</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #3178c6; color: #3178c6;"></span>
+                            <span class="legend-name">TypeScript</span>
+                            <span class="legend-percent">25%</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #3572A5; color: #3572A5;"></span>
+                            <span class="legend-name">Python</span>
+                            <span class="legend-percent">18%</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #dea584; color: #dea584;"></span>
+                            <span class="legend-name">Rust</span>
+                            <span class="legend-percent">12%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contribution Graph Card -->
+            <div class="bento-card contribution-card">
+                <div class="contribution-header">
+                    <div class="card-title" style="margin-bottom: 0;">
+                        <span class="icon">▣</span>
+                        Contribution Graph
+                    </div>
+                    <div class="contribution-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">1,247</div>
+                            <div class="stat-label">Contributions</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">42</div>
+                            <div class="stat-label">Current Streak</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">89</div>
+                            <div class="stat-label">Longest Streak</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="contribution-graph" id="contributionGraph">
+                    <!-- Graph will be generated by JavaScript -->
+                </div>
+                <div class="month-labels" id="monthLabels">
+                    <!-- Month labels will be generated by JavaScript -->
+                </div>
+                <div class="legend-container">
+                    <span>Less</span>
+                    <div class="legend-cells">
+                        <div class="contribution-cell level-0"></div>
+                        <div class="contribution-cell level-1"></div>
+                        <div class="contribution-cell level-2"></div>
+                        <div class="contribution-cell level-3"></div>
+                        <div class="contribution-cell level-4"></div>
+                    </div>
+                    <span>More</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // Connect to the WebSocket (Automatic wss:// detection)
-        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-        const ws = new WebSocket(`${protocol}://${window.location.host}`);
+        // Generate contribution graph
+        function generateContributionGraph() {
+            const graph = document.getElementById('contributionGraph');
+            const monthLabels = document.getElementById('monthLabels');
+            const days = ['', 'Mon', '', 'Wed', '', 'Fri', ''];
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const weeks = 52;
 
-        ws.onmessage = (event) => {
-            const messages = document.getElementById('messages');
-            messages.innerHTML += `<p>${event.data}</p>`;
-        };
+            // Generate contribution level with realistic patterns
+            // Returns both level (0-4) and contribution count
+            const generateContribution = (weekIndex, dayIndex) => {
+                // Create more realistic patterns
+                const random = Math.random();
+                const weekFactor = Math.sin(weekIndex / 10) * 0.3 + 0.5;
+                // dayIndex 0=Sun, 1=Mon...5=Fri, 6=Sat - weekdays have higher activity
+                const isWeekday = dayIndex >= 1 && dayIndex <= 5;
+                const dayFactor = isWeekday ? 1.2 : 0.6;
+                const threshold = random * weekFactor * dayFactor;
 
-        function sendMessage() {
-            const input = document.getElementById('msgBox');
-            ws.send(input.value);
-            input.value = '';
+                let level, count;
+                if (threshold < 0.3) {
+                    level = 0;
+                    count = 0;
+                } else if (threshold < 0.5) {
+                    level = 1;
+                    count = Math.floor(Math.random() * 3) + 1; // 1-3 contributions
+                } else if (threshold < 0.7) {
+                    level = 2;
+                    count = Math.floor(Math.random() * 4) + 4; // 4-7 contributions
+                } else if (threshold < 0.85) {
+                    level = 3;
+                    count = Math.floor(Math.random() * 5) + 8; // 8-12 contributions
+                } else {
+                    level = 4;
+                    count = Math.floor(Math.random() * 8) + 13; // 13-20 contributions
+                }
+                return { level, count };
+            };
+
+            // Create rows for each day
+            for (let day = 0; day < 7; day++) {
+                const row = document.createElement('div');
+                row.className = 'graph-row';
+
+                const dayLabel = document.createElement('span');
+                dayLabel.className = 'day-label';
+                dayLabel.textContent = days[day];
+                row.appendChild(dayLabel);
+
+                for (let week = 0; week < weeks; week++) {
+                    const { level, count } = generateContribution(week, day);
+                    const cell = document.createElement('div');
+                    cell.className = `contribution-cell level-${level}`;
+                    cell.title = `${count} contribution${count !== 1 ? 's' : ''}`;
+                    row.appendChild(cell);
+                }
+
+                graph.appendChild(row);
+            }
+
+            // Generate month labels
+            for (let i = 0; i < 12; i++) {
+                const label = document.createElement('span');
+                label.className = 'month-label';
+                label.textContent = months[i];
+                monthLabels.appendChild(label);
+            }
         }
+
+        // Initialize
+        generateContributionGraph();
     </script>
 </body>
 </html>
