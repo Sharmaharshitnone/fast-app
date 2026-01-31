@@ -11,14 +11,14 @@ app.get('/', (req, res) =>{
 });
 
 wss.on('connection', function connection(ws){
-	consol.log('A new client connected');
-	ws.send("Welcome to the Real-Time web!");
+	console.log('A new client connected');
+	ws.send("Welcome to the Cloud Resource Manager!");
 
 	ws.on('message', function incoming(message){
 		console.log('received: %s', message);
 
-		was.clients.forEach(function each(client){
-			if(client.readyState == WebSocket.OPEN){
+		wss.clients.forEach(function each(client){
+			if(client.readyState === WebSocket.OPEN){
 				client.send(message.toString());
 			}
 		});
@@ -26,4 +26,4 @@ wss.on('connection', function connection(ws){
 	});
 });
 
-server.listen(3000, () => console.log('Server ready'));
+server.listen(3000, () => console.log('Server ready on http://localhost:3000'));

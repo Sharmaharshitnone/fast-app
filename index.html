@@ -1,26 +1,1356 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Resource Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: #f5f7fa;
+            color: #1a1a2e;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #232f3e 0%, #1a252f 100%);
+            color: white;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 3px solid #ff9900;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: #ff9900;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 24px;
+        }
+
+        .header-nav a {
+            color: #a0aec0;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .header-nav a:hover, .header-nav a.active {
+            color: white;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .search-box {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: white;
+            width: 240px;
+            font-size: 13px;
+        }
+
+        .search-box::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: #4a5568;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Main Container */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 56px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #fafbfc;
+        }
+
+        .sidebar-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tree-view {
+            padding: 8px 0;
+        }
+
+        .tree-item {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .tree-item-content {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            gap: 8px;
+            transition: background-color 0.15s;
+        }
+
+        .tree-item-content:hover {
+            background-color: #f7fafc;
+        }
+
+        .tree-item-content.selected {
+            background-color: #ebf8ff;
+            border-right: 3px solid #3182ce;
+        }
+
+        .tree-toggle {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #718096;
+            transition: transform 0.2s;
+        }
+
+        .tree-toggle.expanded {
+            transform: rotate(90deg);
+        }
+
+        .tree-toggle.hidden {
+            visibility: hidden;
+        }
+
+        .tree-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .tree-label {
+            font-size: 14px;
+            color: #2d3748;
+            flex: 1;
+        }
+
+        .tree-badge {
+            background: #e2e8f0;
+            color: #4a5568;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .tree-children {
+            padding-left: 24px;
+            display: none;
+        }
+
+        .tree-children.expanded {
+            display: block;
+        }
+
+        /* Resource Icons */
+        .icon-folder { color: #f6ad55; }
+        .icon-ec2 { color: #ff9900; }
+        .icon-s3 { color: #569a31; }
+        .icon-rds { color: #3b48cc; }
+        .icon-lambda { color: #ff9900; }
+        .icon-vpc { color: #9f7aea; }
+        .icon-elb { color: #805ad5; }
+        .icon-instance { color: #48bb78; }
+        .icon-instance-stopped { color: #fc8181; }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            background: #f5f7fa;
+        }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #718096;
+            margin-bottom: 16px;
+        }
+
+        .breadcrumb a {
+            color: #3182ce;
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        /* Properties Panel */
+        .properties-panel {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .panel-header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .resource-icon-large {
+            width: 48px;
+            height: 48px;
+            background: #fff7ed;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #ff9900;
+        }
+
+        .resource-title h1 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 4px;
+        }
+
+        .resource-subtitle {
+            font-size: 13px;
+            color: #718096;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-running {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status-stopped {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .panel-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .btn-primary {
+            background: #3182ce;
+            color: white;
+            border-color: #3182ce;
+        }
+
+        .btn-primary:hover {
+            background: #2c5282;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #4a5568;
+            border-color: #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #f7fafc;
+            border-color: #cbd5e0;
+        }
+
+        .btn-danger {
+            background: white;
+            color: #c53030;
+            border-color: #e2e8f0;
+        }
+
+        .btn-danger:hover {
+            background: #fff5f5;
+            border-color: #fc8181;
+        }
+
+        /* Tabs */
+        .panel-tabs {
+            display: flex;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 0 24px;
+            background: #fafbfc;
+        }
+
+        .tab {
+            padding: 12px 16px;
+            font-size: 14px;
+            color: #718096;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: #4a5568;
+        }
+
+        .tab.active {
+            color: #3182ce;
+            border-bottom-color: #3182ce;
+            font-weight: 500;
+        }
+
+        /* Panel Content */
+        .panel-content {
+            padding: 24px;
+        }
+
+        .section {
+            margin-bottom: 32px;
+        }
+
+        .section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d3748;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Properties Grid */
+        .properties-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .property-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .property-item.full-width {
+            grid-column: span 2;
+        }
+
+        .property-label {
+            font-size: 12px;
+            color: #718096;
+            font-weight: 500;
+        }
+
+        .property-value {
+            font-size: 14px;
+            color: #1a202c;
+            font-family: 'SF Mono', 'Consolas', monospace;
+        }
+
+        .property-value.copyable {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            color: #a0aec0;
+            cursor: pointer;
+            padding: 2px;
+            font-size: 12px;
+        }
+
+        .copy-btn:hover {
+            color: #3182ce;
+        }
+
+        /* Security Groups Table */
+        .table-container {
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th {
+            background: #f7fafc;
+            padding: 10px 16px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .table td {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #2d3748;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table tr:hover td {
+            background: #f7fafc;
+        }
+
+        .link {
+            color: #3182ce;
+            text-decoration: none;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+
+        /* Tags */
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            background: #edf2f7;
+            border-radius: 4px;
+            overflow: hidden;
+            font-size: 13px;
+        }
+
+        .tag-key {
+            background: #e2e8f0;
+            padding: 6px 10px;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .tag-value {
+            padding: 6px 10px;
+            color: #2d3748;
+        }
+
+        .add-tag-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            background: white;
+            border: 1px dashed #cbd5e0;
+            border-radius: 4px;
+            color: #718096;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .add-tag-btn:hover {
+            border-color: #3182ce;
+            color: #3182ce;
+        }
+
+        /* Network Interfaces */
+        .network-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .network-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .network-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .network-card-title {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 14px;
+        }
+
+        .network-card-badge {
+            background: #e6fffa;
+            color: #234e52;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 24px;
+            color: #718096;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .empty-state-subtext {
+            font-size: 14px;
+            color: #a0aec0;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+    </style>
+</head>
 <body>
-    <h2>WebSocket Chat</h2>
-    <div id="messages" style="height: 200px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;"></div>
-    <input type="text" id="msgBox" placeholder="Type a message..." />
-    <button onclick="sendMessage()">Send</button>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                <div class="logo-icon">☁️</div>
+                Cloud Resource Manager
+            </div>
+            <nav class="header-nav">
+                <a href="#" class="active">Dashboard</a>
+                <a href="#">Services</a>
+                <a href="#">Monitoring</a>
+                <a href="#">Billing</a>
+            </nav>
+        </div>
+        <div class="header-right">
+            <input type="text" class="search-box" placeholder="Search resources... (Ctrl+K)">
+            <div class="user-avatar">JD</div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">Resource Explorer</div>
+            </div>
+            <div class="tree-view" id="treeView">
+                <!-- Tree items will be populated by JavaScript -->
+            </div>
+        </aside>
+
+        <!-- Content Area -->
+        <main class="content" id="contentArea">
+            <!-- Content will be populated by JavaScript -->
+        </main>
+    </div>
 
     <script>
-        // Connect to the WebSocket (Automatic wss:// detection)
-        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-        const ws = new WebSocket(`${protocol}://${window.location.host}`);
-
-        ws.onmessage = (event) => {
-            const messages = document.getElementById('messages');
-            messages.innerHTML += `<p>${event.data}</p>`;
+        // Cloud resources data structure
+        const resourceData = {
+            folders: [
+                {
+                    id: 'compute',
+                    name: 'Compute',
+                    icon: '📁',
+                    iconClass: 'icon-folder',
+                    children: [
+                        {
+                            id: 'ec2',
+                            name: 'EC2 Instances',
+                            icon: '🖥️',
+                            iconClass: 'icon-ec2',
+                            badge: '4',
+                            children: [
+                                { id: 'i-0abc123def456789a', name: 'web-server-prod-01', icon: '●', iconClass: 'icon-instance', type: 'ec2-instance', status: 'running' },
+                                { id: 'i-0def456abc789012b', name: 'web-server-prod-02', icon: '●', iconClass: 'icon-instance', type: 'ec2-instance', status: 'running' },
+                                { id: 'i-0ghi789def012345c', name: 'api-server-prod', icon: '●', iconClass: 'icon-instance', type: 'ec2-instance', status: 'running' },
+                                { id: 'i-0jkl012ghi345678d', name: 'dev-server', icon: '●', iconClass: 'icon-instance-stopped', type: 'ec2-instance', status: 'stopped' }
+                            ]
+                        },
+                        {
+                            id: 'lambda',
+                            name: 'Lambda Functions',
+                            icon: 'λ',
+                            iconClass: 'icon-lambda',
+                            badge: '8',
+                            children: []
+                        }
+                    ]
+                },
+                {
+                    id: 'storage',
+                    name: 'Storage',
+                    icon: '📁',
+                    iconClass: 'icon-folder',
+                    children: [
+                        {
+                            id: 's3',
+                            name: 'S3 Buckets',
+                            icon: '🪣',
+                            iconClass: 'icon-s3',
+                            badge: '12',
+                            children: []
+                        }
+                    ]
+                },
+                {
+                    id: 'database',
+                    name: 'Database',
+                    icon: '📁',
+                    iconClass: 'icon-folder',
+                    children: [
+                        {
+                            id: 'rds',
+                            name: 'RDS Instances',
+                            icon: '🗄️',
+                            iconClass: 'icon-rds',
+                            badge: '3',
+                            children: []
+                        }
+                    ]
+                },
+                {
+                    id: 'networking',
+                    name: 'Networking',
+                    icon: '📁',
+                    iconClass: 'icon-folder',
+                    children: [
+                        {
+                            id: 'vpc',
+                            name: 'VPCs',
+                            icon: '🔗',
+                            iconClass: 'icon-vpc',
+                            badge: '2',
+                            children: []
+                        },
+                        {
+                            id: 'elb',
+                            name: 'Load Balancers',
+                            icon: '⚖️',
+                            iconClass: 'icon-elb',
+                            badge: '3',
+                            children: []
+                        }
+                    ]
+                }
+            ]
         };
 
-        function sendMessage() {
-            const input = document.getElementById('msgBox');
-            ws.send(input.value);
-            input.value = '';
+        // EC2 Instance details data
+        const ec2InstanceDetails = {
+            'i-0abc123def456789a': {
+                id: 'i-0abc123def456789a',
+                name: 'web-server-prod-01',
+                status: 'running',
+                instanceType: 't3.large',
+                platform: 'Linux/UNIX',
+                ami: 'ami-0c55b159cbfafe1f0',
+                amiName: 'Amazon Linux 2 AMI',
+                launchTime: '2024-01-15T08:30:00Z',
+                availabilityZone: 'us-east-1a',
+                privateIp: '10.0.1.45',
+                publicIp: '54.123.45.67',
+                privateDns: 'ip-10-0-1-45.ec2.internal',
+                publicDns: 'ec2-54-123-45-67.compute-1.amazonaws.com',
+                vpcId: 'vpc-0a1b2c3d4e5f6g7h8',
+                subnetId: 'subnet-0a1b2c3d4e5f6g7h8',
+                keyPair: 'production-key',
+                iamRole: 'EC2-WebServer-Role',
+                monitoring: 'Detailed',
+                ebsOptimized: true,
+                securityGroups: [
+                    { id: 'sg-0a1b2c3d4e5f6g7h8', name: 'web-server-sg', description: 'Security group for web servers' },
+                    { id: 'sg-1b2c3d4e5f6g7h8i9', name: 'ssh-access-sg', description: 'Allow SSH access from bastion' }
+                ],
+                networkInterfaces: [
+                    {
+                        id: 'eni-0a1b2c3d4e5f6g7h8',
+                        description: 'Primary network interface',
+                        privateIp: '10.0.1.45',
+                        publicIp: '54.123.45.67',
+                        macAddress: '02:42:ac:11:00:02',
+                        status: 'in-use'
+                    }
+                ],
+                tags: [
+                    { key: 'Name', value: 'web-server-prod-01' },
+                    { key: 'Environment', value: 'Production' },
+                    { key: 'Team', value: 'Platform' },
+                    { key: 'CostCenter', value: 'CC-1234' },
+                    { key: 'Application', value: 'WebApp' }
+                ],
+                volumes: [
+                    { id: 'vol-0a1b2c3d4e5f6g7h8', size: '100 GiB', type: 'gp3', device: '/dev/xvda' }
+                ]
+            },
+            'i-0def456abc789012b': {
+                id: 'i-0def456abc789012b',
+                name: 'web-server-prod-02',
+                status: 'running',
+                instanceType: 't3.large',
+                platform: 'Linux/UNIX',
+                ami: 'ami-0c55b159cbfafe1f0',
+                amiName: 'Amazon Linux 2 AMI',
+                launchTime: '2024-01-15T08:35:00Z',
+                availabilityZone: 'us-east-1b',
+                privateIp: '10.0.2.46',
+                publicIp: '54.123.45.68',
+                privateDns: 'ip-10-0-2-46.ec2.internal',
+                publicDns: 'ec2-54-123-45-68.compute-1.amazonaws.com',
+                vpcId: 'vpc-0a1b2c3d4e5f6g7h8',
+                subnetId: 'subnet-1b2c3d4e5f6g7h8i9',
+                keyPair: 'production-key',
+                iamRole: 'EC2-WebServer-Role',
+                monitoring: 'Detailed',
+                ebsOptimized: true,
+                securityGroups: [
+                    { id: 'sg-0a1b2c3d4e5f6g7h8', name: 'web-server-sg', description: 'Security group for web servers' },
+                    { id: 'sg-1b2c3d4e5f6g7h8i9', name: 'ssh-access-sg', description: 'Allow SSH access from bastion' }
+                ],
+                networkInterfaces: [
+                    {
+                        id: 'eni-1b2c3d4e5f6g7h8i9',
+                        description: 'Primary network interface',
+                        privateIp: '10.0.2.46',
+                        publicIp: '54.123.45.68',
+                        macAddress: '02:42:ac:11:00:03',
+                        status: 'in-use'
+                    }
+                ],
+                tags: [
+                    { key: 'Name', value: 'web-server-prod-02' },
+                    { key: 'Environment', value: 'Production' },
+                    { key: 'Team', value: 'Platform' },
+                    { key: 'CostCenter', value: 'CC-1234' },
+                    { key: 'Application', value: 'WebApp' }
+                ],
+                volumes: [
+                    { id: 'vol-1b2c3d4e5f6g7h8i9', size: '100 GiB', type: 'gp3', device: '/dev/xvda' }
+                ]
+            },
+            'i-0ghi789def012345c': {
+                id: 'i-0ghi789def012345c',
+                name: 'api-server-prod',
+                status: 'running',
+                instanceType: 't3.xlarge',
+                platform: 'Linux/UNIX',
+                ami: 'ami-0c55b159cbfafe1f0',
+                amiName: 'Amazon Linux 2 AMI',
+                launchTime: '2024-01-10T14:20:00Z',
+                availabilityZone: 'us-east-1a',
+                privateIp: '10.0.1.100',
+                publicIp: '54.123.45.100',
+                privateDns: 'ip-10-0-1-100.ec2.internal',
+                publicDns: 'ec2-54-123-45-100.compute-1.amazonaws.com',
+                vpcId: 'vpc-0a1b2c3d4e5f6g7h8',
+                subnetId: 'subnet-0a1b2c3d4e5f6g7h8',
+                keyPair: 'production-key',
+                iamRole: 'EC2-APIServer-Role',
+                monitoring: 'Detailed',
+                ebsOptimized: true,
+                securityGroups: [
+                    { id: 'sg-2c3d4e5f6g7h8i9j0', name: 'api-server-sg', description: 'Security group for API servers' },
+                    { id: 'sg-1b2c3d4e5f6g7h8i9', name: 'ssh-access-sg', description: 'Allow SSH access from bastion' }
+                ],
+                networkInterfaces: [
+                    {
+                        id: 'eni-2c3d4e5f6g7h8i9j0',
+                        description: 'Primary network interface',
+                        privateIp: '10.0.1.100',
+                        publicIp: '54.123.45.100',
+                        macAddress: '02:42:ac:11:00:04',
+                        status: 'in-use'
+                    }
+                ],
+                tags: [
+                    { key: 'Name', value: 'api-server-prod' },
+                    { key: 'Environment', value: 'Production' },
+                    { key: 'Team', value: 'Backend' },
+                    { key: 'CostCenter', value: 'CC-1234' },
+                    { key: 'Application', value: 'API' }
+                ],
+                volumes: [
+                    { id: 'vol-2c3d4e5f6g7h8i9j0', size: '200 GiB', type: 'gp3', device: '/dev/xvda' }
+                ]
+            },
+            'i-0jkl012ghi345678d': {
+                id: 'i-0jkl012ghi345678d',
+                name: 'dev-server',
+                status: 'stopped',
+                instanceType: 't3.medium',
+                platform: 'Linux/UNIX',
+                ami: 'ami-0c55b159cbfafe1f0',
+                amiName: 'Amazon Linux 2 AMI',
+                launchTime: '2024-01-05T10:00:00Z',
+                availabilityZone: 'us-east-1a',
+                privateIp: '10.0.3.50',
+                publicIp: null,
+                privateDns: 'ip-10-0-3-50.ec2.internal',
+                publicDns: null,
+                vpcId: 'vpc-0a1b2c3d4e5f6g7h8',
+                subnetId: 'subnet-3d4e5f6g7h8i9j0k1',
+                keyPair: 'development-key',
+                iamRole: 'EC2-DevServer-Role',
+                monitoring: 'Basic',
+                ebsOptimized: false,
+                securityGroups: [
+                    { id: 'sg-3d4e5f6g7h8i9j0k1', name: 'dev-server-sg', description: 'Security group for dev servers' }
+                ],
+                networkInterfaces: [
+                    {
+                        id: 'eni-3d4e5f6g7h8i9j0k1',
+                        description: 'Primary network interface',
+                        privateIp: '10.0.3.50',
+                        publicIp: null,
+                        macAddress: '02:42:ac:11:00:05',
+                        status: 'in-use'
+                    }
+                ],
+                tags: [
+                    { key: 'Name', value: 'dev-server' },
+                    { key: 'Environment', value: 'Development' },
+                    { key: 'Team', value: 'Engineering' }
+                ],
+                volumes: [
+                    { id: 'vol-3d4e5f6g7h8i9j0k1', size: '50 GiB', type: 'gp2', device: '/dev/xvda' }
+                ]
+            }
+        };
+
+        // State
+        let selectedResourceId = null;
+        let expandedNodes = new Set(['compute', 'ec2']);
+
+        // Render tree view
+        function renderTreeView() {
+            const container = document.getElementById('treeView');
+            container.innerHTML = renderTreeItems(resourceData.folders, 0);
+            attachTreeEventListeners();
         }
+
+        function renderTreeItems(items, level) {
+            return items.map(item => {
+                const hasChildren = item.children && item.children.length > 0;
+                const isExpanded = expandedNodes.has(item.id);
+                const isSelected = selectedResourceId === item.id;
+
+                return `
+                    <div class="tree-item" data-id="${item.id}" data-type="${item.type || 'folder'}">
+                        <div class="tree-item-content ${isSelected ? 'selected' : ''}" style="padding-left: ${16 + level * 16}px">
+                            <span class="tree-toggle ${hasChildren ? (isExpanded ? 'expanded' : '') : 'hidden'}">▶</span>
+                            <span class="tree-icon ${item.iconClass || ''}">${item.icon}</span>
+                            <span class="tree-label">${item.name}</span>
+                            ${item.badge ? `<span class="tree-badge">${item.badge}</span>` : ''}
+                        </div>
+                        ${hasChildren ? `
+                            <div class="tree-children ${isExpanded ? 'expanded' : ''}">
+                                ${renderTreeItems(item.children, level + 1)}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function attachTreeEventListeners() {
+            document.querySelectorAll('.tree-item-content').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    const treeItem = el.closest('.tree-item');
+                    const id = treeItem.dataset.id;
+                    const type = treeItem.dataset.type;
+                    const children = treeItem.querySelector('.tree-children');
+                    const toggle = el.querySelector('.tree-toggle');
+
+                    // Toggle expand/collapse for folders
+                    if (children) {
+                        if (expandedNodes.has(id)) {
+                            expandedNodes.delete(id);
+                        } else {
+                            expandedNodes.add(id);
+                        }
+                        children.classList.toggle('expanded');
+                        toggle.classList.toggle('expanded');
+                    }
+
+                    // Select item
+                    document.querySelectorAll('.tree-item-content').forEach(item => {
+                        item.classList.remove('selected');
+                    });
+                    el.classList.add('selected');
+                    selectedResourceId = id;
+
+                    // Show details if it's an EC2 instance
+                    if (type === 'ec2-instance') {
+                        renderEC2InstanceDetails(id);
+                    } else {
+                        renderEmptyState(type);
+                    }
+                });
+            });
+        }
+
+        // Render EC2 instance details
+        function renderEC2InstanceDetails(instanceId) {
+            const instance = ec2InstanceDetails[instanceId];
+            if (!instance) {
+                renderEmptyState('ec2-instance');
+                return;
+            }
+
+            const formatDate = (dateStr) => {
+                const date = new Date(dateStr);
+                return date.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            };
+
+            const content = `
+                <div class="breadcrumb">
+                    <a href="#">Resources</a>
+                    <span>›</span>
+                    <a href="#">EC2 Instances</a>
+                    <span>›</span>
+                    <span>${instance.name}</span>
+                </div>
+
+                <div class="properties-panel">
+                    <div class="panel-header">
+                        <div class="panel-header-left">
+                            <div class="resource-icon-large">🖥️</div>
+                            <div class="resource-title">
+                                <h1>${instance.name}</h1>
+                                <div class="resource-subtitle">
+                                    <span>${instance.id}</span>
+                                    <span>•</span>
+                                    <span>${instance.instanceType}</span>
+                                    <span>•</span>
+                                    <span class="status-badge ${instance.status === 'running' ? 'status-running' : 'status-stopped'}">
+                                        <span class="status-dot"></span>
+                                        ${instance.status.charAt(0).toUpperCase() + instance.status.slice(1)}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel-actions">
+                            ${instance.status === 'running' ? `
+                                <button class="btn btn-secondary">Connect</button>
+                                <button class="btn btn-danger">Stop</button>
+                            ` : `
+                                <button class="btn btn-primary">Start</button>
+                            `}
+                            <button class="btn btn-secondary">Actions ▾</button>
+                        </div>
+                    </div>
+
+                    <div class="panel-tabs">
+                        <div class="tab active">Details</div>
+                        <div class="tab">Security</div>
+                        <div class="tab">Networking</div>
+                        <div class="tab">Storage</div>
+                        <div class="tab">Monitoring</div>
+                    </div>
+
+                    <div class="panel-content">
+                        <!-- Instance Details Section -->
+                        <div class="section">
+                            <div class="section-header">
+                                <h3 class="section-title">Instance Details</h3>
+                            </div>
+                            <div class="properties-grid">
+                                <div class="property-item">
+                                    <span class="property-label">Instance ID</span>
+                                    <span class="property-value copyable">
+                                        ${instance.id}
+                                        <button class="copy-btn" onclick="copyToClipboard('${instance.id}')">📋</button>
+                                    </span>
+                                </div>
+                                <div class="property-item">
+                                    <span class="property-label">Instance Type</span>
+                                    <span class="property-value">${instance.instanceType}</span>
+                                </div>
+                                <div class="property-item">
+                                    <span class="property-label">AMI ID</span>
+                                    <span class="property-value copyable">
+                                        <a href="#" class="link">${instance.ami}</a>
+                                        <button class="copy-btn" onclick="copyToClipboard('${instance.ami}')">📋</button>
+                                    </span>
+                                </div>
+                                <div class="property-item">
+                                    <span class="property-label">AMI Name</span>
+                                    <span class="property-value">${instance.amiName}</span>
+                                </div>
+                                <div class="property-item">
+                                    <span class="property-label">Platform</span>
+                                    <span class="property-value">${instance.platform}</span>
+                                </div>
+                                <div class="property-item">
+                                    <span class="property-label">Launch Time</span>
+                                    <span class="property-value">${formatDate(instance.launchTime)}</span>
+                                </div>
+                                <div class="property-item">
+                                    <span class="property-label">Availability Zone</span>
+                                    <span class="property-value">${instance.availabilityZone}</span>
+                                </div>
+                                <div class="property-item">
+                                    <span class="property-label">Key Pair</span>
+                                    <span class="property-value"><a href="#" class="link">${instance.keyPair}</a></span>
+                                </div>
+                                <div class="property-item">
+                                    <span class="property-label">IAM Role</span>
+                                    <span class="property-value"><a href="#" class="link">${instance.iamRole}</a></span>
+                                </div>
+                                <div class="property-item">
+                                    <span class="property-label">Monitoring</span>
+                                    <span class="property-value">${instance.monitoring}</span>
+                                </div>
+                                <div class="property-item">
+                                    <span class="property-label">EBS Optimized</span>
+                                    <span class="property-value">${instance.ebsOptimized ? 'Yes' : 'No'}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Network & IP Addresses Section -->
+                        <div class="section">
+                            <div class="section-header">
+                                <h3 class="section-title">Network & IP Addresses</h3>
+                            </div>
+                            <div class="properties-grid">
+                                <div class="property-item">
+                                    <span class="property-label">VPC ID</span>
+                                    <span class="property-value"><a href="#" class="link">${instance.vpcId}</a></span>
+                                </div>
+                                <div class="property-item">
+                                    <span class="property-label">Subnet ID</span>
+                                    <span class="property-value"><a href="#" class="link">${instance.subnetId}</a></span>
+                                </div>
+                                <div class="property-item">
+                                    <span class="property-label">Private IPv4 Address</span>
+                                    <span class="property-value copyable">
+                                        ${instance.privateIp}
+                                        <button class="copy-btn" onclick="copyToClipboard('${instance.privateIp}')">📋</button>
+                                    </span>
+                                </div>
+                                <div class="property-item">
+                                    <span class="property-label">Public IPv4 Address</span>
+                                    <span class="property-value copyable">
+                                        ${instance.publicIp || '—'}
+                                        ${instance.publicIp ? `<button class="copy-btn" onclick="copyToClipboard('${instance.publicIp}')">📋</button>` : ''}
+                                    </span>
+                                </div>
+                                <div class="property-item full-width">
+                                    <span class="property-label">Private DNS Name</span>
+                                    <span class="property-value copyable">
+                                        ${instance.privateDns}
+                                        <button class="copy-btn" onclick="copyToClipboard('${instance.privateDns}')">📋</button>
+                                    </span>
+                                </div>
+                                <div class="property-item full-width">
+                                    <span class="property-label">Public DNS Name</span>
+                                    <span class="property-value copyable">
+                                        ${instance.publicDns || '—'}
+                                        ${instance.publicDns ? `<button class="copy-btn" onclick="copyToClipboard('${instance.publicDns}')">📋</button>` : ''}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <h4 style="font-size: 13px; font-weight: 600; color: #4a5568; margin: 20px 0 12px 0;">Network Interfaces</h4>
+                            ${instance.networkInterfaces.map(nic => `
+                                <div class="network-card">
+                                    <div class="network-card-header">
+                                        <span class="network-card-title">${nic.id}</span>
+                                        <span class="network-card-badge">${nic.status}</span>
+                                    </div>
+                                    <div class="properties-grid">
+                                        <div class="property-item">
+                                            <span class="property-label">Private IP</span>
+                                            <span class="property-value">${nic.privateIp}</span>
+                                        </div>
+                                        <div class="property-item">
+                                            <span class="property-label">Public IP</span>
+                                            <span class="property-value">${nic.publicIp || '—'}</span>
+                                        </div>
+                                        <div class="property-item">
+                                            <span class="property-label">MAC Address</span>
+                                            <span class="property-value">${nic.macAddress}</span>
+                                        </div>
+                                        <div class="property-item">
+                                            <span class="property-label">Description</span>
+                                            <span class="property-value">${nic.description}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <!-- Security Groups Section -->
+                        <div class="section">
+                            <div class="section-header">
+                                <h3 class="section-title">Security Groups</h3>
+                            </div>
+                            <div class="table-container">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Security Group ID</th>
+                                            <th>Name</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${instance.securityGroups.map(sg => `
+                                            <tr>
+                                                <td><a href="#" class="link">${sg.id}</a></td>
+                                                <td>${sg.name}</td>
+                                                <td>${sg.description}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Tags Section -->
+                        <div class="section">
+                            <div class="section-header">
+                                <h3 class="section-title">Tags</h3>
+                            </div>
+                            <div class="tags-container">
+                                ${instance.tags.map(tag => `
+                                    <div class="tag">
+                                        <span class="tag-key">${tag.key}</span>
+                                        <span class="tag-value">${tag.value}</span>
+                                    </div>
+                                `).join('')}
+                                <button class="add-tag-btn">+ Add Tag</button>
+                            </div>
+                        </div>
+
+                        <!-- Storage Section -->
+                        <div class="section">
+                            <div class="section-header">
+                                <h3 class="section-title">Block Devices</h3>
+                            </div>
+                            <div class="table-container">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Volume ID</th>
+                                            <th>Device</th>
+                                            <th>Size</th>
+                                            <th>Type</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${instance.volumes.map(vol => `
+                                            <tr>
+                                                <td><a href="#" class="link">${vol.id}</a></td>
+                                                <td>${vol.device}</td>
+                                                <td>${vol.size}</td>
+                                                <td>${vol.type}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('contentArea').innerHTML = content;
+        }
+
+        // Render empty state
+        function renderEmptyState(type) {
+            const messages = {
+                'folder': { icon: '📁', text: 'Select a resource', subtext: 'Choose a resource from the tree to view its details' },
+                'ec2-instance': { icon: '🖥️', text: 'Instance not found', subtext: 'The selected instance could not be loaded' },
+                'default': { icon: '☁️', text: 'Select a resource', subtext: 'Choose a resource from the tree to view its details' }
+            };
+
+            const msg = messages[type] || messages['default'];
+
+            const content = `
+                <div class="properties-panel">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">${msg.icon}</div>
+                        <div class="empty-state-text">${msg.text}</div>
+                        <div class="empty-state-subtext">${msg.subtext}</div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('contentArea').innerHTML = content;
+        }
+
+        // Copy to clipboard helper
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Could add a toast notification here
+                console.log('Copied to clipboard:', text);
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTreeView();
+            // Select the first EC2 instance by default
+            selectedResourceId = 'i-0abc123def456789a';
+            renderEC2InstanceDetails('i-0abc123def456789a');
+            // Mark it as selected in the tree
+            setTimeout(() => {
+                const item = document.querySelector('[data-id="i-0abc123def456789a"] .tree-item-content');
+                if (item) item.classList.add('selected');
+            }, 0);
+        });
     </script>
 </body>
 </html>
