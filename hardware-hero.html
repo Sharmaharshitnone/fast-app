@@ -609,15 +609,20 @@
 
     <script>
         function handleCTA() {
+            const button = document.querySelector('.switch-toggle');
             const indicator = document.querySelector('.switch-indicator');
             const label = document.querySelector('.switch-label');
             
-            // Toggle active state
-            if (indicator.style.background === 'rgb(0, 255, 0)') {
+            // Toggle active state using data attribute
+            const isActive = button.dataset.active === 'true';
+            
+            if (isActive) {
+                button.dataset.active = 'false';
                 indicator.style.background = '#333';
                 indicator.style.boxShadow = 'inset 0 1px 2px rgba(0, 0, 0, 0.5)';
                 label.textContent = 'Initialize System';
             } else {
+                button.dataset.active = 'true';
                 indicator.style.background = '#00ff00';
                 indicator.style.boxShadow = 'inset 0 1px 2px rgba(0, 0, 0, 0.3), 0 0 15px rgba(0, 255, 0, 0.7)';
                 label.textContent = 'System Active';
