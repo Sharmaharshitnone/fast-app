@@ -1,13 +1,542 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Infrastructure</title>
+    <style>
+        :root {
+            --globe-rotation-duration: 30s;
+            --globe-size: 400px;
+            --globe-wrapper-size: 500px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, #0a0a1a 0%, #0d1b2a 50%, #1a1a2e 100%);
+            overflow: hidden;
+        }
+
+        /* Starry Background */
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* Hero Content Layout */
+        .hero-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 60px;
+            z-index: 10;
+        }
+
+        /* Left Side - Text Content */
+        .hero-text {
+            flex: 1;
+            max-width: 600px;
+        }
+
+        .hero-text h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-text h1 span {
+            display: block;
+            background: linear-gradient(90deg, #00d4ff, #7c3aed, #00d4ff);
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient-shift 4s ease infinite;
+        }
+
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .hero-text p {
+            font-size: 1.25rem;
+            color: #a0aec0;
+            line-height: 1.7;
+            margin-bottom: 32px;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 16px;
+        }
+
+        .btn-primary {
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-secondary {
+            padding: 16px 32px;
+            background: transparent;
+            color: #ffffff;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            border-color: #00d4ff;
+            color: #00d4ff;
+        }
+
+        /* Right Side - Globe Container */
+        .globe-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* 3D Globe */
+        .globe-wrapper {
+            position: relative;
+            width: var(--globe-wrapper-size);
+            height: var(--globe-wrapper-size);
+            perspective: 1000px;
+        }
+
+        .globe {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: var(--globe-size);
+            height: var(--globe-size);
+            border-radius: 50%;
+            animation: rotate-globe var(--globe-rotation-duration) linear infinite;
+            transform-style: preserve-3d;
+        }
+
+        @keyframes rotate-globe {
+            from { transform: translate(-50%, -50%) rotateY(0deg); }
+            to { transform: translate(-50%, -50%) rotateY(360deg); }
+        }
+
+        /* Wireframe Lines */
+        .wireframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        /* Latitude Lines */
+        .latitude {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 50%;
+        }
+
+        .latitude-1 { width: 400px; height: 400px; top: 0; }
+        .latitude-2 { width: 380px; height: 300px; top: 50px; }
+        .latitude-3 { width: 340px; height: 200px; top: 100px; }
+        .latitude-4 { width: 280px; height: 100px; top: 150px; }
+        .latitude-5 { width: 380px; height: 300px; bottom: 50px; top: auto; }
+        .latitude-6 { width: 340px; height: 200px; bottom: 100px; top: auto; }
+        .latitude-7 { width: 280px; height: 100px; bottom: 150px; top: auto; }
+
+        /* Longitude Lines */
+        .longitude {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 400px;
+            height: 400px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 50%;
+            transform-origin: center;
+        }
+
+        .longitude-1 { transform: translate(-50%, -50%) rotateY(0deg); }
+        .longitude-2 { transform: translate(-50%, -50%) rotateY(30deg); }
+        .longitude-3 { transform: translate(-50%, -50%) rotateY(60deg); }
+        .longitude-4 { transform: translate(-50%, -50%) rotateY(90deg); }
+        .longitude-5 { transform: translate(-50%, -50%) rotateY(120deg); }
+        .longitude-6 { transform: translate(-50%, -50%) rotateY(150deg); }
+
+        /* Globe Glow Effect */
+        .globe-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 420px;
+            height: 420px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* Server Location Dots */
+        .server-dots {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            animation: rotate-globe var(--globe-rotation-duration) linear infinite;
+            transform-style: preserve-3d;
+        }
+
+        .server-dot {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #00d4ff;
+            box-shadow: 
+                0 0 10px #00d4ff,
+                0 0 20px #00d4ff,
+                0 0 30px #00d4ff,
+                0 0 40px rgba(0, 212, 255, 0.5);
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        .server-dot::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid rgba(0, 212, 255, 0.5);
+            animation: ripple 2s ease-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.2); }
+        }
+
+        @keyframes ripple {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+        }
+
+        /* Server Dot Positions (representing global locations) */
+        .dot-us-west { top: 35%; left: 15%; animation-delay: 0s; }
+        .dot-us-east { top: 38%; left: 28%; animation-delay: 0.3s; }
+        .dot-eu-west { top: 30%; left: 45%; animation-delay: 0.6s; }
+        .dot-eu-central { top: 32%; left: 52%; animation-delay: 0.9s; }
+        .dot-asia-east { top: 40%; left: 78%; animation-delay: 1.2s; }
+        .dot-asia-southeast { top: 55%; left: 72%; animation-delay: 1.5s; }
+        .dot-australia { top: 72%; left: 82%; animation-delay: 1.8s; }
+        .dot-south-america { top: 65%; left: 30%; animation-delay: 2.1s; }
+
+        /* Stats Bar */
+        .stats-bar {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 60px;
+            z-index: 10;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00d4ff;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #a0aec0;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            :root {
+                --globe-size: 280px;
+                --globe-wrapper-size: 350px;
+            }
+
+            .hero-content {
+                flex-direction: column;
+                text-align: center;
+                padding: 40px 20px;
+            }
+
+            .hero-text {
+                margin-bottom: 40px;
+            }
+
+            .hero-text h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-cta {
+                justify-content: center;
+            }
+
+            .stats-bar {
+                flex-wrap: wrap;
+                gap: 30px;
+            }
+
+            /* Scale down wireframe for mobile */
+            .latitude-1 { width: 280px; height: 280px; }
+            .latitude-2 { width: 266px; height: 210px; top: 35px; }
+            .latitude-3 { width: 238px; height: 140px; top: 70px; }
+            .latitude-4 { width: 196px; height: 70px; top: 105px; }
+            .latitude-5 { width: 266px; height: 210px; bottom: 35px; }
+            .latitude-6 { width: 238px; height: 140px; bottom: 70px; }
+            .latitude-7 { width: 196px; height: 70px; bottom: 105px; }
+
+            .longitude {
+                width: 280px;
+                height: 280px;
+            }
+
+            .globe-glow {
+                width: 294px;
+                height: 294px;
+            }
+        }
+
+        /* Chat Section (existing functionality) */
+        .chat-section {
+            padding: 60px 20px;
+            background: #f8fafc;
+            text-align: center;
+        }
+
+        .chat-section h2 {
+            margin-bottom: 20px;
+            color: #1a1a2e;
+        }
+
+        #messages {
+            max-width: 600px;
+            margin: 0 auto 20px;
+            height: 200px;
+            overflow-y: scroll;
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            text-align: left;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .chat-input button {
+            padding: 12px 24px;
+            background: #1a1a2e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
 <body>
-    <h2>WebSocket Chat</h2>
-    <div id="messages" style="height: 200px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;"></div>
-    <input type="text" id="msgBox" placeholder="Type a message..." />
-    <button onclick="sendMessage()">Send</button>
+    <!-- Hero Section -->
+    <section class="hero">
+        <!-- Starry Background -->
+        <div class="stars" id="stars"></div>
+
+        <!-- Hero Content -->
+        <div class="hero-content">
+            <!-- Left Side - Text -->
+            <div class="hero-text">
+                <h1>
+                    <span>Global</span>
+                    Infrastructure
+                </h1>
+                <p>Deploy your applications across our worldwide network of data centers. Experience unmatched reliability, performance, and scale with enterprise-grade cloud infrastructure.</p>
+                <div class="hero-cta">
+                    <button class="btn-primary">Get Started</button>
+                    <button class="btn-secondary">View Regions</button>
+                </div>
+            </div>
+
+            <!-- Right Side - 3D Globe -->
+            <div class="globe-container">
+                <div class="globe-wrapper">
+                    <div class="globe-glow"></div>
+                    <div class="globe">
+                        <!-- Wireframe -->
+                        <div class="wireframe">
+                            <!-- Latitude Lines -->
+                            <div class="latitude latitude-1"></div>
+                            <div class="latitude latitude-2"></div>
+                            <div class="latitude latitude-3"></div>
+                            <div class="latitude latitude-4"></div>
+                            <div class="latitude latitude-5"></div>
+                            <div class="latitude latitude-6"></div>
+                            <div class="latitude latitude-7"></div>
+                            <!-- Longitude Lines -->
+                            <div class="longitude longitude-1"></div>
+                            <div class="longitude longitude-2"></div>
+                            <div class="longitude longitude-3"></div>
+                            <div class="longitude longitude-4"></div>
+                            <div class="longitude longitude-5"></div>
+                            <div class="longitude longitude-6"></div>
+                        </div>
+                    </div>
+                    <!-- Server Location Dots -->
+                    <div class="server-dots">
+                        <div class="server-dot dot-us-west" title="US West"></div>
+                        <div class="server-dot dot-us-east" title="US East"></div>
+                        <div class="server-dot dot-eu-west" title="EU West"></div>
+                        <div class="server-dot dot-eu-central" title="EU Central"></div>
+                        <div class="server-dot dot-asia-east" title="Asia East"></div>
+                        <div class="server-dot dot-asia-southeast" title="Asia Southeast"></div>
+                        <div class="server-dot dot-australia" title="Australia"></div>
+                        <div class="server-dot dot-south-america" title="South America"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-number">99.99%</span>
+                <span class="stat-label">Uptime SLA</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">25+</span>
+                <span class="stat-label">Regions</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">80+</span>
+                <span class="stat-label">Availability Zones</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">&lt;50ms</span>
+                <span class="stat-label">Global Latency</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chat Section (existing functionality) -->
+    <section class="chat-section">
+        <h2>WebSocket Chat</h2>
+        <div id="messages"></div>
+        <div class="chat-input">
+            <input type="text" id="msgBox" placeholder="Type a message..." />
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </section>
 
     <script>
-        // Connect to the WebSocket (Automatic wss:// detection)
+        // Generate Starry Background
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const numberOfStars = 200;
+
+            for (let i = 0; i < numberOfStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = Math.random() * 3 + 1 + 'px';
+                star.style.height = star.style.width;
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        createStars();
+
+        // WebSocket Chat Functionality
         const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
         const ws = new WebSocket(`${protocol}://${window.location.host}`);
 
