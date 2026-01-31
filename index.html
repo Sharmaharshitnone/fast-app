@@ -1,13 +1,614 @@
 <!DOCTYPE html>
-<html>
-<body>
-    <h2>WebSocket Chat</h2>
-    <div id="messages" style="height: 200px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;"></div>
-    <input type="text" id="msgBox" placeholder="Type a message..." />
-    <button onclick="sendMessage()">Send</button>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Infrastructure</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #0d1b2a 50%, #1b263b 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Starry night background */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 40px 80px;
+            z-index: 1;
+        }
+
+        .hero-content {
+            flex: 1;
+            max-width: 600px;
+            z-index: 2;
+        }
+
+        .hero-headline {
+            font-size: 4rem;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            text-shadow: 0 0 40px rgba(59, 130, 246, 0.5);
+        }
+
+        .hero-headline span {
+            display: block;
+            background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 50%, #22d3ee 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subheadline {
+            font-size: 1.25rem;
+            color: #94a3b8;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            max-width: 480px;
+        }
+
+        .hero-cta {
+            display: inline-flex;
+            gap: 16px;
+        }
+
+        .btn-primary {
+            padding: 16px 32px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #ffffff;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            padding: 16px 32px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #94a3b8;
+            background: transparent;
+            border: 2px solid #334155;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-secondary:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        /* Globe Container */
+        .globe-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 600px;
+            position: relative;
+        }
+
+        /* CSS 3D Wireframe Globe */
+        .globe-wrapper {
+            width: 400px;
+            height: 400px;
+            perspective: 1000px;
+            position: relative;
+        }
+
+        .globe {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotateY(0deg) rotateX(-15deg); }
+            to { transform: rotateY(360deg) rotateX(-15deg); }
+        }
+
+        /* Globe wireframe circles - Latitude lines */
+        .globe-circle {
+            position: absolute;
+            border: 1.5px solid rgba(59, 130, 246, 0.4);
+            border-radius: 50%;
+            left: 50%;
+            top: 50%;
+            transform-style: preserve-3d;
+        }
+
+        /* Equator */
+        .lat-0 {
+            width: 380px;
+            height: 380px;
+            margin-left: -190px;
+            margin-top: -190px;
+            transform: rotateX(90deg);
+        }
+
+        /* Latitude lines */
+        .lat-30n {
+            width: 329px;
+            height: 329px;
+            margin-left: -164.5px;
+            margin-top: -164.5px;
+            transform: rotateX(90deg) translateZ(95px);
+        }
+
+        .lat-30s {
+            width: 329px;
+            height: 329px;
+            margin-left: -164.5px;
+            margin-top: -164.5px;
+            transform: rotateX(90deg) translateZ(-95px);
+        }
+
+        .lat-60n {
+            width: 190px;
+            height: 190px;
+            margin-left: -95px;
+            margin-top: -95px;
+            transform: rotateX(90deg) translateZ(164px);
+        }
+
+        .lat-60s {
+            width: 190px;
+            height: 190px;
+            margin-left: -95px;
+            margin-top: -95px;
+            transform: rotateX(90deg) translateZ(-164px);
+        }
+
+        /* Longitude lines */
+        .long {
+            width: 380px;
+            height: 380px;
+            margin-left: -190px;
+            margin-top: -190px;
+            border-color: rgba(6, 182, 212, 0.3);
+        }
+
+        .long-0 { transform: rotateY(0deg); }
+        .long-30 { transform: rotateY(30deg); }
+        .long-60 { transform: rotateY(60deg); }
+        .long-90 { transform: rotateY(90deg); }
+        .long-120 { transform: rotateY(120deg); }
+        .long-150 { transform: rotateY(150deg); }
+
+        /* Glowing server dots */
+        .server-dot {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #22d3ee 0%, #3b82f6 50%, transparent 70%);
+            box-shadow: 0 0 20px #22d3ee, 0 0 40px #3b82f6;
+            transform-style: preserve-3d;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .server-dot::before {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #ffffff;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                opacity: 0.8;
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 1;
+                transform: scale(1.3);
+            }
+        }
+
+        /* Position server dots around the globe */
+        .dot-us-east {
+            top: 35%;
+            left: 20%;
+            animation-delay: 0s;
+        }
+
+        .dot-us-west {
+            top: 38%;
+            left: 12%;
+            animation-delay: 0.3s;
+        }
+
+        .dot-europe {
+            top: 30%;
+            left: 52%;
+            animation-delay: 0.5s;
+        }
+
+        .dot-frankfurt {
+            top: 32%;
+            left: 55%;
+            animation-delay: 0.7s;
+        }
+
+        .dot-tokyo {
+            top: 35%;
+            left: 85%;
+            animation-delay: 1s;
+        }
+
+        .dot-singapore {
+            top: 55%;
+            left: 78%;
+            animation-delay: 1.2s;
+        }
+
+        .dot-sydney {
+            top: 72%;
+            left: 88%;
+            animation-delay: 1.4s;
+        }
+
+        .dot-mumbai {
+            top: 45%;
+            left: 70%;
+            animation-delay: 1.6s;
+        }
+
+        .dot-sao-paulo {
+            top: 65%;
+            left: 30%;
+            animation-delay: 1.8s;
+        }
+
+        .dot-stockholm {
+            top: 25%;
+            left: 55%;
+            animation-delay: 2s;
+        }
+
+        .dot-seoul {
+            top: 37%;
+            left: 82%;
+            animation-delay: 2.2s;
+        }
+
+        .dot-johannesburg {
+            top: 68%;
+            left: 58%;
+            animation-delay: 2.4s;
+        }
+
+        /* Globe glow effect */
+        .globe-glow {
+            position: absolute;
+            width: 450px;
+            height: 450px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.05) 40%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        /* Stats Section */
+        .hero-stats {
+            display: flex;
+            gap: 48px;
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .stat-item {
+            text-align: left;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #3b82f6;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .hero {
+                flex-direction: column;
+                padding: 40px 40px;
+                text-align: center;
+            }
+
+            .hero-content {
+                max-width: 100%;
+            }
+
+            .hero-subheadline {
+                max-width: 100%;
+            }
+
+            .hero-stats {
+                justify-content: center;
+            }
+
+            .globe-container {
+                height: 400px;
+                margin-top: 40px;
+            }
+
+            .globe-wrapper {
+                width: 300px;
+                height: 300px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .hero-headline {
+                font-size: 2.5rem;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 24px;
+                align-items: center;
+            }
+
+            .stat-item {
+                text-align: center;
+            }
+
+            .globe-wrapper {
+                width: 250px;
+                height: 250px;
+            }
+        }
+
+        /* Chat Section (original functionality) */
+        .chat-section {
+            position: relative;
+            z-index: 1;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 24px;
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 12px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .chat-section h2 {
+            color: #ffffff;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        #messages {
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #334155;
+            padding: 16px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            color: #e2e8f0;
+            margin-bottom: 16px;
+        }
+
+        #messages p {
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 6px;
+        }
+
+        .chat-input-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        #msgBox {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            color: #ffffff;
+            font-size: 1rem;
+        }
+
+        #msgBox::placeholder {
+            color: #64748b;
+        }
+
+        #msgBox:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .chat-section button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chat-section button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <!-- Starry Background -->
+    <div class="stars" id="stars"></div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-headline">
+                <span>Global</span>
+                Infrastructure
+            </h1>
+            <p class="hero-subheadline">
+                Deploy your applications across our worldwide network of data centers. 
+                Enterprise-grade reliability with 99.99% uptime SLA, powered by cutting-edge 
+                cloud architecture.
+            </p>
+            <div class="hero-cta">
+                <button class="btn-primary">Get Started</button>
+                <button class="btn-secondary">Learn More</button>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-number">45+</div>
+                    <div class="stat-label">Global Regions</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">99.99%</div>
+                    <div class="stat-label">Uptime SLA</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">&lt;50ms</div>
+                    <div class="stat-label">Avg Latency</div>
+                </div>
+            </div>
+        </div>
+        <div class="globe-container">
+            <div class="globe-glow"></div>
+            <div class="globe-wrapper">
+                <div class="globe">
+                    <!-- Latitude lines -->
+                    <div class="globe-circle lat-0"></div>
+                    <div class="globe-circle lat-30n"></div>
+                    <div class="globe-circle lat-30s"></div>
+                    <div class="globe-circle lat-60n"></div>
+                    <div class="globe-circle lat-60s"></div>
+                    
+                    <!-- Longitude lines -->
+                    <div class="globe-circle long long-0"></div>
+                    <div class="globe-circle long long-30"></div>
+                    <div class="globe-circle long long-60"></div>
+                    <div class="globe-circle long long-90"></div>
+                    <div class="globe-circle long long-120"></div>
+                    <div class="globe-circle long long-150"></div>
+                </div>
+                
+                <!-- Server location dots -->
+                <div class="server-dot dot-us-east" title="US East (N. Virginia)"></div>
+                <div class="server-dot dot-us-west" title="US West (Oregon)"></div>
+                <div class="server-dot dot-europe" title="Europe (London)"></div>
+                <div class="server-dot dot-frankfurt" title="EU Central (Frankfurt)"></div>
+                <div class="server-dot dot-tokyo" title="Asia Pacific (Tokyo)"></div>
+                <div class="server-dot dot-singapore" title="Asia (Singapore)"></div>
+                <div class="server-dot dot-sydney" title="Australia (Sydney)"></div>
+                <div class="server-dot dot-mumbai" title="India (Mumbai)"></div>
+                <div class="server-dot dot-sao-paulo" title="South America (São Paulo)"></div>
+                <div class="server-dot dot-stockholm" title="Nordic (Stockholm)"></div>
+                <div class="server-dot dot-seoul" title="Asia (Seoul)"></div>
+                <div class="server-dot dot-johannesburg" title="Africa (Johannesburg)"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Original Chat Section -->
+    <section class="chat-section">
+        <h2>WebSocket Chat</h2>
+        <div id="messages"></div>
+        <div class="chat-input-group">
+            <input type="text" id="msgBox" placeholder="Type a message..." />
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </section>
+    
     <script>
-        // Connect to the WebSocket (Automatic wss:// detection)
+        // Generate Starry Background
+        function generateStars() {
+            const starsContainer = document.getElementById('stars');
+            const numberOfStars = 200;
+            
+            for (let i = 0; i < numberOfStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = Math.random() * 3 + 1 + 'px';
+                star.style.height = star.style.width;
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+        generateStars();
+
+        // WebSocket Chat (original functionality)
         const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
         const ws = new WebSocket(`${protocol}://${window.location.host}`);
 
