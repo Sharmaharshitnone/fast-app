@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Button Kit - Dark Theme</title>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #0d0d0d;
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #00d4ff, #4169e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 60px;
+            font-size: 1.1rem;
+        }
+
+        /* Button Grid Layout */
+        .button-showcase {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .button-category {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 30px;
+            border: 1px solid #2a2a2a;
+        }
+
+        .category-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .state-group {
+            margin-bottom: 20px;
+        }
+
+        .state-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #666;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* Base Button Styles */
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            width: 100%;
+            outline: none;
+        }
+
+        /* Primary Button - Cyan to Blue Gradient */
+        .btn-primary {
+            background: linear-gradient(90deg, #00d4ff, #4169e1);
+            color: #000000;
+            border-radius: 4px;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #00e5ff, #5179f1);
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.4), 0 0 40px rgba(65, 105, 225, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled,
+        .btn-primary.disabled {
+            background: linear-gradient(90deg, #4a6b73, #3d4a6e);
+            color: #555555;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+            opacity: 0.6;
+        }
+
+        /* Secondary Button - Ghost Style */
+        .btn-secondary {
+            background: transparent;
+            color: #ffffff;
+            border: 1px solid #ffffff;
+            border-radius: 4px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.6), 0 0 30px rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            border-color: #ffffff;
+        }
+
+        .btn-secondary:disabled,
+        .btn-secondary.disabled {
+            background: transparent;
+            color: #555555;
+            border-color: #333333;
+            cursor: not-allowed;
+            text-shadow: none;
+            box-shadow: none;
+            opacity: 0.6;
+        }
+
+        /* Destructive Button - Crimson Red with Glow */
+        .btn-destructive {
+            background: #8b0000;
+            color: #ffffff;
+            border-radius: 4px;
+            box-shadow: 0 0 15px rgba(139, 0, 0, 0.3);
+        }
+
+        .btn-destructive:hover {
+            background: #a30000;
+            box-shadow: 0 0 20px rgba(139, 0, 0, 0.5), 0 0 40px rgba(139, 0, 0, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-destructive:disabled,
+        .btn-destructive.disabled {
+            background: #3d1a1a;
+            color: #666666;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+            opacity: 0.6;
+        }
+
+        /* Interactive Demo Section */
+        .demo-section {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 40px;
+            border: 1px solid #2a2a2a;
+            margin-top: 40px;
+        }
+
+        .demo-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .demo-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .demo-buttons .btn {
+            width: auto;
+            min-width: 160px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .button-showcase {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Specifications Table */
+        .specs-section {
+            margin-top: 60px;
+        }
+
+        .specs-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .specs-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1a1a1a;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .specs-table th,
+        .specs-table td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid #2a2a2a;
+        }
+
+        .specs-table th {
+            background: #252525;
+            font-weight: 600;
+            color: #888;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+        }
+
+        .specs-table td {
+            font-size: 0.9rem;
+        }
+
+        .specs-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .color-swatch {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .swatch-cyan { background: #00d4ff; }
+        .swatch-blue { background: #4169e1; }
+        .swatch-white { background: #ffffff; border: 1px solid #333; }
+        .swatch-crimson { background: #8b0000; }
+        .swatch-black { background: #000000; border: 1px solid #333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Interactive Button Kit</h1>
+        <p class="subtitle">High-fidelity button components for dark theme interface</p>
+
+        <!-- Button Showcase Grid -->
+        <div class="button-showcase">
+            <!-- Primary Button Category -->
+            <div class="button-category">
+                <h2 class="category-title">Primary</h2>
+                
+                <div class="state-group">
+                    <span class="state-label">Default</span>
+                    <button class="btn btn-primary">Primary Button</button>
+                </div>
+                
+                <div class="state-group">
+                    <span class="state-label">Hover</span>
+                    <button class="btn btn-primary" style="background: linear-gradient(90deg, #00e5ff, #5179f1); box-shadow: 0 4px 20px rgba(0, 212, 255, 0.4), 0 0 40px rgba(65, 105, 225, 0.3); transform: translateY(-2px);">Primary Button</button>
+                </div>
+                
+                <div class="state-group">
+                    <span class="state-label">Disabled</span>
+                    <button class="btn btn-primary disabled" disabled>Primary Button</button>
+                </div>
+            </div>
+
+            <!-- Secondary Button Category -->
+            <div class="button-category">
+                <h2 class="category-title">Secondary (Ghost)</h2>
+                
+                <div class="state-group">
+                    <span class="state-label">Default</span>
+                    <button class="btn btn-secondary">Secondary Button</button>
+                </div>
+                
+                <div class="state-group">
+                    <span class="state-label">Hover</span>
+                    <button class="btn btn-secondary" style="background: rgba(255, 255, 255, 0.05); text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.6), 0 0 30px rgba(255, 255, 255, 0.4); box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);">Secondary Button</button>
+                </div>
+                
+                <div class="state-group">
+                    <span class="state-label">Disabled</span>
+                    <button class="btn btn-secondary disabled" disabled>Secondary Button</button>
+                </div>
+            </div>
+
+            <!-- Destructive Button Category -->
+            <div class="button-category">
+                <h2 class="category-title">Destructive</h2>
+                
+                <div class="state-group">
+                    <span class="state-label">Default</span>
+                    <button class="btn btn-destructive">Delete</button>
+                </div>
+                
+                <div class="state-group">
+                    <span class="state-label">Hover</span>
+                    <button class="btn btn-destructive" style="background: #a30000; box-shadow: 0 0 20px rgba(139, 0, 0, 0.5), 0 0 40px rgba(139, 0, 0, 0.3); transform: translateY(-2px);">Delete</button>
+                </div>
+                
+                <div class="state-group">
+                    <span class="state-label">Disabled</span>
+                    <button class="btn btn-destructive disabled" disabled>Delete</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Demo -->
+        <div class="demo-section">
+            <h2 class="demo-title">Interactive Demo</h2>
+            <p style="text-align: center; color: #666; margin-bottom: 25px;">Hover over the buttons to see the interactive states</p>
+            <div class="demo-buttons">
+                <button class="btn btn-primary">Get Started</button>
+                <button class="btn btn-secondary">Learn More</button>
+                <button class="btn btn-destructive">Delete Account</button>
+            </div>
+        </div>
+
+        <!-- Design Specifications -->
+        <div class="specs-section">
+            <h2 class="specs-title">Design Specifications</h2>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Primary</th>
+                        <th>Secondary (Ghost)</th>
+                        <th>Destructive</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Background</td>
+                        <td><span class="color-swatch swatch-cyan"></span><span class="color-swatch swatch-blue"></span>Cyan → Blue Gradient</td>
+                        <td>Transparent</td>
+                        <td><span class="color-swatch swatch-crimson"></span>#8b0000 (Crimson)</td>
+                    </tr>
+                    <tr>
+                        <td>Text Color</td>
+                        <td><span class="color-swatch swatch-black"></span>#000000 (Black)</td>
+                        <td><span class="color-swatch swatch-white"></span>#ffffff (White)</td>
+                        <td><span class="color-swatch swatch-white"></span>#ffffff (White)</td>
+                    </tr>
+                    <tr>
+                        <td>Border</td>
+                        <td>None</td>
+                        <td>1px solid #ffffff</td>
+                        <td>None</td>
+                    </tr>
+                    <tr>
+                        <td>Border Radius</td>
+                        <td>4px</td>
+                        <td>4px</td>
+                        <td>4px</td>
+                    </tr>
+                    <tr>
+                        <td>Hover Effect</td>
+                        <td>Brighter gradient + glow shadow</td>
+                        <td>Text glow + subtle background</td>
+                        <td>Brighter red + intensified glow</td>
+                    </tr>
+                    <tr>
+                        <td>Disabled State</td>
+                        <td>Muted gradient, gray text</td>
+                        <td>Gray border, gray text</td>
+                        <td>Dark red, gray text</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
