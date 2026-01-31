@@ -7,6 +7,10 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({server});
 
 app.get('/', (req, res) =>{
+	res.sendFile(__dirname + '/hero.html');
+});
+
+app.get('/chat', (req, res) =>{
 	res.sendFile(__dirname + '/index.html');
 });
 

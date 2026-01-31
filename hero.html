@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Infrastructure - Enterprise Cloud Solutions</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background: #0a0a1a;
+            color: #ffffff;
+            overflow: hidden;
+            min-height: 100vh;
+        }
+
+        /* Starry background */
+        .starry-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(ellipse at bottom, #1a1a3e 0%, #0a0a1a 50%, #050510 100%);
+        }
+
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .star {
+            position: absolute;
+            background: #ffffff;
+            border-radius: 50%;
+            animation: twinkle 3s infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* Hero container */
+        .hero-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 100vh;
+            padding: 0 5%;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* Left content section */
+        .hero-content {
+            flex: 1;
+            max-width: 600px;
+            z-index: 10;
+            padding-right: 40px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(0, 150, 255, 0.15);
+            border: 1px solid rgba(0, 150, 255, 0.3);
+            color: #00a8ff;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 25px;
+        }
+
+        .hero-headline {
+            font-size: 72px;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 25px;
+            background: linear-gradient(135deg, #ffffff 0%, #a0c4ff 50%, #6eb5ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
+        }
+
+        .hero-subheadline {
+            font-size: 20px;
+            color: #8892b0;
+            line-height: 1.7;
+            margin-bottom: 40px;
+            font-weight: 400;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 50px;
+            margin-bottom: 40px;
+        }
+
+        .stat-item {
+            text-align: left;
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: 700;
+            color: #00a8ff;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0066cc 0%, #0088ff 100%);
+            color: white;
+            padding: 16px 36px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 136, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(0, 136, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #ffffff;
+            padding: 16px 36px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Globe container */
+        .globe-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 600px;
+            position: relative;
+        }
+
+        #globe-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Responsive design */
+        @media (max-width: 1200px) {
+            .hero-headline {
+                font-size: 56px;
+            }
+            
+            .hero-container {
+                flex-direction: column;
+                padding: 80px 5%;
+                text-align: center;
+            }
+
+            .hero-content {
+                padding-right: 0;
+                margin-bottom: 40px;
+            }
+
+            .hero-stats {
+                justify-content: center;
+            }
+
+            .cta-buttons {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-headline {
+                font-size: 42px;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 25px;
+            }
+
+            .stat-item {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Starry Background -->
+    <div class="starry-background">
+        <div class="stars" id="stars"></div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero-container">
+        <!-- Left Content -->
+        <div class="hero-content">
+            <span class="hero-badge">Enterprise Cloud Platform</span>
+            <h1 class="hero-headline">Global Infrastructure.</h1>
+            <p class="hero-subheadline">
+                Deploy with confidence across 50+ regions worldwide. Our enterprise-grade 
+                infrastructure delivers 99.99% uptime with sub-millisecond latency.
+            </p>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-number">50+</div>
+                    <div class="stat-label">Regions</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">99.99%</div>
+                    <div class="stat-label">Uptime SLA</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">&lt;10ms</div>
+                    <div class="stat-label">Latency</div>
+                </div>
+            </div>
+            <div class="cta-buttons">
+                <button class="btn-primary">Start Building</button>
+                <button class="btn-secondary">View Documentation</button>
+            </div>
+        </div>
+
+        <!-- Right Globe -->
+        <div class="globe-container">
+            <canvas id="globe-canvas"></canvas>
+        </div>
+    </section>
+
+    <script>
+        // Generate starry background
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const starCount = 200;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 3 + 1;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+        createStars();
+
+        // Canvas-based 3D Wireframe Globe
+        const canvas = document.getElementById('globe-canvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.querySelector('.globe-container');
+
+        // Set canvas size
+        function resizeCanvas() {
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Globe parameters
+        const globeRadius = Math.min(canvas.width, canvas.height) * 0.35;
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        let rotationY = 0;
+
+        // Server locations (lat, lon)
+        const serverLocations = [
+            { lat: 40.7128, lon: -74.0060, name: 'New York' },
+            { lat: 51.5074, lon: -0.1278, name: 'London' },
+            { lat: 35.6762, lon: 139.6503, name: 'Tokyo' },
+            { lat: -33.8688, lon: 151.2093, name: 'Sydney' },
+            { lat: 1.3521, lon: 103.8198, name: 'Singapore' },
+            { lat: 52.5200, lon: 13.4050, name: 'Berlin' },
+            { lat: 37.7749, lon: -122.4194, name: 'San Francisco' },
+            { lat: 55.7558, lon: 37.6173, name: 'Moscow' },
+            { lat: -23.5505, lon: -46.6333, name: 'São Paulo' },
+            { lat: 25.2048, lon: 55.2708, name: 'Dubai' },
+            { lat: 22.3193, lon: 114.1694, name: 'Hong Kong' },
+            { lat: 48.8566, lon: 2.3522, name: 'Paris' },
+            { lat: 43.6532, lon: -79.3832, name: 'Toronto' },
+            { lat: 19.4326, lon: -99.1332, name: 'Mexico City' },
+            { lat: -26.2041, lon: 28.0473, name: 'Johannesburg' },
+            { lat: 28.6139, lon: 77.2090, name: 'New Delhi' },
+            { lat: 31.2304, lon: 121.4737, name: 'Shanghai' },
+            { lat: 59.9139, lon: 10.7522, name: 'Oslo' }
+        ];
+
+        // Convert lat/lon to 3D coordinates with rotation
+        function latLonTo3D(lat, lon, radius, rotY) {
+            const phi = (90 - lat) * (Math.PI / 180);
+            const theta = (lon + 180 + rotY) * (Math.PI / 180);
+            
+            const x = radius * Math.sin(phi) * Math.cos(theta);
+            const y = radius * Math.cos(phi);
+            const z = radius * Math.sin(phi) * Math.sin(theta);
+            
+            return { x, y, z };
+        }
+
+        // Project 3D to 2D with perspective
+        function project3D(x, y, z) {
+            const fov = 500;
+            const scale = fov / (fov + z);
+            return {
+                x: centerX + x * scale,
+                y: centerY - y * scale,
+                scale: scale,
+                z: z
+            };
+        }
+
+        // Draw wireframe globe
+        function drawGlobe() {
+            const currentCenterX = canvas.width / 2;
+            const currentCenterY = canvas.height / 2;
+            const currentRadius = Math.min(canvas.width, canvas.height) * 0.35;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw latitude lines
+            const latLines = 8;
+            for (let i = 0; i <= latLines; i++) {
+                const lat = -90 + (180 / latLines) * i;
+                ctx.beginPath();
+                
+                for (let lon = 0; lon <= 360; lon += 5) {
+                    const pos = latLonTo3D(lat, lon, currentRadius, rotationY);
+                    const proj = project3D(pos.x, pos.y, pos.z);
+                    
+                    if (lon === 0) {
+                        ctx.moveTo(proj.x, proj.y);
+                    } else {
+                        ctx.lineTo(proj.x, proj.y);
+                    }
+                }
+                
+                ctx.strokeStyle = 'rgba(26, 117, 255, 0.3)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+
+            // Draw longitude lines
+            const lonLines = 12;
+            for (let i = 0; i < lonLines; i++) {
+                const lon = (360 / lonLines) * i;
+                ctx.beginPath();
+                
+                for (let lat = -90; lat <= 90; lat += 5) {
+                    const pos = latLonTo3D(lat, lon, currentRadius, rotationY);
+                    const proj = project3D(pos.x, pos.y, pos.z);
+                    
+                    if (lat === -90) {
+                        ctx.moveTo(proj.x, proj.y);
+                    } else {
+                        ctx.lineTo(proj.x, proj.y);
+                    }
+                }
+                
+                ctx.strokeStyle = 'rgba(26, 117, 255, 0.3)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+
+            // Draw outer glow ring
+            ctx.beginPath();
+            ctx.arc(currentCenterX, currentCenterY, currentRadius * 1.05, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(0, 168, 255, 0.4)';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Draw server location dots with glow
+            const time = Date.now() * 0.001;
+            
+            // Sort by z-depth for proper rendering
+            const dots = serverLocations.map((loc, index) => {
+                const pos = latLonTo3D(loc.lat, loc.lon, currentRadius, rotationY);
+                const proj = project3D(pos.x, pos.y, pos.z);
+                return { ...loc, proj, index, z: pos.z };
+            }).sort((a, b) => a.z - b.z);
+
+            dots.forEach((dot) => {
+                const { proj, index } = dot;
+                const isVisible = dot.z > -currentRadius * 0.5;
+                const opacity = isVisible ? Math.max(0.3, (dot.z + currentRadius) / (2 * currentRadius)) : 0.15;
+                
+                // Pulsing effect
+                const pulse = Math.sin(time * 2 + index * 0.5) * 0.5 + 0.5;
+                const glowSize = (8 + pulse * 6) * proj.scale;
+                
+                // Outer glow
+                const gradient = ctx.createRadialGradient(
+                    proj.x, proj.y, 0,
+                    proj.x, proj.y, glowSize
+                );
+                gradient.addColorStop(0, `rgba(0, 255, 136, ${opacity * 0.8})`);
+                gradient.addColorStop(0.5, `rgba(0, 255, 136, ${opacity * 0.3})`);
+                gradient.addColorStop(1, 'rgba(0, 255, 136, 0)');
+                
+                ctx.beginPath();
+                ctx.arc(proj.x, proj.y, glowSize, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+                
+                // Core dot
+                ctx.beginPath();
+                ctx.arc(proj.x, proj.y, 4 * proj.scale, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0, 255, 136, ${opacity})`;
+                ctx.fill();
+                
+                // Bright center
+                ctx.beginPath();
+                ctx.arc(proj.x, proj.y, 2 * proj.scale, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${opacity * 0.8})`;
+                ctx.fill();
+            });
+        }
+
+        // Animation loop
+        function animate() {
+            rotationY += 0.3;
+            drawGlobe();
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // Handle resize
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+        });
+    </script>
+</body>
+</html>
