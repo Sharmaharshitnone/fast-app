@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Activity - Hacker Terminal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0a0a0a;
+            font-family: 'Courier New', Courier, monospace;
+            color: #00ff00;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
+            letter-spacing: 3px;
+        }
+
+        .header p {
+            color: #00cc00;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        /* Bento Grid Layout */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: auto auto;
+            gap: 20px;
+        }
+
+        .bento-card {
+            background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bento-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ff00, transparent);
+            opacity: 0.5;
+        }
+
+        .bento-card:hover {
+            border-color: #00ff00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-size: 1rem;
+            color: #58a6ff;
+            text-shadow: 0 0 5px rgba(88, 166, 255, 0.5);
+        }
+
+        .card-title .icon {
+            font-size: 1.2rem;
+        }
+
+        /* Latest Commit Card */
+        .latest-commit {
+            grid-column: 1;
+            grid-row: 1;
+        }
+
+        .commit-info {
+            margin-bottom: 15px;
+        }
+
+        .commit-hash {
+            color: #f0883e;
+            font-size: 0.85rem;
+            background: rgba(240, 136, 62, 0.1);
+            padding: 3px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .commit-message {
+            color: #c9d1d9;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .commit-author {
+            color: #8b949e;
+            font-size: 0.8rem;
+        }
+
+        .code-snippet {
+            background: #000000;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-snippet::before {
+            content: 'diff';
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            font-size: 0.7rem;
+            color: #6e7681;
+        }
+
+        .code-line {
+            display: block;
+            line-height: 1.6;
+        }
+
+        .code-line.added {
+            color: #3fb950;
+            background: rgba(63, 185, 80, 0.1);
+        }
+
+        .code-line.removed {
+            color: #f85149;
+            background: rgba(248, 81, 73, 0.1);
+        }
+
+        .code-line.neutral {
+            color: #8b949e;
+        }
+
+        /* Top Languages Card */
+        .top-languages {
+            grid-column: 2;
+            grid-row: 1;
+        }
+
+        .languages-container {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .pie-chart {
+            width: 150px;
+            height: 150px;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .pie-chart svg {
+            transform: rotate(-90deg);
+            filter: drop-shadow(0 0 10px rgba(0, 255, 0, 0.3));
+        }
+
+        .pie-chart .center-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70px;
+            height: 70px;
+            background: #0d1117;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .pie-chart .total-repos {
+            color: #00ff00;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        .pie-chart .repos-label {
+            color: #8b949e;
+            font-size: 0.7rem;
+        }
+
+        .languages-list {
+            flex: 1;
+        }
+
+        .language-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .language-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        .language-name {
+            color: #c9d1d9;
+            flex: 1;
+            font-size: 0.85rem;
+        }
+
+        .language-percentage {
+            color: #8b949e;
+            font-size: 0.85rem;
+        }
+
+        /* Contribution Graph Card */
+        .contribution-graph {
+            grid-column: 1 / -1;
+            grid-row: 2;
+        }
+
+        .graph-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .contribution-count {
+            color: #8b949e;
+            font-size: 0.85rem;
+        }
+
+        .contribution-count span {
+            color: #00ff00;
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+        }
+
+        .graph-container {
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+
+        .graph-wrapper {
+            display: flex;
+            gap: 3px;
+        }
+
+        .graph-week {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .graph-day {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            background: #161b22;
+            border: 1px solid #1b1f23;
+            transition: all 0.2s ease;
+        }
+
+        .graph-day:hover {
+            transform: scale(1.3);
+            border-color: #00ff00;
+        }
+
+        /* Contribution levels with neon glow */
+        .graph-day.level-0 {
+            background: #161b22;
+        }
+
+        .graph-day.level-1 {
+            background: #0e4429;
+            box-shadow: 0 0 3px rgba(14, 68, 41, 0.8);
+        }
+
+        .graph-day.level-2 {
+            background: #006d32;
+            box-shadow: 0 0 5px rgba(0, 109, 50, 0.8);
+        }
+
+        .graph-day.level-3 {
+            background: #26a641;
+            box-shadow: 0 0 8px rgba(38, 166, 65, 0.8);
+        }
+
+        .graph-day.level-4 {
+            background: #39d353;
+            box-shadow: 0 0 12px rgba(57, 211, 83, 0.9), 0 0 20px rgba(57, 211, 83, 0.5);
+        }
+
+        .graph-legend {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 5px;
+            margin-top: 15px;
+            font-size: 0.75rem;
+            color: #8b949e;
+        }
+
+        .legend-item {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        .months-labels {
+            display: flex;
+            gap: 3px;
+            margin-bottom: 5px;
+            padding-left: 0;
+        }
+
+        .month-label {
+            color: #8b949e;
+            font-size: 0.7rem;
+            min-width: calc(12px * 4 + 3px * 4);
+        }
+
+        /* Day labels */
+        .graph-with-labels {
+            display: flex;
+            gap: 5px;
+        }
+
+        .day-labels {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            padding-top: 0;
+        }
+
+        .day-label {
+            height: 12px;
+            font-size: 0.65rem;
+            color: #8b949e;
+            display: flex;
+            align-items: center;
+        }
+
+        .day-label:nth-child(even) {
+            visibility: hidden;
+        }
+
+        /* Terminal cursor blink animation */
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 18px;
+            background: #00ff00;
+            animation: blink 1s infinite;
+            vertical-align: middle;
+            margin-left: 5px;
+        }
+
+        /* Scanline effect */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.1),
+                rgba(0, 0, 0, 0.1) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            z-index: 1000;
+            opacity: 0.3;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .bento-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .latest-commit,
+            .top-languages,
+            .contribution-graph {
+                grid-column: 1;
+            }
+
+            .top-languages {
+                grid-row: 2;
+            }
+
+            .contribution-graph {
+                grid-row: 3;
+            }
+
+            .languages-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scanlines"></div>
+    
+    <div class="container">
+        <header class="header">
+            <h1>&gt;_ GitHub Activity<span class="cursor"></span></h1>
+            <p>[ SYSTEM STATUS: ACTIVE | DEVELOPER MODE: ENABLED ]</p>
+        </header>
+
+        <div class="bento-grid">
+            <!-- Latest Commit Card -->
+            <div class="bento-card latest-commit">
+                <div class="card-title">
+                    <span class="icon">⚡</span>
+                    Latest Commit
+                </div>
+                <div class="commit-info">
+                    <span class="commit-hash">a3f7c2d</span>
+                    <div class="commit-message">feat: Add GitHub Activity bento grid component</div>
+                    <div class="commit-author">@developer • 2 hours ago</div>
+                </div>
+                <div class="code-snippet">
+                    <span class="code-line neutral">  const BentoGrid = () => {</span>
+                    <span class="code-line added">+   const [data, setData] = useState([]);</span>
+                    <span class="code-line added">+   const [loading, setLoading] = useState(true);</span>
+                    <span class="code-line removed">-   const data = [];</span>
+                    <span class="code-line neutral">    return &lt;Grid data={data} /&gt;;</span>
+                    <span class="code-line neutral">  };</span>
+                </div>
+            </div>
+
+            <!-- Top Languages Card -->
+            <div class="bento-card top-languages">
+                <div class="card-title">
+                    <span class="icon">📊</span>
+                    Top Languages
+                </div>
+                <div class="languages-container">
+                    <div class="pie-chart">
+                        <svg width="150" height="150" viewBox="0 0 150 150">
+                            <!-- JavaScript - 40% (144deg) -->
+                            <circle cx="75" cy="75" r="60" fill="none" stroke="#f1e05a" stroke-width="30"
+                                stroke-dasharray="150.8 226.2" stroke-dashoffset="0"/>
+                            <!-- TypeScript - 25% (90deg) -->
+                            <circle cx="75" cy="75" r="60" fill="none" stroke="#3178c6" stroke-width="30"
+                                stroke-dasharray="94.25 282.75" stroke-dashoffset="-150.8"/>
+                            <!-- Python - 20% (72deg) -->
+                            <circle cx="75" cy="75" r="60" fill="none" stroke="#3572A5" stroke-width="30"
+                                stroke-dasharray="75.4 301.6" stroke-dashoffset="-245.05"/>
+                            <!-- Rust - 10% (36deg) -->
+                            <circle cx="75" cy="75" r="60" fill="none" stroke="#dea584" stroke-width="30"
+                                stroke-dasharray="37.7 339.3" stroke-dashoffset="-320.45"/>
+                            <!-- Other - 5% (18deg) -->
+                            <circle cx="75" cy="75" r="60" fill="none" stroke="#8b949e" stroke-width="30"
+                                stroke-dasharray="18.85 358.15" stroke-dashoffset="-358.15"/>
+                        </svg>
+                        <div class="center-circle">
+                            <span class="total-repos">42</span>
+                            <span class="repos-label">repos</span>
+                        </div>
+                    </div>
+                    <div class="languages-list">
+                        <div class="language-item">
+                            <div class="language-color" style="background: #f1e05a; color: #f1e05a;"></div>
+                            <span class="language-name">JavaScript</span>
+                            <span class="language-percentage">40%</span>
+                        </div>
+                        <div class="language-item">
+                            <div class="language-color" style="background: #3178c6; color: #3178c6;"></div>
+                            <span class="language-name">TypeScript</span>
+                            <span class="language-percentage">25%</span>
+                        </div>
+                        <div class="language-item">
+                            <div class="language-color" style="background: #3572A5; color: #3572A5;"></div>
+                            <span class="language-name">Python</span>
+                            <span class="language-percentage">20%</span>
+                        </div>
+                        <div class="language-item">
+                            <div class="language-color" style="background: #dea584; color: #dea584;"></div>
+                            <span class="language-name">Rust</span>
+                            <span class="language-percentage">10%</span>
+                        </div>
+                        <div class="language-item">
+                            <div class="language-color" style="background: #8b949e; color: #8b949e;"></div>
+                            <span class="language-name">Other</span>
+                            <span class="language-percentage">5%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contribution Graph Card -->
+            <div class="bento-card contribution-graph">
+                <div class="graph-header">
+                    <div class="card-title">
+                        <span class="icon">🔥</span>
+                        Contribution Graph
+                    </div>
+                    <div class="contribution-count">
+                        <span>1,337</span> contributions in the last year
+                    </div>
+                </div>
+                
+                <div class="months-labels" id="monthsLabels"></div>
+                
+                <div class="graph-with-labels">
+                    <div class="day-labels">
+                        <span class="day-label">Sun</span>
+                        <span class="day-label">Mon</span>
+                        <span class="day-label">Tue</span>
+                        <span class="day-label">Wed</span>
+                        <span class="day-label">Thu</span>
+                        <span class="day-label">Fri</span>
+                        <span class="day-label">Sat</span>
+                    </div>
+                    <div class="graph-container">
+                        <div class="graph-wrapper" id="contributionGraph"></div>
+                    </div>
+                </div>
+
+                <div class="graph-legend">
+                    <span>Less</span>
+                    <div class="legend-item graph-day level-0"></div>
+                    <div class="legend-item graph-day level-1"></div>
+                    <div class="legend-item graph-day level-2"></div>
+                    <div class="legend-item graph-day level-3"></div>
+                    <div class="legend-item graph-day level-4"></div>
+                    <span>More</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Generate contribution graph
+        function generateContributionGraph() {
+            const graph = document.getElementById('contributionGraph');
+            const monthsLabels = document.getElementById('monthsLabels');
+            const weeks = 52;
+            const daysPerWeek = 7;
+            
+            // Generate month labels
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            let currentMonth = new Date().getMonth();
+            
+            // Create month labels (approximate positioning)
+            for (let i = 0; i < 12; i++) {
+                const monthIndex = (currentMonth - 11 + i + 12) % 12;
+                const label = document.createElement('span');
+                label.className = 'month-label';
+                label.textContent = months[monthIndex];
+                monthsLabels.appendChild(label);
+            }
+
+            // Seed for deterministic but realistic-looking data
+            function seededRandom(seed) {
+                const x = Math.sin(seed) * 10000;
+                return x - Math.floor(x);
+            }
+
+            // Generate weeks
+            for (let week = 0; week < weeks; week++) {
+                const weekDiv = document.createElement('div');
+                weekDiv.className = 'graph-week';
+
+                for (let day = 0; day < daysPerWeek; day++) {
+                    const dayDiv = document.createElement('div');
+                    dayDiv.className = 'graph-day';
+                    
+                    // Generate pseudo-random contribution level
+                    const seed = week * 7 + day + 42;
+                    const random = seededRandom(seed);
+                    
+                    // Weighted distribution for more realistic look
+                    let level;
+                    if (random < 0.3) level = 0;
+                    else if (random < 0.5) level = 1;
+                    else if (random < 0.7) level = 2;
+                    else if (random < 0.9) level = 3;
+                    else level = 4;
+                    
+                    // Add some patterns (more activity on weekdays)
+                    if (day === 0 || day === 6) {
+                        level = Math.max(0, level - 1);
+                    }
+                    
+                    dayDiv.classList.add(`level-${level}`);
+                    
+                    // Add tooltip data
+                    const contributions = level === 0 ? 0 : level * 2 + Math.floor(seededRandom(seed + 100) * 3);
+                    dayDiv.title = `${contributions} contributions`;
+                    
+                    weekDiv.appendChild(dayDiv);
+                }
+
+                graph.appendChild(weekDiv);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', generateContributionGraph);
+    </script>
+</body>
+</html>
