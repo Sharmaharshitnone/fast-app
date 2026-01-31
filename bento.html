@@ -112,6 +112,7 @@
             font-size: 12px;
             line-height: 1.6;
             overflow-x: auto;
+            white-space: pre-wrap;
         }
 
         .code-snippet .keyword {
@@ -150,6 +151,12 @@
             width: 150px;
             height: 150px;
             border-radius: 50%;
+            /* Pie chart segments mapped to language percentages:
+               JavaScript: 40% = 144deg (0-144)
+               TypeScript: 25% = 90deg (144-234)
+               Python: 15% = 54deg (234-288)
+               CSS: 10% = 36deg (288-324)
+               HTML: 10% = 36deg (324-360) */
             background: conic-gradient(
                 #00ff00 0deg 144deg,
                 #00ffff 144deg 234deg,
@@ -374,13 +381,11 @@
                 <div class="commit-message">feat: implement WebSocket real-time messaging</div>
                 <div class="commit-author">@developer • 2 hours ago</div>
             </div>
-            <div class="code-snippet">
-                <span class="comment">// WebSocket connection handler</span><br>
-                <span class="keyword">const</span> <span class="function">handleConnection</span> = (<span class="string">ws</span>) => {<br>
-                &nbsp;&nbsp;ws.<span class="function">send</span>(<span class="string">"Welcome!"</span>);<br>
-                &nbsp;&nbsp;ws.<span class="function">on</span>(<span class="string">'message'</span>, <span class="function">broadcast</span>);<br>
-                };
-            </div>
+            <div class="code-snippet"><span class="comment">// WebSocket connection handler</span>
+<span class="keyword">const</span> <span class="function">handleConnection</span> = (<span class="string">ws</span>) => {
+  ws.<span class="function">send</span>(<span class="string">"Welcome!"</span>);
+  ws.<span class="function">on</span>(<span class="string">'message'</span>, <span class="function">broadcast</span>);
+};</div>
         </div>
 
         <!-- Top Languages Card -->
@@ -439,6 +444,13 @@
 
     <script>
         // Generate contribution graph
+        // Contribution level thresholds for random generation
+        const CONTRIBUTION_THRESHOLD = 0.3;     // 30% chance of no contribution
+        const LEVEL_4_THRESHOLD = 0.9;          // Top 10% - highest activity
+        const LEVEL_3_THRESHOLD = 0.7;          // 70-90% - high activity
+        const LEVEL_2_THRESHOLD = 0.5;          // 50-70% - medium activity
+        // Below 0.5 but above 0.3 = level-1 (low activity)
+
         function generateContributionGraph() {
             const graph = document.getElementById('contributionGraph');
             const weeks = 52;
@@ -454,12 +466,12 @@
                     
                     // Random contribution level with weighted probability
                     const rand = Math.random();
-                    if (rand > 0.3) {
-                        if (rand > 0.9) {
+                    if (rand > CONTRIBUTION_THRESHOLD) {
+                        if (rand > LEVEL_4_THRESHOLD) {
                             dayDiv.classList.add('level-4');
-                        } else if (rand > 0.7) {
+                        } else if (rand > LEVEL_3_THRESHOLD) {
                             dayDiv.classList.add('level-3');
-                        } else if (rand > 0.5) {
+                        } else if (rand > LEVEL_2_THRESHOLD) {
                             dayDiv.classList.add('level-2');
                         } else {
                             dayDiv.classList.add('level-1');
