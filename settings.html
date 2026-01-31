@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings & Config</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+            line-height: 1.5;
+        }
+
+        .settings-container {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Left Column - Categories */
+        .categories-column {
+            width: 250px;
+            background: #f8f9fa;
+            border-right: 1px solid #e1e4e8;
+            padding: 20px 0;
+            flex-shrink: 0;
+        }
+
+        .categories-header {
+            padding: 10px 20px 20px;
+            font-size: 24px;
+            font-weight: 600;
+            color: #1d1d1f;
+            border-bottom: 1px solid #e1e4e8;
+            margin-bottom: 10px;
+        }
+
+        .category-list {
+            list-style: none;
+        }
+
+        .category-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background-color 0.2s, border-left 0.2s;
+            border-left: 3px solid transparent;
+            color: #6e6e73;
+            font-size: 15px;
+        }
+
+        .category-item:hover {
+            background-color: #e8e8ed;
+        }
+
+        .category-item.active {
+            background-color: #e3f2fd;
+            border-left-color: #2196f3;
+            color: #1d1d1f;
+            font-weight: 500;
+        }
+
+        .category-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Right Column - Settings Content */
+        .settings-column {
+            flex: 1;
+            padding: 30px 40px;
+            overflow-y: auto;
+        }
+
+        .settings-section {
+            display: none;
+        }
+
+        .settings-section.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1d1d1f;
+        }
+
+        .section-description {
+            color: #6e6e73;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        /* Form Groups */
+        .form-group {
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .form-group:last-child {
+            border-bottom: none;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: #1d1d1f;
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: #6e6e73;
+            margin-top: 4px;
+        }
+
+        /* Text Inputs */
+        .form-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 10px 14px;
+            font-size: 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #2196f3;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+
+        /* Toggle Switches */
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+        }
+
+        .toggle-info {
+            flex: 1;
+        }
+
+        .toggle-title {
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .toggle-description {
+            font-size: 12px;
+            color: #6e6e73;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            margin-left: 20px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: #2196f3;
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Dropdowns / Select */
+        .form-select {
+            width: 100%;
+            max-width: 400px;
+            padding: 10px 14px;
+            font-size: 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #2196f3;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+
+        /* Sliders */
+        .slider-container {
+            max-width: 400px;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .slider-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: #2196f3;
+            background: #e3f2fd;
+            padding: 2px 10px;
+            border-radius: 12px;
+        }
+
+        .form-slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #e1e4e8;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .form-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #2196f3;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(33, 150, 243, 0.4);
+            transition: transform 0.2s;
+        }
+
+        .form-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        .form-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #2196f3;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(33, 150, 243, 0.4);
+        }
+
+        /* Radio Groups */
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border: 1px solid #e1e4e8;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: border-color 0.2s, background-color 0.2s;
+            max-width: 400px;
+        }
+
+        .radio-option:hover {
+            border-color: #2196f3;
+            background-color: #f8f9fa;
+        }
+
+        .radio-option input {
+            margin-right: 12px;
+            width: 18px;
+            height: 18px;
+            accent-color: #2196f3;
+        }
+
+        .radio-option-info {
+            flex: 1;
+        }
+
+        .radio-option-title {
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .radio-option-desc {
+            font-size: 12px;
+            color: #6e6e73;
+        }
+
+        /* Checkbox Groups */
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .checkbox-option input {
+            margin-right: 10px;
+            width: 16px;
+            height: 16px;
+            accent-color: #2196f3;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e1e4e8;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: #2196f3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1976d2;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #1d1d1f;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #e8e8ed;
+        }
+
+        .btn-danger {
+            background: #ff3b30;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+
+        /* Inline Form Row */
+        .form-row {
+            display: flex;
+            gap: 16px;
+            max-width: 400px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 16px;
+        }
+
+        /* Sub-sections */
+        .settings-subsection {
+            margin-bottom: 32px;
+        }
+
+        .subsection-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e1e4e8;
+        }
+
+        /* Textarea */
+        .form-textarea {
+            width: 100%;
+            max-width: 400px;
+            padding: 10px 14px;
+            font-size: 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: #2196f3;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+
+        /* Color Picker */
+        .color-picker-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .color-picker {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #e1e4e8;
+            border-radius: 8px;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .color-value {
+            font-size: 14px;
+            color: #6e6e73;
+            font-family: monospace;
+        }
+
+        /* Badge/Tag styles */
+        .plan-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #e3f2fd;
+            color: #1976d2;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+
+        /* Back link */
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2196f3;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="settings-container">
+        <!-- Left Column: Categories -->
+        <div class="categories-column">
+            <div class="categories-header">Settings</div>
+            <ul class="category-list">
+                <li class="category-item active" data-section="general">
+                    <span class="category-icon">⚙️</span>
+                    General
+                </li>
+                <li class="category-item" data-section="account">
+                    <span class="category-icon">👤</span>
+                    Account
+                </li>
+                <li class="category-item" data-section="billing">
+                    <span class="category-icon">💳</span>
+                    Billing
+                </li>
+                <li class="category-item" data-section="notifications">
+                    <span class="category-icon">🔔</span>
+                    Notifications
+                </li>
+            </ul>
+        </div>
+
+        <!-- Right Column: Settings Content -->
+        <div class="settings-column">
+            <a href="/" class="back-link">← Back to Home</a>
+
+            <!-- General Settings Section -->
+            <div id="general" class="settings-section active">
+                <h1 class="section-title">General Settings</h1>
+                <p class="section-description">Customize your application preferences and appearance.</p>
+
+                <div class="settings-subsection">
+                    <h3 class="subsection-title">Appearance</h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Theme</label>
+                        <select class="form-select" id="theme-select">
+                            <option value="light">Light Mode</option>
+                            <option value="dark">Dark Mode</option>
+                            <option value="system">System Default</option>
+                        </select>
+                        <p class="form-help">Choose how the application appears to you.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Accent Color</label>
+                        <div class="color-picker-group">
+                            <input type="color" class="color-picker" id="accent-color" value="#2196f3">
+                            <span class="color-value" id="color-value">#2196f3</span>
+                        </div>
+                        <p class="form-help">Customize the primary accent color throughout the app.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Font Size</label>
+                        <div class="slider-container">
+                            <div class="slider-header">
+                                <span>Adjust text size</span>
+                                <span class="slider-value" id="font-size-value">16px</span>
+                            </div>
+                            <input type="range" class="form-slider" id="font-size" min="12" max="24" value="16">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Sidebar Position</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="sidebar-position" value="left" checked>
+                                <div class="radio-option-info">
+                                    <div class="radio-option-title">Left</div>
+                                    <div class="radio-option-desc">Display sidebar on the left side</div>
+                                </div>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sidebar-position" value="right">
+                                <div class="radio-option-info">
+                                    <div class="radio-option-title">Right</div>
+                                    <div class="radio-option-desc">Display sidebar on the right side</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-subsection">
+                    <h3 class="subsection-title">Behavior</h3>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <div class="toggle-title">Auto-save changes</div>
+                            <div class="toggle-description">Automatically save your work as you type</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <div class="toggle-title">Show tooltips</div>
+                            <div class="toggle-description">Display helpful hints on hover</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <div class="toggle-title">Keyboard shortcuts</div>
+                            <div class="toggle-description">Enable keyboard shortcuts for common actions</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-subsection">
+                    <h3 class="subsection-title">Language & Region</h3>
+
+                    <div class="form-group">
+                        <label class="form-label">Language</label>
+                        <select class="form-select">
+                            <option value="en">English (US)</option>
+                            <option value="en-gb">English (UK)</option>
+                            <option value="es">Español</option>
+                            <option value="fr">Français</option>
+                            <option value="de">Deutsch</option>
+                            <option value="ja">日本語</option>
+                            <option value="zh">中文</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Timezone</label>
+                        <select class="form-select">
+                            <option value="utc">UTC</option>
+                            <option value="est">Eastern Time (ET)</option>
+                            <option value="cst">Central Time (CT)</option>
+                            <option value="mst">Mountain Time (MT)</option>
+                            <option value="pst" selected>Pacific Time (PT)</option>
+                            <option value="gmt">GMT</option>
+                            <option value="cet">Central European Time</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Date Format</label>
+                        <select class="form-select">
+                            <option value="mdy">MM/DD/YYYY</option>
+                            <option value="dmy">DD/MM/YYYY</option>
+                            <option value="ymd">YYYY-MM-DD</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary">Save Changes</button>
+                    <button class="btn btn-secondary">Reset to Defaults</button>
+                </div>
+            </div>
+
+            <!-- Account Settings Section -->
+            <div id="account" class="settings-section">
+                <h1 class="section-title">Account Settings</h1>
+                <p class="section-description">Manage your account information and security preferences.</p>
+
+                <div class="settings-subsection">
+                    <h3 class="subsection-title">Profile Information</h3>
+
+                    <div class="form-group">
+                        <label class="form-label">Display Name</label>
+                        <input type="text" class="form-input" value="John Doe" placeholder="Enter your name">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-input" value="john.doe@example.com" placeholder="Enter your email">
+                        <p class="form-help">We'll never share your email with anyone else.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-input" value="johndoe" placeholder="Enter username">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Bio</label>
+                        <textarea class="form-textarea" placeholder="Tell us about yourself...">Software developer passionate about building great products.</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Website</label>
+                        <input type="url" class="form-input" placeholder="https://example.com">
+                    </div>
+                </div>
+
+                <div class="settings-subsection">
+                    <h3 class="subsection-title">Security</h3>
+
+                    <div class="form-group">
+                        <label class="form-label">Current Password</label>
+                        <input type="password" class="form-input" placeholder="Enter current password">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">New Password</label>
+                            <input type="password" class="form-input" placeholder="New password">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Confirm Password</label>
+                            <input type="password" class="form-input" placeholder="Confirm password">
+                        </div>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <div class="toggle-title">Two-Factor Authentication</div>
+                            <div class="toggle-description">Add an extra layer of security to your account</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Session Timeout</label>
+                        <select class="form-select">
+                            <option value="15">15 minutes</option>
+                            <option value="30" selected>30 minutes</option>
+                            <option value="60">1 hour</option>
+                            <option value="120">2 hours</option>
+                            <option value="never">Never</option>
+                        </select>
+                        <p class="form-help">Automatically log out after period of inactivity.</p>
+                    </div>
+                </div>
+
+                <div class="settings-subsection">
+                    <h3 class="subsection-title">Connected Accounts</h3>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <div class="toggle-title">Google</div>
+                            <div class="toggle-description">Connect your Google account for single sign-on</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <div class="toggle-title">GitHub</div>
+                            <div class="toggle-description">Connect your GitHub account</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary">Update Profile</button>
+                    <button class="btn btn-danger">Delete Account</button>
+                </div>
+            </div>
+
+            <!-- Billing Settings Section -->
+            <div id="billing" class="settings-section">
+                <h1 class="section-title">Billing<span class="plan-badge">Pro Plan</span></h1>
+                <p class="section-description">Manage your subscription, payment methods, and invoices.</p>
+
+                <div class="settings-subsection">
+                    <h3 class="subsection-title">Current Plan</h3>
+
+                    <div class="form-group">
+                        <label class="form-label">Subscription Plan</label>
+                        <select class="form-select">
+                            <option value="free">Free - $0/month</option>
+                            <option value="pro" selected>Pro - $19/month</option>
+                            <option value="team">Team - $49/month</option>
+                            <option value="enterprise">Enterprise - Custom pricing</option>
+                        </select>
+                        <p class="form-help">Your next billing date is February 15, 2026.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Billing Cycle</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="billing-cycle" value="monthly" checked>
+                                <div class="radio-option-info">
+                                    <div class="radio-option-title">Monthly</div>
+                                    <div class="radio-option-desc">Billed every month</div>
+                                </div>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="billing-cycle" value="yearly">
+                                <div class="radio-option-info">
+                                    <div class="radio-option-title">Yearly (Save 20%)</div>
+                                    <div class="radio-option-desc">Billed annually - $182.40/year</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-subsection">
+                    <h3 class="subsection-title">Payment Method</h3>
+
+                    <div class="form-group">
+                        <label class="form-label">Card Number</label>
+                        <input type="text" class="form-input" value="•••• •••• •••• 4242" placeholder="1234 5678 9012 3456">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Expiry Date</label>
+                            <input type="text" class="form-input" value="12/28" placeholder="MM/YY">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">CVV</label>
+                            <input type="text" class="form-input" placeholder="123">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Cardholder Name</label>
+                        <input type="text" class="form-input" value="John Doe" placeholder="Name on card">
+                    </div>
+                </div>
+
+                <div class="settings-subsection">
+                    <h3 class="subsection-title">Billing Address</h3>
+
+                    <div class="form-group">
+                        <label class="form-label">Country</label>
+                        <select class="form-select">
+                            <option value="us" selected>United States</option>
+                            <option value="ca">Canada</option>
+                            <option value="uk">United Kingdom</option>
+                            <option value="de">Germany</option>
+                            <option value="fr">France</option>
+                            <option value="au">Australia</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Address Line 1</label>
+                        <input type="text" class="form-input" value="123 Main Street" placeholder="Street address">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Address Line 2</label>
+                        <input type="text" class="form-input" placeholder="Apartment, suite, etc.">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">City</label>
+                            <input type="text" class="form-input" value="San Francisco" placeholder="City">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">ZIP Code</label>
+                            <input type="text" class="form-input" value="94102" placeholder="ZIP">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-subsection">
+                    <h3 class="subsection-title">Usage & Limits</h3>
+
+                    <div class="form-group">
+                        <label class="form-label">Storage Used</label>
+                        <div class="slider-container">
+                            <div class="slider-header">
+                                <span>8.5 GB of 50 GB</span>
+                                <span class="slider-value">17%</span>
+                            </div>
+                            <input type="range" class="form-slider" min="0" max="100" value="17" disabled>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">API Calls This Month</label>
+                        <div class="slider-container">
+                            <div class="slider-header">
+                                <span>4,521 of 10,000</span>
+                                <span class="slider-value">45%</span>
+                            </div>
+                            <input type="range" class="form-slider" min="0" max="100" value="45" disabled>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Monthly Spending Limit</label>
+                        <div class="slider-container">
+                            <div class="slider-header">
+                                <span>Set your maximum monthly charge</span>
+                                <span class="slider-value" id="spending-limit-value">$100</span>
+                            </div>
+                            <input type="range" class="form-slider" id="spending-limit" min="0" max="500" value="100">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary">Update Billing</button>
+                    <button class="btn btn-secondary">Download Invoice</button>
+                    <button class="btn btn-danger">Cancel Subscription</button>
+                </div>
+            </div>
+
+            <!-- Notifications Settings Section -->
+            <div id="notifications" class="settings-section">
+                <h1 class="section-title">Notifications</h1>
+                <p class="section-description">Choose how and when you want to be notified.</p>
+
+                <div class="settings-subsection">
+                    <h3 class="subsection-title">Email Notifications</h3>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <div class="toggle-title">Marketing emails</div>
+                            <div class="toggle-description">Receive news, updates, and promotional offers</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <div class="toggle-title">Product updates</div>
+                            <div class="toggle-description">Get notified about new features and improvements</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <div class="toggle-title">Weekly digest</div>
+                            <div class="toggle-description">Receive a weekly summary of your activity</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <div class="toggle-title">Security alerts</div>
+                            <div class="toggle-description">Important notifications about your account security</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-subsection">
+                    <h3 class="subsection-title">Push Notifications</h3>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <div class="toggle-title">Enable push notifications</div>
+                            <div class="toggle-description">Receive real-time notifications in your browser</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <div class="toggle-title">Message notifications</div>
+                            <div class="toggle-description">Get notified when you receive new messages</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <div class="toggle-title">Mention notifications</div>
+                            <div class="toggle-description">Get notified when someone mentions you</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <div class="toggle-title">Task reminders</div>
+                            <div class="toggle-description">Receive reminders for upcoming tasks and deadlines</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-subsection">
+                    <h3 class="subsection-title">Notification Preferences</h3>
+
+                    <div class="form-group">
+                        <label class="form-label">Notification Sound</label>
+                        <select class="form-select">
+                            <option value="default">Default</option>
+                            <option value="chime">Chime</option>
+                            <option value="bell">Bell</option>
+                            <option value="pop">Pop</option>
+                            <option value="none">None (Silent)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Notification Volume</label>
+                        <div class="slider-container">
+                            <div class="slider-header">
+                                <span>Adjust notification volume</span>
+                                <span class="slider-value" id="volume-value">75%</span>
+                            </div>
+                            <input type="range" class="form-slider" id="volume" min="0" max="100" value="75">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Quiet Hours</label>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">From</label>
+                                <input type="time" class="form-input" value="22:00">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">To</label>
+                                <input type="time" class="form-input" value="07:00">
+                            </div>
+                        </div>
+                        <p class="form-help">Notifications will be silenced during these hours.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Notification Categories</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-option">
+                                <input type="checkbox" checked>
+                                <span>Comments and replies</span>
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" checked>
+                                <span>File uploads and shares</span>
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox">
+                                <span>Team activity</span>
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" checked>
+                                <span>System announcements</span>
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox">
+                                <span>Tips and tutorials</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary">Save Preferences</button>
+                    <button class="btn btn-secondary">Reset to Defaults</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Category navigation
+        const categoryItems = document.querySelectorAll('.category-item');
+        const settingsSections = document.querySelectorAll('.settings-section');
+
+        categoryItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const sectionId = item.getAttribute('data-section');
+
+                // Update active category
+                categoryItems.forEach(cat => cat.classList.remove('active'));
+                item.classList.add('active');
+
+                // Show corresponding section
+                settingsSections.forEach(section => {
+                    section.classList.remove('active');
+                    if (section.id === sectionId) {
+                        section.classList.add('active');
+                    }
+                });
+            });
+        });
+
+        // Font size slider
+        const fontSizeSlider = document.getElementById('font-size');
+        const fontSizeValue = document.getElementById('font-size-value');
+        if (fontSizeSlider) {
+            fontSizeSlider.addEventListener('input', (e) => {
+                fontSizeValue.textContent = e.target.value + 'px';
+            });
+        }
+
+        // Volume slider
+        const volumeSlider = document.getElementById('volume');
+        const volumeValue = document.getElementById('volume-value');
+        if (volumeSlider) {
+            volumeSlider.addEventListener('input', (e) => {
+                volumeValue.textContent = e.target.value + '%';
+            });
+        }
+
+        // Spending limit slider
+        const spendingLimitSlider = document.getElementById('spending-limit');
+        const spendingLimitValue = document.getElementById('spending-limit-value');
+        if (spendingLimitSlider) {
+            spendingLimitSlider.addEventListener('input', (e) => {
+                spendingLimitValue.textContent = '$' + e.target.value;
+            });
+        }
+
+        // Color picker
+        const accentColorPicker = document.getElementById('accent-color');
+        const colorValueDisplay = document.getElementById('color-value');
+        if (accentColorPicker) {
+            accentColorPicker.addEventListener('input', (e) => {
+                colorValueDisplay.textContent = e.target.value;
+            });
+        }
+    </script>
+</body>
+</html>
