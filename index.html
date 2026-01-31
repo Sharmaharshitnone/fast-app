@@ -207,8 +207,11 @@
         const canvas = document.getElementById('neural-canvas');
         const ctx = canvas.getContext('2d');
 
+        // Configuration constants
+        const PIXELS_PER_NODE = 15000; // Controls node density based on canvas size
+
         let nodes = [];
-        let animationId;
+        let animationId = null;
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -218,7 +221,7 @@
 
         function initNodes() {
             nodes = [];
-            const nodeCount = Math.floor((canvas.width * canvas.height) / 15000);
+            const nodeCount = Math.floor((canvas.width * canvas.height) / PIXELS_PER_NODE);
             
             for (let i = 0; i < nodeCount; i++) {
                 nodes.push({
@@ -312,6 +315,14 @@
         }
 
         window.addEventListener('resize', resizeCanvas);
+        
+        // Clean up animation on page unload to prevent memory leaks
+        window.addEventListener('beforeunload', function() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+        });
+        
         resizeCanvas();
         drawNetwork();
 
