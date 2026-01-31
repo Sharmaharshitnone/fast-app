@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings & Config</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .settings-container {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: white;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Left Column - Categories */
+        .categories-panel {
+            width: 250px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px 0;
+            flex-shrink: 0;
+        }
+
+        .categories-header {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            padding: 20px 25px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 10px;
+        }
+
+        .category-list {
+            list-style: none;
+        }
+
+        .category-item {
+            padding: 15px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.95rem;
+        }
+
+        .category-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .category-item.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-left: 4px solid white;
+        }
+
+        .category-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Right Column - Settings Content */
+        .settings-content {
+            flex: 1;
+            padding: 30px 40px;
+            overflow-y: auto;
+        }
+
+        .settings-section {
+            display: none;
+        }
+
+        .settings-section.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .section-description {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+        }
+
+        /* Form Groups */
+        .form-group {
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .form-group:last-child {
+            border-bottom: none;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #444;
+        }
+
+        .form-hint {
+            font-size: 0.85rem;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        /* Text Inputs */
+        .form-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Toggle Switches */
+        .toggle-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        .toggle-info {
+            flex: 1;
+        }
+
+        .toggle-title {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .toggle-description {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            margin-left: 20px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Dropdown Select */
+        .form-select {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            background: white;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Sliders */
+        .slider-container {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .slider-value {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .form-slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .form-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Radio Buttons */
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .radio-option:hover {
+            border-color: #667eea;
+        }
+
+        .radio-option input[type="radio"] {
+            display: none;
+        }
+
+        .radio-option input[type="radio"]:checked + .radio-label {
+            color: #667eea;
+        }
+
+        .radio-option:has(input[type="radio"]:checked) {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .radio-label {
+            font-weight: 500;
+        }
+
+        /* Checkbox */
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .checkbox-option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-danger {
+            background: #ff4757;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #ff3344;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        /* Two-column form layout */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Pricing Cards */
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .pricing-card {
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .pricing-card:hover {
+            border-color: #667eea;
+        }
+
+        .pricing-card.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .pricing-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        .pricing-price {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .pricing-price span {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 400;
+        }
+
+        .pricing-features {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        /* Alert/Info Box */
+        .info-box {
+            background: #e8f4fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px 20px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 20px;
+        }
+
+        .info-box p {
+            color: #1976d2;
+            font-size: 0.9rem;
+        }
+
+        /* Textarea */
+        .form-textarea {
+            width: 100%;
+            max-width: 600px;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Color Picker */
+        .color-picker-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .color-picker {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        /* Time/Date Input */
+        .form-datetime {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+
+        .form-datetime:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="settings-container">
+        <!-- Left Column - Categories -->
+        <aside class="categories-panel">
+            <h1 class="categories-header">⚙️ Settings</h1>
+            <ul class="category-list">
+                <li class="category-item active" data-category="general">
+                    <span class="category-icon">🏠</span>
+                    <span>General</span>
+                </li>
+                <li class="category-item" data-category="account">
+                    <span class="category-icon">👤</span>
+                    <span>Account</span>
+                </li>
+                <li class="category-item" data-category="billing">
+                    <span class="category-icon">💳</span>
+                    <span>Billing</span>
+                </li>
+                <li class="category-item" data-category="notifications">
+                    <span class="category-icon">🔔</span>
+                    <span>Notifications</span>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Right Column - Settings Content -->
+        <main class="settings-content">
+            <!-- General Settings -->
+            <section id="general" class="settings-section active">
+                <h2 class="section-title">General Settings</h2>
+                <p class="section-description">Configure your basic application preferences and display settings.</p>
+
+                <div class="form-group">
+                    <label class="form-label">Application Name</label>
+                    <input type="text" class="form-input" value="My Application" placeholder="Enter app name">
+                    <p class="form-hint">This name will be displayed in the browser tab.</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Language</label>
+                    <select class="form-select">
+                        <option value="en">English (US)</option>
+                        <option value="en-gb">English (UK)</option>
+                        <option value="es">Spanish</option>
+                        <option value="fr">French</option>
+                        <option value="de">German</option>
+                        <option value="ja">Japanese</option>
+                        <option value="zh">Chinese (Simplified)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Timezone</label>
+                    <select class="form-select">
+                        <option value="utc">UTC</option>
+                        <option value="est" selected>Eastern Time (ET)</option>
+                        <option value="pst">Pacific Time (PT)</option>
+                        <option value="cst">Central Time (CT)</option>
+                        <option value="gmt">GMT (London)</option>
+                        <option value="cet">Central European Time</option>
+                        <option value="jst">Japan Standard Time</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Theme Preference</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="theme" value="light" checked>
+                            <span class="radio-label">☀️ Light</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="theme" value="dark">
+                            <span class="radio-label">🌙 Dark</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="theme" value="system">
+                            <span class="radio-label">💻 System</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Accent Color</label>
+                    <div class="color-picker-group">
+                        <input type="color" class="color-picker" value="#667eea">
+                        <span>Choose your preferred accent color</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Font Size</label>
+                    <div class="slider-container">
+                        <div class="slider-header">
+                            <span>Text Size</span>
+                            <span class="slider-value" id="fontSizeValue">16px</span>
+                        </div>
+                        <input type="range" class="form-slider" min="12" max="24" value="16" id="fontSizeSlider">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="toggle-group">
+                        <div class="toggle-info">
+                            <div class="toggle-title">Enable Animations</div>
+                            <div class="toggle-description">Show smooth transitions and animations throughout the app</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="toggle-group">
+                        <div class="toggle-info">
+                            <div class="toggle-title">Compact Mode</div>
+                            <div class="toggle-description">Reduce spacing and padding for denser layouts</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary">Save Changes</button>
+                    <button class="btn btn-secondary">Reset to Default</button>
+                </div>
+            </section>
+
+            <!-- Account Settings -->
+            <section id="account" class="settings-section">
+                <h2 class="section-title">Account Settings</h2>
+                <p class="section-description">Manage your personal information and account security.</p>
+
+                <div class="info-box">
+                    <p>Your account was created on January 15, 2024. Last login: 2 hours ago.</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Profile Picture</label>
+                    <input type="file" class="form-input" accept="image/*">
+                    <p class="form-hint">Recommended size: 200x200 pixels. Max file size: 5MB.</p>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">First Name</label>
+                        <input type="text" class="form-input" value="John" placeholder="First name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Last Name</label>
+                        <input type="text" class="form-input" value="Doe" placeholder="Last name">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" value="john.doe@example.com" placeholder="Email">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" class="form-input" placeholder="+1 (555) 000-0000">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Bio</label>
+                    <textarea class="form-textarea" placeholder="Tell us about yourself...">Software developer passionate about creating intuitive user experiences.</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Date of Birth</label>
+                    <input type="date" class="form-datetime">
+                </div>
+
+                <div class="form-group">
+                    <div class="toggle-group">
+                        <div class="toggle-info">
+                            <div class="toggle-title">Two-Factor Authentication</div>
+                            <div class="toggle-description">Add an extra layer of security to your account</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="toggle-group">
+                        <div class="toggle-info">
+                            <div class="toggle-title">Public Profile</div>
+                            <div class="toggle-description">Allow others to see your profile information</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" value="••••••••" placeholder="Password">
+                    <p class="form-hint">Last changed 30 days ago. We recommend updating your password every 90 days.</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Account Visibility</label>
+                    <select class="form-select">
+                        <option value="public">Public - Anyone can find me</option>
+                        <option value="friends" selected>Friends Only - Only connections can see me</option>
+                        <option value="private">Private - Hidden from searches</option>
+                    </select>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary">Update Profile</button>
+                    <button class="btn btn-danger">Delete Account</button>
+                </div>
+            </section>
+
+            <!-- Billing Settings -->
+            <section id="billing" class="settings-section">
+                <h2 class="section-title">Billing & Plans</h2>
+                <p class="section-description">Manage your subscription, payment methods, and billing history.</p>
+
+                <div class="form-group">
+                    <label class="form-label">Current Plan</label>
+                    <div class="pricing-cards">
+                        <div class="pricing-card">
+                            <div class="pricing-name">Free</div>
+                            <div class="pricing-price">$0<span>/mo</span></div>
+                            <div class="pricing-features">Basic features, 5GB storage</div>
+                        </div>
+                        <div class="pricing-card selected">
+                            <div class="pricing-name">Pro</div>
+                            <div class="pricing-price">$19<span>/mo</span></div>
+                            <div class="pricing-features">Advanced features, 100GB storage</div>
+                        </div>
+                        <div class="pricing-card">
+                            <div class="pricing-name">Enterprise</div>
+                            <div class="pricing-price">$99<span>/mo</span></div>
+                            <div class="pricing-features">Unlimited features & storage</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Billing Cycle</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="billing" value="monthly" checked>
+                            <span class="radio-label">Monthly</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="billing" value="yearly">
+                            <span class="radio-label">Yearly (Save 20%)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Payment Method</label>
+                    <select class="form-select">
+                        <option value="visa">💳 Visa ending in 4242</option>
+                        <option value="mastercard">💳 Mastercard ending in 8888</option>
+                        <option value="paypal">🅿️ PayPal (john.doe@email.com)</option>
+                    </select>
+                    <p class="form-hint">Your next billing date is February 15, 2024.</p>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Card Number</label>
+                        <input type="text" class="form-input" placeholder="1234 5678 9012 3456">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Expiry Date</label>
+                        <input type="text" class="form-input" placeholder="MM/YY">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">CVV</label>
+                        <input type="text" class="form-input" placeholder="123">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ZIP Code</label>
+                        <input type="text" class="form-input" placeholder="12345">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Billing Address</label>
+                    <textarea class="form-textarea" placeholder="Enter your billing address...">123 Main Street
+Apt 4B
+New York, NY 10001</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Spending Limit</label>
+                    <div class="slider-container">
+                        <div class="slider-header">
+                            <span>Monthly Limit</span>
+                            <span class="slider-value" id="spendingValue">$500</span>
+                        </div>
+                        <input type="range" class="form-slider" min="100" max="2000" value="500" step="50" id="spendingSlider">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="toggle-group">
+                        <div class="toggle-info">
+                            <div class="toggle-title">Auto-Renew Subscription</div>
+                            <div class="toggle-description">Automatically renew your subscription when it expires</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="toggle-group">
+                        <div class="toggle-info">
+                            <div class="toggle-title">Send Invoice by Email</div>
+                            <div class="toggle-description">Receive invoices and receipts via email</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary">Update Payment</button>
+                    <button class="btn btn-secondary">Download Invoice</button>
+                </div>
+            </section>
+
+            <!-- Notifications Settings -->
+            <section id="notifications" class="settings-section">
+                <h2 class="section-title">Notifications</h2>
+                <p class="section-description">Control how and when you receive notifications.</p>
+
+                <div class="form-group">
+                    <label class="form-label">Notification Sound</label>
+                    <select class="form-select">
+                        <option value="default">Default</option>
+                        <option value="chime">Chime</option>
+                        <option value="bell">Bell</option>
+                        <option value="pop">Pop</option>
+                        <option value="none">None (Silent)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Notification Volume</label>
+                    <div class="slider-container">
+                        <div class="slider-header">
+                            <span>Volume Level</span>
+                            <span class="slider-value" id="volumeValue">70%</span>
+                        </div>
+                        <input type="range" class="form-slider" min="0" max="100" value="70" id="volumeSlider">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Quiet Hours</label>
+                    <div class="form-row">
+                        <div>
+                            <label class="form-label" style="font-size: 0.85rem;">Start Time</label>
+                            <input type="time" class="form-datetime" value="22:00">
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-size: 0.85rem;">End Time</label>
+                            <input type="time" class="form-datetime" value="07:00">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email Notifications</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-option">
+                            <input type="checkbox" checked>
+                            <span>Weekly digest</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" checked>
+                            <span>Security alerts</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox">
+                            <span>Product updates</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox">
+                            <span>Marketing emails</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" checked>
+                            <span>Account activity</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="toggle-group">
+                        <div class="toggle-info">
+                            <div class="toggle-title">Push Notifications</div>
+                            <div class="toggle-description">Receive push notifications on your device</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="toggle-group">
+                        <div class="toggle-info">
+                            <div class="toggle-title">Desktop Notifications</div>
+                            <div class="toggle-description">Show notifications in your browser</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="toggle-group">
+                        <div class="toggle-info">
+                            <div class="toggle-title">SMS Notifications</div>
+                            <div class="toggle-description">Receive text messages for important alerts</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="toggle-group">
+                        <div class="toggle-info">
+                            <div class="toggle-title">Badge Count</div>
+                            <div class="toggle-description">Show unread count on app icon</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="toggle-group">
+                        <div class="toggle-info">
+                            <div class="toggle-title">Sound Effects</div>
+                            <div class="toggle-description">Play sounds for in-app actions</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Notification Frequency</label>
+                    <select class="form-select">
+                        <option value="realtime">Real-time - As they happen</option>
+                        <option value="hourly" selected>Hourly digest</option>
+                        <option value="daily">Daily summary</option>
+                        <option value="weekly">Weekly roundup</option>
+                    </select>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary">Save Preferences</button>
+                    <button class="btn btn-secondary">Test Notification</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Category Navigation
+        document.querySelectorAll('.category-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // Update active category
+                document.querySelectorAll('.category-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+
+                // Show corresponding section
+                const category = this.dataset.category;
+                document.querySelectorAll('.settings-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById(category).classList.add('active');
+            });
+        });
+
+        // Font Size Slider
+        const fontSizeSlider = document.getElementById('fontSizeSlider');
+        const fontSizeValue = document.getElementById('fontSizeValue');
+        if (fontSizeSlider) {
+            fontSizeSlider.addEventListener('input', function() {
+                fontSizeValue.textContent = this.value + 'px';
+            });
+        }
+
+        // Spending Limit Slider
+        const spendingSlider = document.getElementById('spendingSlider');
+        const spendingValue = document.getElementById('spendingValue');
+        if (spendingSlider) {
+            spendingSlider.addEventListener('input', function() {
+                spendingValue.textContent = '$' + this.value;
+            });
+        }
+
+        // Volume Slider
+        const volumeSlider = document.getElementById('volumeSlider');
+        const volumeValue = document.getElementById('volumeValue');
+        if (volumeSlider) {
+            volumeSlider.addEventListener('input', function() {
+                volumeValue.textContent = this.value + '%';
+            });
+        }
+
+        // Pricing Card Selection
+        document.querySelectorAll('.pricing-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.pricing-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+    </script>
+</body>
+</html>
