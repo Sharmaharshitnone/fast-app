@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Button Kit - Dark Theme</title>
+    <style>
+        /* Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 50px;
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #00d4ff, #0066ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .button-section {
+            margin-bottom: 60px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .state-label {
+            width: 100px;
+            font-size: 0.875rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Base Button Styles */
+        .btn {
+            padding: 12px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            outline: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ========================================
+           PRIMARY BUTTON
+           Cyan to Blue gradient, black text
+           Sharp rectangular with 4px rounded corners
+        ======================================== */
+        .btn-primary {
+            background: linear-gradient(90deg, #00d4ff, #0066ff);
+            color: #000000;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #00e5ff, #0077ff);
+            box-shadow: 0 4px 16px rgba(0, 212, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled {
+            background: linear-gradient(90deg, #4a6b70, #3a4a5c);
+            color: #666666;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* Hover state preview class */
+        .btn-primary.hover-preview {
+            background: linear-gradient(90deg, #00e5ff, #0077ff);
+            box-shadow: 0 4px 16px rgba(0, 212, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* ========================================
+           SECONDARY BUTTON (GHOST)
+           Transparent background, white 1px border
+           White text that glows on hover
+        ======================================== */
+        .btn-secondary {
+            background: transparent;
+            color: #ffffff;
+            border: 1px solid #ffffff;
+            border-radius: 4px;
+        }
+
+        .btn-secondary:hover {
+            color: #ffffff;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.8), 
+                         0 0 16px rgba(255, 255, 255, 0.6),
+                         0 0 24px rgba(255, 255, 255, 0.4);
+            border-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:disabled {
+            background: transparent;
+            color: #555555;
+            border-color: #555555;
+            cursor: not-allowed;
+            text-shadow: none;
+            box-shadow: none;
+        }
+
+        /* Hover state preview class */
+        .btn-secondary.hover-preview {
+            color: #ffffff;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.8), 
+                         0 0 16px rgba(255, 255, 255, 0.6),
+                         0 0 24px rgba(255, 255, 255, 0.4);
+            border-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+        }
+
+        /* ========================================
+           DESTRUCTIVE BUTTON
+           Deep crimson red with muted glow
+        ======================================== */
+        .btn-destructive {
+            background: #8B0000;
+            color: #ffffff;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(139, 0, 0, 0.4);
+        }
+
+        .btn-destructive:hover {
+            background: #a50000;
+            box-shadow: 0 0 12px rgba(139, 0, 0, 0.6),
+                        0 0 24px rgba(139, 0, 0, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn-destructive:disabled {
+            background: #3d1a1a;
+            color: #666666;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* Hover state preview class */
+        .btn-destructive.hover-preview {
+            background: #a50000;
+            box-shadow: 0 0 12px rgba(139, 0, 0, 0.6),
+                        0 0 24px rgba(139, 0, 0, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid #333;
+            text-align: center;
+            color: #666;
+        }
+
+        .footer a {
+            color: #00d4ff;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Interactive Button Kit</h1>
+
+        <!-- Primary Button Section -->
+        <div class="button-section">
+            <h2 class="section-title">Primary Button</h2>
+            <p style="color: #888; margin-bottom: 20px;">Cyan to Blue gradient • Black text • 4px rounded corners</p>
+            
+            <div class="button-row">
+                <span class="state-label">Default</span>
+                <button class="btn btn-primary">Primary</button>
+            </div>
+            
+            <div class="button-row">
+                <span class="state-label">Hover</span>
+                <button class="btn btn-primary hover-preview">Primary</button>
+            </div>
+            
+            <div class="button-row">
+                <span class="state-label">Disabled</span>
+                <button class="btn btn-primary" disabled>Primary</button>
+            </div>
+        </div>
+
+        <!-- Secondary Button Section -->
+        <div class="button-section">
+            <h2 class="section-title">Secondary Button (Ghost)</h2>
+            <p style="color: #888; margin-bottom: 20px;">Transparent background • White 1px border • Glowing text on hover</p>
+            
+            <div class="button-row">
+                <span class="state-label">Default</span>
+                <button class="btn btn-secondary">Secondary</button>
+            </div>
+            
+            <div class="button-row">
+                <span class="state-label">Hover</span>
+                <button class="btn btn-secondary hover-preview">Secondary</button>
+            </div>
+            
+            <div class="button-row">
+                <span class="state-label">Disabled</span>
+                <button class="btn btn-secondary" disabled>Secondary</button>
+            </div>
+        </div>
+
+        <!-- Destructive Button Section -->
+        <div class="button-section">
+            <h2 class="section-title">Destructive Button</h2>
+            <p style="color: #888; margin-bottom: 20px;">Deep crimson red • Muted glow effect</p>
+            
+            <div class="button-row">
+                <span class="state-label">Default</span>
+                <button class="btn btn-destructive">Delete</button>
+            </div>
+            
+            <div class="button-row">
+                <span class="state-label">Hover</span>
+                <button class="btn btn-destructive hover-preview">Delete</button>
+            </div>
+            
+            <div class="button-row">
+                <span class="state-label">Disabled</span>
+                <button class="btn btn-destructive" disabled>Delete</button>
+            </div>
+        </div>
+
+        <!-- Interactive Demo Section -->
+        <div class="button-section">
+            <h2 class="section-title">Interactive Demo</h2>
+            <p style="color: #888; margin-bottom: 20px;">Hover over these buttons to see the live effects</p>
+            
+            <div class="button-row" style="gap: 20px;">
+                <button class="btn btn-primary">Submit</button>
+                <button class="btn btn-secondary">Cancel</button>
+                <button class="btn btn-destructive">Remove</button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><a href="/">← Back to Home</a></p>
+        </div>
+    </div>
+</body>
+</html>
