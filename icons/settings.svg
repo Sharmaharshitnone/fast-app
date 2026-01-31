@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+  <defs>
+    <filter id="neonGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <g filter="url(#neonGlow)" stroke="#00FFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="24" cy="24" r="6"/>
+    <path d="M24 6V10M24 38V42M42 24H38M10 24H6M37.5 10.5L34.3 13.7M13.7 34.3L10.5 37.5M37.5 37.5L34.3 34.3M13.7 13.7L10.5 10.5"/>
+    <path d="M20 8L21 12L24 14L27 12L28 8M20 40L21 36L24 34L27 36L28 40M40 20L36 21L34 24L36 27L40 28M8 20L12 21L14 24L12 27L8 28"/>
+  </g>
+</svg>

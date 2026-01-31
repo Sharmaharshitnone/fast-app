@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon UI Icon Set</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0d0d15 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #00FFFF;
+            text-shadow: 0 0 10px #00FFFF, 0 0 20px #00FFFF, 0 0 40px #00FFFF;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 50px;
+            font-size: 1.1rem;
+        }
+
+        .description {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 30px;
+            padding: 20px;
+        }
+
+        .icon-card {
+            background: rgba(0, 255, 255, 0.03);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .icon-card:hover {
+            background: rgba(0, 255, 255, 0.08);
+            border-color: rgba(0, 255, 255, 0.5);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0, 255, 255, 0.15);
+        }
+
+        .icon-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 80px;
+            margin-bottom: 15px;
+        }
+
+        .icon-wrapper img {
+            width: 48px;
+            height: 48px;
+            filter: drop-shadow(0 0 5px #00FFFF);
+        }
+
+        .icon-name {
+            color: #00FFFF;
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .specs {
+            margin-top: 60px;
+            padding: 30px;
+            background: rgba(0, 255, 255, 0.03);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 16px;
+        }
+
+        .specs h2 {
+            color: #00FFFF;
+            margin-bottom: 20px;
+            text-shadow: 0 0 5px #00FFFF;
+        }
+
+        .specs ul {
+            list-style: none;
+            color: #ccc;
+            line-height: 2;
+        }
+
+        .specs li::before {
+            content: "▹ ";
+            color: #00FFFF;
+        }
+
+        .specs code {
+            background: rgba(0, 255, 255, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: #00FFFF;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Neon UI Icon Set</h1>
+        <p class="subtitle">12 Essential Icons for Developer Portfolios</p>
+        <p class="description">
+            A collection of modern, technical icons featuring a neon outline style with thin 1.5px strokes 
+            in bright Cyan and subtle glow effects. Perfect for dark-themed developer portfolios and tech websites.
+        </p>
+
+        <div class="icon-grid">
+            <div class="icon-card">
+                <div class="icon-wrapper">
+                    <img src="icons/home.svg" alt="Home Icon">
+                </div>
+                <span class="icon-name">Home</span>
+            </div>
+
+            <div class="icon-card">
+                <div class="icon-wrapper">
+                    <img src="icons/server.svg" alt="Server Icon">
+                </div>
+                <span class="icon-name">Server</span>
+            </div>
+
+            <div class="icon-card">
+                <div class="icon-wrapper">
+                    <img src="icons/terminal.svg" alt="Terminal Icon">
+                </div>
+                <span class="icon-name">Code/Terminal</span>
+            </div>
+
+            <div class="icon-card">
+                <div class="icon-wrapper">
+                    <img src="icons/user.svg" alt="User Icon">
+                </div>
+                <span class="icon-name">User/Profile</span>
+            </div>
+
+            <div class="icon-card">
+                <div class="icon-wrapper">
+                    <img src="icons/settings.svg" alt="Settings Icon">
+                </div>
+                <span class="icon-name">Settings</span>
+            </div>
+
+            <div class="icon-card">
+                <div class="icon-wrapper">
+                    <img src="icons/analytics.svg" alt="Analytics Icon">
+                </div>
+                <span class="icon-name">Analytics/Graph</span>
+            </div>
+
+            <div class="icon-card">
+                <div class="icon-wrapper">
+                    <img src="icons/cloud.svg" alt="Cloud Icon">
+                </div>
+                <span class="icon-name">Cloud</span>
+            </div>
+
+            <div class="icon-card">
+                <div class="icon-wrapper">
+                    <img src="icons/database.svg" alt="Database Icon">
+                </div>
+                <span class="icon-name">Database</span>
+            </div>
+
+            <div class="icon-card">
+                <div class="icon-wrapper">
+                    <img src="icons/lock.svg" alt="Lock Icon">
+                </div>
+                <span class="icon-name">Security/Lock</span>
+            </div>
+
+            <div class="icon-card">
+                <div class="icon-wrapper">
+                    <img src="icons/external-link.svg" alt="External Link Icon">
+                </div>
+                <span class="icon-name">External Link</span>
+            </div>
+
+            <div class="icon-card">
+                <div class="icon-wrapper">
+                    <img src="icons/github.svg" alt="GitHub Icon">
+                </div>
+                <span class="icon-name">GitHub</span>
+            </div>
+
+            <div class="icon-card">
+                <div class="icon-wrapper">
+                    <img src="icons/twitter.svg" alt="Twitter Icon">
+                </div>
+                <span class="icon-name">Twitter</span>
+            </div>
+        </div>
+
+        <div class="specs">
+            <h2>Icon Specifications</h2>
+            <ul>
+                <li><strong>Style:</strong> Neon Outline</li>
+                <li><strong>Stroke Width:</strong> <code>1.5px</code></li>
+                <li><strong>Primary Color:</strong> <code>#00FFFF</code> (Cyan)</li>
+                <li><strong>Glow Effect:</strong> SVG filter with <code>feGaussianBlur</code></li>
+                <li><strong>Size:</strong> <code>48x48px</code> viewBox</li>
+                <li><strong>Format:</strong> SVG (scalable)</li>
+                <li><strong>Fill:</strong> None (outline only)</li>
+                <li><strong>Line Caps:</strong> <code>round</code></li>
+                <li><strong>Line Joins:</strong> <code>round</code></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

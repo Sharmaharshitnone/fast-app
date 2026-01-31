@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+  <defs>
+    <filter id="neonGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <g filter="url(#neonGlow)" stroke="#00FFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="6" y1="42" x2="42" y2="42"/>
+    <line x1="6" y1="6" x2="6" y2="42"/>
+    <polyline points="10,32 18,22 26,28 38,10"/>
+    <polyline points="32,10 38,10 38,16"/>
+    <line x1="14" y1="42" x2="14" y2="34"/>
+    <line x1="22" y1="42" x2="22" y2="28"/>
+    <line x1="30" y1="42" x2="30" y2="22"/>
+    <line x1="38" y1="42" x2="38" y2="18"/>
+  </g>
+</svg>
