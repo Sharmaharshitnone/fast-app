@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Activity Bento</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0a0a0a;
+            font-family: 'Courier New', Courier, monospace;
+            min-height: 100vh;
+            padding: 20px;
+            color: #00ff00;
+        }
+
+        .bento-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 20px;
+        }
+
+        .card {
+            background: linear-gradient(145deg, #0d0d0d, #1a1a1a);
+            border: 1px solid #00ff0033;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 
+                0 0 20px rgba(0, 255, 0, 0.1),
+                inset 0 0 20px rgba(0, 255, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #00ff00, transparent);
+            opacity: 0.5;
+        }
+
+        .card-title {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #00ff00;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px #00ff00;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title::before {
+            content: '>';
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        /* Latest Commit Card */
+        .latest-commit {
+            grid-column: 1;
+            grid-row: 1;
+        }
+
+        .commit-info {
+            background: #0a0a0a;
+            border: 1px solid #00ff0022;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .commit-hash {
+            color: #00ffff;
+            font-size: 12px;
+            text-shadow: 0 0 5px #00ffff;
+        }
+
+        .commit-message {
+            color: #ffffff;
+            margin: 8px 0;
+            font-size: 14px;
+        }
+
+        .commit-author {
+            color: #888;
+            font-size: 12px;
+        }
+
+        .code-snippet {
+            background: #0a0a0a;
+            border: 1px solid #00ff0022;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 12px;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+
+        .code-snippet .keyword {
+            color: #ff00ff;
+            text-shadow: 0 0 5px #ff00ff;
+        }
+
+        .code-snippet .function {
+            color: #00ffff;
+            text-shadow: 0 0 5px #00ffff;
+        }
+
+        .code-snippet .string {
+            color: #ffff00;
+            text-shadow: 0 0 5px #ffff00;
+        }
+
+        .code-snippet .comment {
+            color: #666;
+        }
+
+        /* Top Languages Card */
+        .top-languages {
+            grid-column: 2;
+            grid-row: 1;
+        }
+
+        .pie-chart-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .pie-chart {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(
+                #00ff00 0deg 144deg,
+                #00ffff 144deg 234deg,
+                #ff00ff 234deg 288deg,
+                #ffff00 288deg 324deg,
+                #ff6600 324deg 360deg
+            );
+            box-shadow: 
+                0 0 30px rgba(0, 255, 0, 0.3),
+                0 0 60px rgba(0, 255, 0, 0.1);
+            position: relative;
+        }
+
+        .pie-chart::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: #0d0d0d;
+            border-radius: 50%;
+            box-shadow: inset 0 0 10px rgba(0, 255, 0, 0.2);
+        }
+
+        .languages-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .legend-color.js { background: #00ff00; color: #00ff00; }
+        .legend-color.ts { background: #00ffff; color: #00ffff; }
+        .legend-color.py { background: #ff00ff; color: #ff00ff; }
+        .legend-color.css { background: #ffff00; color: #ffff00; }
+        .legend-color.html { background: #ff6600; color: #ff6600; }
+
+        .legend-percent {
+            color: #888;
+            margin-left: auto;
+        }
+
+        /* Contribution Graph Card */
+        .contribution-graph {
+            grid-column: 1 / -1;
+            grid-row: 2;
+        }
+
+        .graph-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .contribution-count {
+            font-size: 24px;
+            color: #00ff00;
+            text-shadow: 0 0 20px #00ff00;
+        }
+
+        .contribution-count span {
+            font-size: 14px;
+            color: #888;
+        }
+
+        .graph-grid {
+            display: flex;
+            gap: 4px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .graph-week {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .graph-day {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            background: #161b22;
+            transition: all 0.3s ease;
+        }
+
+        .graph-day.level-1 {
+            background: #003300;
+            box-shadow: 0 0 5px #00ff0033;
+        }
+
+        .graph-day.level-2 {
+            background: #006600;
+            box-shadow: 0 0 8px #00ff0055;
+        }
+
+        .graph-day.level-3 {
+            background: #00aa00;
+            box-shadow: 0 0 10px #00ff0088;
+        }
+
+        .graph-day.level-4 {
+            background: #00ff00;
+            box-shadow: 0 0 15px #00ff00;
+        }
+
+        .graph-day:hover {
+            transform: scale(1.3);
+            box-shadow: 0 0 20px #00ff00;
+        }
+
+        .graph-legend {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 5px;
+            margin-top: 15px;
+            font-size: 11px;
+            color: #888;
+        }
+
+        .graph-legend .graph-day {
+            cursor: default;
+        }
+
+        .graph-legend .graph-day:hover {
+            transform: none;
+        }
+
+        /* Terminal decoration */
+        .terminal-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .terminal-header h1 {
+            font-size: 28px;
+            color: #00ff00;
+            text-shadow: 
+                0 0 10px #00ff00,
+                0 0 20px #00ff00,
+                0 0 30px #00ff00;
+            letter-spacing: 4px;
+        }
+
+        .terminal-header p {
+            color: #666;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        /* Scanline effect */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.1) 0px,
+                rgba(0, 0, 0, 0.1) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            z-index: 1000;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .bento-container {
+                grid-template-columns: 1fr;
+            }
+
+            .latest-commit,
+            .top-languages,
+            .contribution-graph {
+                grid-column: 1;
+            }
+
+            .contribution-graph {
+                grid-row: 3;
+            }
+
+            .pie-chart-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scanlines"></div>
+    
+    <div class="terminal-header">
+        <h1>[ GITHUB ACTIVITY ]</h1>
+        <p>// developer metrics dashboard v1.0.0</p>
+    </div>
+
+    <div class="bento-container">
+        <!-- Latest Commit Card -->
+        <div class="card latest-commit">
+            <div class="card-title">Latest Commit</div>
+            <div class="commit-info">
+                <div class="commit-hash">commit a7f3b2c</div>
+                <div class="commit-message">feat: implement WebSocket real-time messaging</div>
+                <div class="commit-author">@developer • 2 hours ago</div>
+            </div>
+            <div class="code-snippet">
+                <span class="comment">// WebSocket connection handler</span><br>
+                <span class="keyword">const</span> <span class="function">handleConnection</span> = (<span class="string">ws</span>) => {<br>
+                &nbsp;&nbsp;ws.<span class="function">send</span>(<span class="string">"Welcome!"</span>);<br>
+                &nbsp;&nbsp;ws.<span class="function">on</span>(<span class="string">'message'</span>, <span class="function">broadcast</span>);<br>
+                };
+            </div>
+        </div>
+
+        <!-- Top Languages Card -->
+        <div class="card top-languages">
+            <div class="card-title">Top Languages</div>
+            <div class="pie-chart-container">
+                <div class="pie-chart"></div>
+                <div class="languages-legend">
+                    <div class="legend-item">
+                        <div class="legend-color js"></div>
+                        <span>JavaScript</span>
+                        <span class="legend-percent">40%</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color ts"></div>
+                        <span>TypeScript</span>
+                        <span class="legend-percent">25%</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color py"></div>
+                        <span>Python</span>
+                        <span class="legend-percent">15%</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color css"></div>
+                        <span>CSS</span>
+                        <span class="legend-percent">10%</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color html"></div>
+                        <span>HTML</span>
+                        <span class="legend-percent">10%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contribution Graph Card -->
+        <div class="card contribution-graph">
+            <div class="graph-header">
+                <div class="card-title">Contribution Graph</div>
+                <div class="contribution-count">1,247 <span>contributions in the last year</span></div>
+            </div>
+            <div class="graph-grid" id="contributionGraph"></div>
+            <div class="graph-legend">
+                <span>Less</span>
+                <div class="graph-day"></div>
+                <div class="graph-day level-1"></div>
+                <div class="graph-day level-2"></div>
+                <div class="graph-day level-3"></div>
+                <div class="graph-day level-4"></div>
+                <span>More</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Generate contribution graph
+        function generateContributionGraph() {
+            const graph = document.getElementById('contributionGraph');
+            const weeks = 52;
+            const days = 7;
+
+            for (let week = 0; week < weeks; week++) {
+                const weekDiv = document.createElement('div');
+                weekDiv.className = 'graph-week';
+
+                for (let day = 0; day < days; day++) {
+                    const dayDiv = document.createElement('div');
+                    dayDiv.className = 'graph-day';
+                    
+                    // Random contribution level with weighted probability
+                    const rand = Math.random();
+                    if (rand > 0.3) {
+                        if (rand > 0.9) {
+                            dayDiv.classList.add('level-4');
+                        } else if (rand > 0.7) {
+                            dayDiv.classList.add('level-3');
+                        } else if (rand > 0.5) {
+                            dayDiv.classList.add('level-2');
+                        } else {
+                            dayDiv.classList.add('level-1');
+                        }
+                    }
+
+                    weekDiv.appendChild(dayDiv);
+                }
+
+                graph.appendChild(weekDiv);
+            }
+        }
+
+        generateContributionGraph();
+    </script>
+</body>
+</html>
