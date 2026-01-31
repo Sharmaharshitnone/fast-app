@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hardware Wireframe Hero - Bare Metal Performance</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #0a1628;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Blueprint Background */
+        .hero-section {
+            min-height: 100vh;
+            background: 
+                linear-gradient(rgba(10, 22, 40, 0.95), rgba(10, 22, 40, 0.95)),
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 49px,
+                    rgba(70, 130, 180, 0.15) 49px,
+                    rgba(70, 130, 180, 0.15) 50px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 49px,
+                    rgba(70, 130, 180, 0.15) 49px,
+                    rgba(70, 130, 180, 0.15) 50px
+                );
+            background-color: #0d1929;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Blueprint border effect */
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            border: 2px solid rgba(70, 130, 180, 0.4);
+            pointer-events: none;
+        }
+
+        /* Corner markers */
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            width: 40px;
+            height: 40px;
+            border-top: 3px solid rgba(255, 255, 255, 0.3);
+            border-left: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Headline - Stamped Blueprint Style */
+        .headline {
+            font-size: clamp(2rem, 6vw, 4rem);
+            font-weight: bold;
+            text-transform: uppercase;
+            color: transparent;
+            -webkit-text-stroke: 2px rgba(255, 255, 255, 0.85);
+            text-shadow: 
+                0 0 10px rgba(255, 255, 255, 0.3),
+                0 0 20px rgba(70, 130, 180, 0.5);
+            letter-spacing: 0.15em;
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 10;
+            padding: 20px 40px;
+            border: 3px solid rgba(255, 255, 255, 0.6);
+            background: rgba(10, 22, 40, 0.7);
+            transform: rotate(-2deg);
+            animation: stampIn 0.5s ease-out;
+        }
+
+        .headline::before,
+        .headline::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            border: 1px dashed rgba(255, 255, 255, 0.3);
+            transform: translate(4px, 4px);
+            pointer-events: none;
+        }
+
+        @keyframes stampIn {
+            0% {
+                transform: rotate(-2deg) scale(1.5);
+                opacity: 0;
+            }
+            70% {
+                transform: rotate(-2deg) scale(0.95);
+            }
+            100% {
+                transform: rotate(-2deg) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .subheadline {
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            color: rgba(70, 130, 180, 0.9);
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        /* Wireframe Container */
+        .wireframe-container {
+            width: 100%;
+            max-width: 800px;
+            height: 400px;
+            position: relative;
+            margin: 30px 0 50px;
+        }
+
+        /* SVG Wireframe Styles */
+        .wireframe-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .wireframe-line {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.9);
+            stroke-width: 1;
+            filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))
+                    drop-shadow(0 0 8px rgba(70, 130, 180, 0.6));
+        }
+
+        .wireframe-line-bright {
+            fill: none;
+            stroke: rgba(255, 255, 255, 1);
+            stroke-width: 1.5;
+            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 1))
+                    drop-shadow(0 0 12px rgba(70, 130, 180, 0.8));
+        }
+
+        .wireframe-dot {
+            fill: rgba(255, 255, 255, 0.9);
+            filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.8));
+        }
+
+        .wireframe-component {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.7);
+            stroke-width: 1;
+            filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.6));
+        }
+
+        .wireframe-chip {
+            fill: rgba(70, 130, 180, 0.1);
+            stroke: rgba(255, 255, 255, 0.9);
+            stroke-width: 1.5;
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.7));
+        }
+
+        .wireframe-trace {
+            fill: none;
+            stroke: rgba(70, 130, 180, 0.6);
+            stroke-width: 0.5;
+        }
+
+        /* Animation for pulsing glow */
+        .pulse-glow {
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))
+                        drop-shadow(0 0 8px rgba(70, 130, 180, 0.6));
+            }
+            50% {
+                filter: drop-shadow(0 0 8px rgba(255, 255, 255, 1))
+                        drop-shadow(0 0 16px rgba(70, 130, 180, 0.9));
+            }
+        }
+
+        /* Data flow animation */
+        .data-flow {
+            animation: dataFlow 3s linear infinite;
+        }
+
+        @keyframes dataFlow {
+            0% {
+                stroke-dashoffset: 100;
+            }
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .animated-trace {
+            stroke-dasharray: 10 5;
+            animation: dataFlow 2s linear infinite;
+        }
+
+        /* Physical Switch Button */
+        .switch-button {
+            position: relative;
+            display: inline-block;
+            margin-top: 20px;
+            z-index: 10;
+        }
+
+        .switch-base {
+            background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 50%, #0a0a0a 100%);
+            border: 3px solid #333;
+            border-radius: 8px;
+            padding: 8px;
+            box-shadow: 
+                inset 0 2px 4px rgba(255, 255, 255, 0.1),
+                0 4px 8px rgba(0, 0, 0, 0.5),
+                0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .switch-toggle {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 30px;
+            background: linear-gradient(180deg, #444 0%, #222 100%);
+            border: 2px solid #555;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .switch-toggle:hover {
+            background: linear-gradient(180deg, #555 0%, #333 100%);
+        }
+
+        .switch-toggle:active {
+            transform: translateY(2px);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .switch-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #333;
+            border: 2px solid #555;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .switch-toggle:hover .switch-indicator {
+            background: #00ff00;
+            box-shadow: 
+                inset 0 1px 2px rgba(0, 0, 0, 0.3),
+                0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        .switch-label {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #ccc;
+            letter-spacing: 0.15em;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .switch-toggle:hover .switch-label {
+            color: #fff;
+        }
+
+        /* Metal texture overlay */
+        .switch-toggle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 2px,
+                rgba(255, 255, 255, 0.03) 2px,
+                rgba(255, 255, 255, 0.03) 4px
+            );
+            pointer-events: none;
+        }
+
+        /* Screw details */
+        .switch-base::before,
+        .switch-base::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: radial-gradient(circle at 30% 30%, #666, #222);
+            border-radius: 50%;
+            border: 1px solid #444;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .switch-base::before {
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .switch-base::after {
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* Floating particles effect */
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            animation: float 8s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(20px);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .wireframe-container {
+                height: 300px;
+            }
+            
+            .headline {
+                padding: 15px 25px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .wireframe-container {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="hero-section">
+        <!-- Floating particles -->
+        <div class="particle" style="left: 10%; top: 20%; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 30%; top: 60%; animation-delay: 1s;"></div>
+        <div class="particle" style="left: 50%; top: 30%; animation-delay: 2s;"></div>
+        <div class="particle" style="left: 70%; top: 70%; animation-delay: 3s;"></div>
+        <div class="particle" style="left: 90%; top: 40%; animation-delay: 4s;"></div>
+        <div class="particle" style="left: 20%; top: 80%; animation-delay: 5s;"></div>
+        <div class="particle" style="left: 80%; top: 20%; animation-delay: 6s;"></div>
+
+        <!-- Stamped Headline -->
+        <h1 class="headline">Bare Metal Performance</h1>
+        <p class="subheadline">Systems Engineering at the Hardware Level</p>
+
+        <!-- Exploded Wireframe View of Computer Chip/Motherboard -->
+        <div class="wireframe-container">
+            <svg class="wireframe-svg" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid meet">
+                <!-- Background grid traces -->
+                <g class="wireframe-trace">
+                    <line x1="0" y1="100" x2="800" y2="100" />
+                    <line x1="0" y1="200" x2="800" y2="200" />
+                    <line x1="0" y1="300" x2="800" y2="300" />
+                    <line x1="200" y1="0" x2="200" y2="400" />
+                    <line x1="400" y1="0" x2="400" y2="400" />
+                    <line x1="600" y1="0" x2="600" y2="400" />
+                </g>
+
+                <!-- Main CPU/Chip - Exploded View Layer 1 (Bottom) -->
+                <g transform="translate(340, 180)">
+                    <rect class="wireframe-chip" x="0" y="40" width="120" height="120" rx="4" />
+                    <!-- Pin grid array -->
+                    <g class="wireframe-line">
+                        <line x1="-20" y1="55" x2="0" y2="55" />
+                        <line x1="-20" y1="70" x2="0" y2="70" />
+                        <line x1="-20" y1="85" x2="0" y2="85" />
+                        <line x1="-20" y1="100" x2="0" y2="100" />
+                        <line x1="-20" y1="115" x2="0" y2="115" />
+                        <line x1="-20" y1="130" x2="0" y2="130" />
+                        <line x1="-20" y1="145" x2="0" y2="145" />
+                        
+                        <line x1="120" y1="55" x2="140" y2="55" />
+                        <line x1="120" y1="70" x2="140" y2="70" />
+                        <line x1="120" y1="85" x2="140" y2="85" />
+                        <line x1="120" y1="100" x2="140" y2="100" />
+                        <line x1="120" y1="115" x2="140" y2="115" />
+                        <line x1="120" y1="130" x2="140" y2="130" />
+                        <line x1="120" y1="145" x2="140" y2="145" />
+                        
+                        <line x1="15" y1="40" x2="15" y2="20" />
+                        <line x1="35" y1="40" x2="35" y2="20" />
+                        <line x1="55" y1="40" x2="55" y2="20" />
+                        <line x1="75" y1="40" x2="75" y2="20" />
+                        <line x1="95" y1="40" x2="95" y2="20" />
+                        <line x1="105" y1="40" x2="105" y2="20" />
+                        
+                        <line x1="15" y1="160" x2="15" y2="180" />
+                        <line x1="35" y1="160" x2="35" y2="180" />
+                        <line x1="55" y1="160" x2="55" y2="180" />
+                        <line x1="75" y1="160" x2="75" y2="180" />
+                        <line x1="95" y1="160" x2="95" y2="180" />
+                        <line x1="105" y1="160" x2="105" y2="180" />
+                    </g>
+                    <!-- Die inside chip -->
+                    <rect class="wireframe-line-bright pulse-glow" x="25" y="65" width="70" height="70" rx="2" />
+                    <text x="60" y="105" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="10" font-family="Courier New">CPU</text>
+                </g>
+
+                <!-- Exploded Layer 2 (Heat Spreader) - floating above -->
+                <g transform="translate(340, 120)" opacity="0.8">
+                    <rect class="wireframe-component" x="5" y="0" width="110" height="110" rx="2" />
+                    <line class="wireframe-line" x1="5" y1="0" x2="0" y2="40" />
+                    <line class="wireframe-line" x1="115" y1="0" x2="120" y2="40" />
+                    <line class="wireframe-line" x1="5" y1="110" x2="0" y2="160" />
+                    <line class="wireframe-line" x1="115" y1="110" x2="120" y2="160" />
+                </g>
+
+                <!-- Exploded Layer 3 (Heatsink) - floating above -->
+                <g transform="translate(330, 40)" opacity="0.6">
+                    <rect class="wireframe-component" x="0" y="0" width="140" height="80" rx="2" />
+                    <!-- Heatsink fins -->
+                    <line class="wireframe-line" x1="10" y1="0" x2="10" y2="80" />
+                    <line class="wireframe-line" x1="25" y1="0" x2="25" y2="80" />
+                    <line class="wireframe-line" x1="40" y1="0" x2="40" y2="80" />
+                    <line class="wireframe-line" x1="55" y1="0" x2="55" y2="80" />
+                    <line class="wireframe-line" x1="70" y1="0" x2="70" y2="80" />
+                    <line class="wireframe-line" x1="85" y1="0" x2="85" y2="80" />
+                    <line class="wireframe-line" x1="100" y1="0" x2="100" y2="80" />
+                    <line class="wireframe-line" x1="115" y1="0" x2="115" y2="80" />
+                    <line class="wireframe-line" x1="130" y1="0" x2="130" y2="80" />
+                    <!-- Connection lines to layer below -->
+                    <line class="wireframe-line" x1="0" y1="80" x2="10" y2="120" stroke-dasharray="4 2" />
+                    <line class="wireframe-line" x1="140" y1="80" x2="130" y2="120" stroke-dasharray="4 2" />
+                </g>
+
+                <!-- RAM Modules - Left side exploded -->
+                <g transform="translate(80, 120)">
+                    <rect class="wireframe-component" x="0" y="0" width="100" height="30" rx="2" />
+                    <rect class="wireframe-component" x="0" y="40" width="100" height="30" rx="2" />
+                    <!-- Chips on RAM -->
+                    <rect class="wireframe-line" x="10" y="8" width="15" height="14" />
+                    <rect class="wireframe-line" x="30" y="8" width="15" height="14" />
+                    <rect class="wireframe-line" x="50" y="8" width="15" height="14" />
+                    <rect class="wireframe-line" x="70" y="8" width="15" height="14" />
+                    <rect class="wireframe-line" x="10" y="48" width="15" height="14" />
+                    <rect class="wireframe-line" x="30" y="48" width="15" height="14" />
+                    <rect class="wireframe-line" x="50" y="48" width="15" height="14" />
+                    <rect class="wireframe-line" x="70" y="48" width="15" height="14" />
+                    <!-- Connection traces -->
+                    <path class="wireframe-line animated-trace" d="M100,15 L180,15 L220,60" />
+                    <path class="wireframe-line animated-trace" d="M100,55 L180,55 L220,80" />
+                    <text x="50" y="90" text-anchor="middle" fill="rgba(70,130,180,0.8)" font-size="9" font-family="Courier New">DDR5 RAM</text>
+                </g>
+
+                <!-- VRM Section - Top left -->
+                <g transform="translate(100, 240)">
+                    <rect class="wireframe-component" x="0" y="0" width="80" height="60" rx="2" />
+                    <!-- MOSFETs -->
+                    <rect class="wireframe-line pulse-glow" x="10" y="10" width="12" height="15" />
+                    <rect class="wireframe-line pulse-glow" x="27" y="10" width="12" height="15" />
+                    <rect class="wireframe-line pulse-glow" x="44" y="10" width="12" height="15" />
+                    <rect class="wireframe-line pulse-glow" x="61" y="10" width="12" height="15" />
+                    <!-- Inductors -->
+                    <circle class="wireframe-line" cx="20" cy="45" r="8" />
+                    <circle class="wireframe-line" cx="45" cy="45" r="8" />
+                    <circle class="wireframe-line" cx="70" cy="45" r="8" />
+                    <!-- Power traces -->
+                    <path class="wireframe-line-bright animated-trace" d="M80,30 L160,30 L200,60" />
+                    <text x="40" y="75" text-anchor="middle" fill="rgba(70,130,180,0.8)" font-size="9" font-family="Courier New">VRM</text>
+                </g>
+
+                <!-- PCIe Slots - Right side -->
+                <g transform="translate(550, 150)">
+                    <rect class="wireframe-component" x="0" y="0" width="150" height="25" rx="2" />
+                    <rect class="wireframe-component" x="0" y="35" width="150" height="25" rx="2" />
+                    <rect class="wireframe-component" x="0" y="70" width="100" height="20" rx="2" />
+                    <!-- Slot contacts -->
+                    <g class="wireframe-line">
+                        <line x1="10" y1="5" x2="10" y2="20" />
+                        <line x1="20" y1="5" x2="20" y2="20" />
+                        <line x1="30" y1="5" x2="30" y2="20" />
+                        <line x1="40" y1="5" x2="40" y2="20" />
+                        <line x1="50" y1="5" x2="50" y2="20" />
+                        <line x1="60" y1="5" x2="60" y2="20" />
+                        <line x1="70" y1="5" x2="70" y2="20" />
+                        <line x1="80" y1="5" x2="80" y2="20" />
+                        <line x1="90" y1="5" x2="90" y2="20" />
+                        <line x1="100" y1="5" x2="100" y2="20" />
+                    </g>
+                    <!-- Connection to CPU -->
+                    <path class="wireframe-line-bright animated-trace" d="M0,12 L-70,12 L-90,50" />
+                    <path class="wireframe-line animated-trace" d="M0,47 L-60,47 L-80,70" />
+                    <text x="75" y="110" text-anchor="middle" fill="rgba(70,130,180,0.8)" font-size="9" font-family="Courier New">PCIe x16</text>
+                </g>
+
+                <!-- Capacitors array - Bottom -->
+                <g transform="translate(280, 340)">
+                    <circle class="wireframe-component" cx="10" cy="10" r="8" />
+                    <circle class="wireframe-component" cx="35" cy="10" r="8" />
+                    <circle class="wireframe-component" cx="60" cy="10" r="8" />
+                    <circle class="wireframe-component" cx="85" cy="10" r="8" />
+                    <circle class="wireframe-component" cx="110" cy="10" r="8" />
+                    <circle class="wireframe-component" cx="135" cy="10" r="8" />
+                    <circle class="wireframe-component" cx="160" cy="10" r="8" />
+                    <circle class="wireframe-component" cx="185" cy="10" r="8" />
+                    <circle class="wireframe-component" cx="210" cy="10" r="8" />
+                    <!-- Polarity marks -->
+                    <line class="wireframe-line" x1="6" y1="10" x2="14" y2="10" />
+                    <line class="wireframe-line" x1="31" y1="10" x2="39" y2="10" />
+                    <line class="wireframe-line" x1="56" y1="10" x2="64" y2="10" />
+                    <text x="110" y="35" text-anchor="middle" fill="rgba(70,130,180,0.8)" font-size="9" font-family="Courier New">CAPACITORS</text>
+                </g>
+
+                <!-- I/O Controller - Bottom right -->
+                <g transform="translate(580, 280)">
+                    <rect class="wireframe-chip" x="0" y="0" width="60" height="60" rx="3" />
+                    <rect class="wireframe-line-bright" x="10" y="10" width="40" height="40" rx="2" />
+                    <!-- Pins -->
+                    <line class="wireframe-line" x1="-10" y1="20" x2="0" y2="20" />
+                    <line class="wireframe-line" x1="-10" y1="35" x2="0" y2="35" />
+                    <line class="wireframe-line" x1="-10" y1="50" x2="0" y2="50" />
+                    <line class="wireframe-line" x1="60" y1="20" x2="70" y2="20" />
+                    <line class="wireframe-line" x1="60" y1="35" x2="70" y2="35" />
+                    <line class="wireframe-line" x1="60" y1="50" x2="70" y2="50" />
+                    <text x="30" y="35" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="8" font-family="Courier New">I/O</text>
+                    <text x="30" y="80" text-anchor="middle" fill="rgba(70,130,180,0.8)" font-size="9" font-family="Courier New">SOUTHBRIDGE</text>
+                </g>
+
+                <!-- Connection nodes (solder points) -->
+                <g class="wireframe-dot">
+                    <circle cx="300" cy="135" r="3" />
+                    <circle cx="500" cy="135" r="3" />
+                    <circle cx="300" cy="270" r="3" />
+                    <circle cx="500" cy="270" r="3" />
+                    <circle cx="180" cy="200" r="3" />
+                    <circle cx="620" cy="200" r="3" />
+                </g>
+
+                <!-- Data bus traces - animated -->
+                <g class="wireframe-line animated-trace" stroke-dasharray="8 4">
+                    <path d="M180,200 Q250,200 300,180" />
+                    <path d="M620,200 Q550,200 500,180" />
+                    <path d="M400,340 L400,280" />
+                </g>
+
+                <!-- Technical annotations -->
+                <g fill="rgba(70,130,180,0.6)" font-size="8" font-family="Courier New">
+                    <text x="50" y="30">REV 2.0</text>
+                    <text x="700" y="30">SHEET 1/1</text>
+                    <text x="50" y="390">SCALE: 1:1</text>
+                    <text x="650" y="390">DATE: 2024</text>
+                </g>
+            </svg>
+        </div>
+
+        <!-- Physical Switch CTA Button -->
+        <div class="switch-button">
+            <div class="switch-base">
+                <button class="switch-toggle" onclick="handleCTA()">
+                    <span class="switch-indicator"></span>
+                    <span class="switch-label">Initialize System</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function handleCTA() {
+            const indicator = document.querySelector('.switch-indicator');
+            const label = document.querySelector('.switch-label');
+            
+            // Toggle active state
+            if (indicator.style.background === 'rgb(0, 255, 0)') {
+                indicator.style.background = '#333';
+                indicator.style.boxShadow = 'inset 0 1px 2px rgba(0, 0, 0, 0.5)';
+                label.textContent = 'Initialize System';
+            } else {
+                indicator.style.background = '#00ff00';
+                indicator.style.boxShadow = 'inset 0 1px 2px rgba(0, 0, 0, 0.3), 0 0 15px rgba(0, 255, 0, 0.7)';
+                label.textContent = 'System Active';
+                
+                // Add pulse animation to wireframe
+                document.querySelectorAll('.wireframe-line-bright').forEach(el => {
+                    el.style.animation = 'pulseGlow 1s ease-in-out infinite';
+                });
+            }
+        }
+
+        // Add more floating particles dynamically
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 8 + 's';
+            document.querySelector('.hero-section').appendChild(particle);
+            
+            // Remove after animation
+            setTimeout(() => particle.remove(), 8000);
+        }
+
+        // Create particles periodically
+        setInterval(createParticle, 2000);
+    </script>
+</body>
+</html>
