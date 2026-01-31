@@ -1,13 +1,491 @@
 <!DOCTYPE html>
-<html>
-<body>
-    <h2>WebSocket Chat</h2>
-    <div id="messages" style="height: 200px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;"></div>
-    <input type="text" id="msgBox" placeholder="Type a message..." />
-    <button onclick="sendMessage()">Send</button>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Infrastructure</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            background: #0a0a1a;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5%;
+            overflow: hidden;
+        }
+
+        /* Starry Background */
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* Left Content */
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            max-width: 600px;
+            padding: 40px;
+        }
+
+        .hero-content h1 {
+            font-size: 4.5rem;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, #ffffff 0%, #a8c0ff 50%, #6b8cff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-content p {
+            font-size: 1.25rem;
+            color: #a0a0b0;
+            line-height: 1.8;
+            margin-bottom: 32px;
+        }
+
+        .hero-content .cta-button {
+            display: inline-block;
+            padding: 16px 40px;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .hero-content .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(37, 99, 235, 0.6);
+        }
+
+        /* Globe Container */
+        .globe-container {
+            position: relative;
+            z-index: 5;
+            width: 550px;
+            height: 550px;
+        }
+
+        #globe-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Enterprise badge */
+        .enterprise-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(37, 99, 235, 0.1);
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            border-radius: 24px;
+            color: #6b8cff;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 24px;
+        }
+
+        .enterprise-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                padding: 60px 5%;
+            }
+
+            .hero-content {
+                max-width: 100%;
+                margin-bottom: 40px;
+            }
+
+            .hero-content h1 {
+                font-size: 3rem;
+            }
+
+            .globe-container {
+                width: 400px;
+                height: 400px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .globe-container {
+                width: 300px;
+                height: 300px;
+            }
+        }
+
+        /* Chat Section - Below Hero */
+        .chat-section {
+            padding: 60px 5%;
+            background: #0f0f1f;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chat-section h2 {
+            color: #ffffff;
+            margin-bottom: 20px;
+        }
+
+        #messages {
+            height: 200px;
+            overflow-y: scroll;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            color: #ffffff;
+            margin-bottom: 15px;
+        }
+
+        #msgBox {
+            padding: 12px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+            border-radius: 8px;
+            width: 300px;
+            margin-right: 10px;
+        }
+
+        #msgBox::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .chat-section button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .chat-section button:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <!-- Starry Background -->
+        <div class="stars" id="stars"></div>
+        
+        <!-- Left Content -->
+        <div class="hero-content">
+            <div class="enterprise-badge">Enterprise Grade Infrastructure</div>
+            <h1>Global Infrastructure</h1>
+            <p>Deploy your applications across our global network with ultra-low latency and 99.99% uptime. Built for scale, designed for enterprise.</p>
+            <button class="cta-button">Get Started</button>
+        </div>
+        
+        <!-- Right: 3D Globe -->
+        <div class="globe-container">
+            <canvas id="globe-canvas"></canvas>
+        </div>
+    </section>
+
+    <!-- Chat Section (Original Content) -->
+    <section class="chat-section">
+        <h2>WebSocket Chat</h2>
+        <div id="messages"></div>
+        <input type="text" id="msgBox" placeholder="Type a message..." />
+        <button onclick="sendMessage()">Send</button>
+    </section>
+    
     <script>
-        // Connect to the WebSocket (Automatic wss:// detection)
+        // Generate stars for background (limited to 100 for performance)
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = Math.random() * 3 + 1 + 'px';
+                star.style.height = star.style.width;
+                star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
+                starsContainer.appendChild(star);
+            }
+        }
+        createStars();
+
+        // Pure Canvas 3D Wireframe Globe
+        const canvas = document.getElementById('globe-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Server locations (lat, lng) - major cloud regions worldwide
+        const serverLocations = [
+            { lat: 37.7749, lng: -122.4194, name: 'San Francisco' },
+            { lat: 40.7128, lng: -74.0060, name: 'New York' },
+            { lat: 51.5074, lng: -0.1278, name: 'London' },
+            { lat: 48.8566, lng: 2.3522, name: 'Paris' },
+            { lat: 52.5200, lng: 13.4050, name: 'Frankfurt' },
+            { lat: 35.6762, lng: 139.6503, name: 'Tokyo' },
+            { lat: 1.3521, lng: 103.8198, name: 'Singapore' },
+            { lat: -33.8688, lng: 151.2093, name: 'Sydney' },
+            { lat: 19.0760, lng: 72.8777, name: 'Mumbai' },
+            { lat: 55.7558, lng: 37.6173, name: 'Moscow' },
+            { lat: 25.2048, lng: 55.2708, name: 'Dubai' },
+            { lat: -23.5505, lng: -46.6333, name: 'São Paulo' },
+            { lat: 37.5665, lng: 126.9780, name: 'Seoul' },
+            { lat: 22.3193, lng: 114.1694, name: 'Hong Kong' },
+            { lat: 45.4215, lng: -75.6972, name: 'Montreal' },
+            { lat: 47.6062, lng: -122.3321, name: 'Seattle' },
+            { lat: 34.0522, lng: -118.2437, name: 'Los Angeles' },
+            { lat: -26.2041, lng: 28.0473, name: 'Johannesburg' },
+            { lat: 31.2304, lng: 121.4737, name: 'Shanghai' }
+        ];
+        
+        let rotation = 0;
+        let time = 0;
+        
+        function resizeCanvas() {
+            const container = document.querySelector('.globe-container');
+            const size = Math.min(container.clientWidth, container.clientHeight);
+            canvas.width = size * window.devicePixelRatio;
+            canvas.height = size * window.devicePixelRatio;
+            canvas.style.width = size + 'px';
+            canvas.style.height = size + 'px';
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // Convert lat/lng to 3D coordinates
+        function latLngTo3D(lat, lng, radius) {
+            const latRad = lat * Math.PI / 180;
+            const lngRad = lng * Math.PI / 180;
+            return {
+                x: radius * Math.cos(latRad) * Math.cos(lngRad),
+                y: radius * Math.sin(latRad),
+                z: radius * Math.cos(latRad) * Math.sin(lngRad)
+            };
+        }
+        
+        // Rotate point around Y axis
+        function rotateY(point, angle) {
+            const cos = Math.cos(angle);
+            const sin = Math.sin(angle);
+            return {
+                x: point.x * cos - point.z * sin,
+                y: point.y,
+                z: point.x * sin + point.z * cos
+            };
+        }
+        
+        // Project 3D to 2D
+        function project(point, centerX, centerY, fov) {
+            const scale = fov / (fov + point.z);
+            return {
+                x: centerX + point.x * scale,
+                y: centerY - point.y * scale,
+                scale: scale,
+                z: point.z
+            };
+        }
+        
+        function drawGlobe() {
+            const size = canvas.width / window.devicePixelRatio;
+            const centerX = size / 2;
+            const centerY = size / 2;
+            const radius = size * 0.38;
+            const fov = 300;
+            
+            ctx.clearRect(0, 0, size, size);
+            
+            // Draw ambient glow
+            const gradient = ctx.createRadialGradient(centerX, centerY, radius * 0.8, centerX, centerY, radius * 1.5);
+            gradient.addColorStop(0, 'rgba(74, 144, 217, 0.15)');
+            gradient.addColorStop(0.5, 'rgba(74, 144, 217, 0.05)');
+            gradient.addColorStop(1, 'rgba(74, 144, 217, 0)');
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius * 1.5, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw latitude lines
+            ctx.strokeStyle = 'rgba(107, 140, 255, 0.3)';
+            ctx.lineWidth = 1;
+            
+            for (let lat = -60; lat <= 60; lat += 30) {
+                ctx.beginPath();
+                let firstPoint = true;
+                for (let lng = 0; lng <= 360; lng += 5) {
+                    const point3D = latLngTo3D(lat, lng, radius);
+                    const rotated = rotateY(point3D, rotation);
+                    const projected = project(rotated, centerX, centerY, fov);
+                    
+                    if (rotated.z > 0) {
+                        if (firstPoint) {
+                            ctx.moveTo(projected.x, projected.y);
+                            firstPoint = false;
+                        } else {
+                            ctx.lineTo(projected.x, projected.y);
+                        }
+                    } else {
+                        firstPoint = true;
+                    }
+                }
+                ctx.stroke();
+            }
+            
+            // Draw longitude lines
+            for (let lng = 0; lng < 360; lng += 30) {
+                ctx.beginPath();
+                let firstPoint = true;
+                for (let lat = -90; lat <= 90; lat += 5) {
+                    const point3D = latLngTo3D(lat, lng, radius);
+                    const rotated = rotateY(point3D, rotation);
+                    const projected = project(rotated, centerX, centerY, fov);
+                    
+                    if (rotated.z > 0) {
+                        if (firstPoint) {
+                            ctx.moveTo(projected.x, projected.y);
+                            firstPoint = false;
+                        } else {
+                            ctx.lineTo(projected.x, projected.y);
+                        }
+                    } else {
+                        firstPoint = true;
+                    }
+                }
+                ctx.stroke();
+            }
+            
+            // Draw globe outline
+            ctx.strokeStyle = 'rgba(74, 144, 217, 0.5)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // Draw server location dots with glow
+            const dotsToDraw = [];
+            
+            serverLocations.forEach((location, index) => {
+                const point3D = latLngTo3D(location.lat, -location.lng, radius * 1.02);
+                const rotated = rotateY(point3D, rotation);
+                const projected = project(rotated, centerX, centerY, fov);
+                
+                if (rotated.z > 0) {
+                    dotsToDraw.push({
+                        x: projected.x,
+                        y: projected.y,
+                        z: rotated.z,
+                        scale: projected.scale,
+                        index: index
+                    });
+                }
+            });
+            
+            // Sort by z for proper depth
+            dotsToDraw.sort((a, b) => a.z - b.z);
+            
+            // Draw dots
+            dotsToDraw.forEach(dot => {
+                const pulseScale = 1 + Math.sin(time * 3 + dot.index) * 0.3;
+                const baseSize = 4 * dot.scale;
+                
+                // Outer glow
+                const glowGradient = ctx.createRadialGradient(
+                    dot.x, dot.y, 0,
+                    dot.x, dot.y, baseSize * 4 * pulseScale
+                );
+                glowGradient.addColorStop(0, 'rgba(34, 197, 94, 0.6)');
+                glowGradient.addColorStop(0.5, 'rgba(34, 197, 94, 0.2)');
+                glowGradient.addColorStop(1, 'rgba(34, 197, 94, 0)');
+                
+                ctx.fillStyle = glowGradient;
+                ctx.beginPath();
+                ctx.arc(dot.x, dot.y, baseSize * 4 * pulseScale, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Core dot
+                ctx.fillStyle = '#22c55e';
+                ctx.beginPath();
+                ctx.arc(dot.x, dot.y, baseSize, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Bright center
+                ctx.fillStyle = '#86efac';
+                ctx.beginPath();
+                ctx.arc(dot.x, dot.y, baseSize * 0.5, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            
+            rotation += 0.005;
+            time += 0.016;
+            requestAnimationFrame(drawGlobe);
+        }
+        
+        drawGlobe();
+
+        // WebSocket Chat
         const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
         const ws = new WebSocket(`${protocol}://${window.location.host}`);
 
