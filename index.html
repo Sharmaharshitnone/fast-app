@@ -1,26 +1,123 @@
 <!DOCTYPE html>
-<html>
-<body>
-    <h2>WebSocket Chat</h2>
-    <div id="messages" style="height: 200px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;"></div>
-    <input type="text" id="msgBox" placeholder="Type a message..." />
-    <button onclick="sendMessage()">Send</button>
-
-    <script>
-        // Connect to the WebSocket (Automatic wss:// detection)
-        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-        const ws = new WebSocket(`${protocol}://${window.location.host}`);
-
-        ws.onmessage = (event) => {
-            const messages = document.getElementById('messages');
-            messages.innerHTML += `<p>${event.data}</p>`;
-        };
-
-        function sendMessage() {
-            const input = document.getElementById('msgBox');
-            ws.send(input.value);
-            input.value = '';
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimalist Void</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-    </script>
+
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Navigation in four corners */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        nav a {
+            position: absolute;
+            font-size: 0.75rem;
+            color: #ffffff;
+            text-decoration: none;
+            pointer-events: auto;
+            transition: opacity 0.2s ease;
+        }
+
+        nav a:hover {
+            opacity: 0.7;
+        }
+
+        .nav-top-left {
+            top: 1.5rem;
+            left: 1.5rem;
+        }
+
+        .nav-top-right {
+            top: 1.5rem;
+            right: 1.5rem;
+        }
+
+        .nav-bottom-left {
+            bottom: 1.5rem;
+            left: 1.5rem;
+        }
+
+        .nav-bottom-right {
+            bottom: 1.5rem;
+            right: 1.5rem;
+        }
+
+        /* Hero section centered */
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .hero-text {
+            font-size: 1.5rem;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+
+        /* Blinking cursor terminal prompt */
+        .terminal-prompt {
+            margin-top: 1.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            color: #00ff00;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 0.6rem;
+            height: 1.2rem;
+            background-color: #00ff00;
+            margin-left: 0.25rem;
+            vertical-align: text-bottom;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% {
+                opacity: 1;
+            }
+            50.1%, 100% {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="#about" class="nav-top-left">About</a>
+        <a href="#work" class="nav-top-right">Work</a>
+        <a href="#contact" class="nav-bottom-left">Contact</a>
+        <a href="#blog" class="nav-bottom-right">Blog</a>
+    </nav>
+
+    <section class="hero">
+        <p class="hero-text">I build things that work.</p>
+        <div class="terminal-prompt">
+            <span>&gt;</span><span class="cursor"></span>
+        </div>
+    </section>
 </body>
 </html>
