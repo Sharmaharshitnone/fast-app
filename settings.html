@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings & Config</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .settings-container {
+            display: flex;
+            min-height: 100vh;
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Left Column - Categories */
+        .categories-panel {
+            width: 250px;
+            background-color: #2c3e50;
+            padding: 20px 0;
+            flex-shrink: 0;
+        }
+
+        .categories-header {
+            color: #fff;
+            font-size: 1.25rem;
+            font-weight: 600;
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #34495e;
+            margin-bottom: 10px;
+        }
+
+        .category-list {
+            list-style: none;
+        }
+
+        .category-item {
+            padding: 15px 20px;
+            color: #bdc3c7;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .category-item:hover {
+            background-color: #34495e;
+            color: #fff;
+        }
+
+        .category-item.active {
+            background-color: #3498db;
+            color: #fff;
+            border-left-color: #fff;
+        }
+
+        .category-icon {
+            font-size: 1.2rem;
+        }
+
+        /* Right Column - Settings Content */
+        .settings-panel {
+            flex: 1;
+            padding: 30px 40px;
+            overflow-y: auto;
+        }
+
+        .settings-header {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .settings-section {
+            display: none;
+        }
+
+        .settings-section.active {
+            display: block;
+        }
+
+        .settings-group {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .settings-group-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .settings-group-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background-color: #3498db;
+            border-radius: 2px;
+        }
+
+        /* Form Controls */
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .form-row:last-child {
+            border-bottom: none;
+        }
+
+        .form-label {
+            flex: 1;
+        }
+
+        .form-label-title {
+            font-weight: 500;
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+
+        .form-label-description {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+        }
+
+        .form-control {
+            flex-shrink: 0;
+            margin-left: 20px;
+        }
+
+        /* Text Inputs */
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="number"] {
+            width: 250px;
+            padding: 10px 14px;
+            border: 1px solid #dce1e6;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+
+        .toggle-slider::before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: #3498db;
+        }
+
+        .toggle-switch input:checked + .toggle-slider::before {
+            transform: translateX(24px);
+        }
+
+        /* Dropdown Select */
+        select {
+            width: 200px;
+            padding: 10px 14px;
+            border: 1px solid #dce1e6;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background-color: #fff;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23333' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 35px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        /* Range Slider */
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        input[type="range"] {
+            width: 150px;
+            height: 6px;
+            border-radius: 3px;
+            background: #dce1e6;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+            border: none;
+        }
+
+        .slider-value {
+            min-width: 45px;
+            text-align: center;
+            font-weight: 500;
+            color: #2c3e50;
+            background-color: #ecf0f1;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-danger {
+            background-color: #e74c3c;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        /* Textarea */
+        textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 10px 14px;
+            border: 1px solid #dce1e6;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        /* Checkbox Group */
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #3498db;
+        }
+
+        /* Radio Group */
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .radio-item input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #3498db;
+        }
+
+        /* Info Badge */
+        .info-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            background-color: #e8f4fd;
+            color: #3498db;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            margin-left: 8px;
+        }
+
+        /* Navigation Link */
+        .nav-link {
+            color: #3498db;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="settings-container">
+        <!-- Left Column - Categories -->
+        <nav class="categories-panel">
+            <h2 class="categories-header">⚙️ Settings</h2>
+            <ul class="category-list">
+                <li class="category-item active" data-section="general">
+                    <span class="category-icon">🏠</span>
+                    General
+                </li>
+                <li class="category-item" data-section="account">
+                    <span class="category-icon">👤</span>
+                    Account
+                </li>
+                <li class="category-item" data-section="billing">
+                    <span class="category-icon">💳</span>
+                    Billing
+                </li>
+                <li class="category-item" data-section="notifications">
+                    <span class="category-icon">🔔</span>
+                    Notifications
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Right Column - Settings Content -->
+        <main class="settings-panel">
+            <!-- General Settings -->
+            <section id="general" class="settings-section active">
+                <h1 class="settings-header">General Settings</h1>
+                
+                <div class="settings-group">
+                    <h3 class="settings-group-title">Application Preferences</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Language</div>
+                            <div class="form-label-description">Select your preferred language</div>
+                        </div>
+                        <div class="form-control">
+                            <select id="language">
+                                <option value="en">English</option>
+                                <option value="es">Spanish</option>
+                                <option value="fr">French</option>
+                                <option value="de">German</option>
+                                <option value="ja">Japanese</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Timezone</div>
+                            <div class="form-label-description">Set your local timezone</div>
+                        </div>
+                        <div class="form-control">
+                            <select id="timezone">
+                                <option value="utc">UTC (Coordinated Universal Time)</option>
+                                <option value="est">EST (Eastern Standard Time)</option>
+                                <option value="pst">PST (Pacific Standard Time)</option>
+                                <option value="gmt">GMT (Greenwich Mean Time)</option>
+                                <option value="cet">CET (Central European Time)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Dark Mode</div>
+                            <div class="form-label-description">Enable dark mode for the interface</div>
+                        </div>
+                        <div class="form-control">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="darkMode">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Font Size</div>
+                            <div class="form-label-description">Adjust the base font size</div>
+                        </div>
+                        <div class="form-control">
+                            <div class="slider-container">
+                                <input type="range" id="fontSize" min="12" max="24" value="16">
+                                <span class="slider-value" id="fontSizeValue">16px</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <h3 class="settings-group-title">Privacy & Security</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Two-Factor Authentication</div>
+                            <div class="form-label-description">Add an extra layer of security</div>
+                        </div>
+                        <div class="form-control">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="twoFactor">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Session Timeout</div>
+                            <div class="form-label-description">Auto logout after inactivity</div>
+                        </div>
+                        <div class="form-control">
+                            <select id="sessionTimeout">
+                                <option value="15">15 minutes</option>
+                                <option value="30">30 minutes</option>
+                                <option value="60" selected>1 hour</option>
+                                <option value="120">2 hours</option>
+                                <option value="never">Never</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Activity Logging</div>
+                            <div class="form-label-description">Log all account activity</div>
+                        </div>
+                        <div class="form-control">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="activityLog" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary">Save Changes</button>
+                    <button class="btn btn-secondary">Reset to Defaults</button>
+                </div>
+            </section>
+
+            <!-- Account Settings -->
+            <section id="account" class="settings-section">
+                <h1 class="settings-header">Account Settings</h1>
+                
+                <div class="settings-group">
+                    <h3 class="settings-group-title">Profile Information</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Display Name</div>
+                            <div class="form-label-description">Your public display name</div>
+                        </div>
+                        <div class="form-control">
+                            <input type="text" id="displayName" placeholder="Enter your name" value="John Doe">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Email Address</div>
+                            <div class="form-label-description">Your primary email address</div>
+                        </div>
+                        <div class="form-control">
+                            <input type="email" id="email" placeholder="Enter your email" value="john@example.com">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Username</div>
+                            <div class="form-label-description">Your unique username</div>
+                        </div>
+                        <div class="form-control">
+                            <input type="text" id="username" placeholder="Enter username" value="johndoe">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Phone Number</div>
+                            <div class="form-label-description">For account recovery</div>
+                        </div>
+                        <div class="form-control">
+                            <input type="text" id="phone" placeholder="+1 (555) 000-0000">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <h3 class="settings-group-title">Password & Security</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Current Password</div>
+                            <div class="form-label-description">Enter your current password</div>
+                        </div>
+                        <div class="form-control">
+                            <input type="password" id="currentPassword" placeholder="••••••••">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">New Password</div>
+                            <div class="form-label-description">Minimum 8 characters</div>
+                        </div>
+                        <div class="form-control">
+                            <input type="password" id="newPassword" placeholder="••••••••">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Confirm Password</div>
+                            <div class="form-label-description">Re-enter your new password</div>
+                        </div>
+                        <div class="form-control">
+                            <input type="password" id="confirmPassword" placeholder="••••••••">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <h3 class="settings-group-title">Account Visibility</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Profile Visibility</div>
+                            <div class="form-label-description">Who can see your profile</div>
+                        </div>
+                        <div class="form-control">
+                            <select id="profileVisibility">
+                                <option value="public">Public</option>
+                                <option value="friends">Friends Only</option>
+                                <option value="private">Private</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Online Status</div>
+                            <div class="form-label-description">Show when you're online</div>
+                        </div>
+                        <div class="form-control">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="onlineStatus" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary">Save Changes</button>
+                    <button class="btn btn-danger">Delete Account</button>
+                </div>
+            </section>
+
+            <!-- Billing Settings -->
+            <section id="billing" class="settings-section">
+                <h1 class="settings-header">Billing Settings</h1>
+                
+                <div class="settings-group">
+                    <h3 class="settings-group-title">Current Plan <span class="info-badge">Pro Plan</span></h3>
+                    
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Subscription Plan</div>
+                            <div class="form-label-description">Choose your subscription tier</div>
+                        </div>
+                        <div class="form-control">
+                            <select id="subscriptionPlan">
+                                <option value="free">Free - $0/month</option>
+                                <option value="basic">Basic - $9.99/month</option>
+                                <option value="pro" selected>Pro - $19.99/month</option>
+                                <option value="enterprise">Enterprise - $49.99/month</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Billing Cycle</div>
+                            <div class="form-label-description">Select your billing frequency</div>
+                        </div>
+                        <div class="form-control">
+                            <div class="radio-group">
+                                <label class="radio-item">
+                                    <input type="radio" name="billingCycle" value="monthly" checked> Monthly
+                                </label>
+                                <label class="radio-item">
+                                    <input type="radio" name="billingCycle" value="yearly"> Yearly (Save 20%)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Auto-Renewal</div>
+                            <div class="form-label-description">Automatically renew subscription</div>
+                        </div>
+                        <div class="form-control">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="autoRenewal" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <h3 class="settings-group-title">Payment Method</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Card Number</div>
+                            <div class="form-label-description">Your credit or debit card</div>
+                        </div>
+                        <div class="form-control">
+                            <input type="text" id="cardNumber" placeholder="•••• •••• •••• 4242" value="•••• •••• •••• 4242">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Expiry Date</div>
+                            <div class="form-label-description">Card expiration date</div>
+                        </div>
+                        <div class="form-control">
+                            <input type="text" id="expiryDate" placeholder="MM/YY" value="12/26">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Payment Currency</div>
+                            <div class="form-label-description">Preferred billing currency</div>
+                        </div>
+                        <div class="form-control">
+                            <select id="currency">
+                                <option value="usd" selected>USD - US Dollar</option>
+                                <option value="eur">EUR - Euro</option>
+                                <option value="gbp">GBP - British Pound</option>
+                                <option value="jpy">JPY - Japanese Yen</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <h3 class="settings-group-title">Billing Address</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Street Address</div>
+                            <div class="form-label-description">Your billing address</div>
+                        </div>
+                        <div class="form-control">
+                            <input type="text" id="streetAddress" placeholder="123 Main Street">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">City</div>
+                            <div class="form-label-description">City name</div>
+                        </div>
+                        <div class="form-control">
+                            <input type="text" id="city" placeholder="San Francisco">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Country</div>
+                            <div class="form-label-description">Your country</div>
+                        </div>
+                        <div class="form-control">
+                            <select id="country">
+                                <option value="us" selected>United States</option>
+                                <option value="uk">United Kingdom</option>
+                                <option value="ca">Canada</option>
+                                <option value="au">Australia</option>
+                                <option value="de">Germany</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Postal Code</div>
+                            <div class="form-label-description">ZIP or postal code</div>
+                        </div>
+                        <div class="form-control">
+                            <input type="text" id="postalCode" placeholder="94102">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary">Update Payment</button>
+                    <button class="btn btn-secondary">Download Invoices</button>
+                </div>
+            </section>
+
+            <!-- Notification Settings -->
+            <section id="notifications" class="settings-section">
+                <h1 class="settings-header">Notification Settings</h1>
+                
+                <div class="settings-group">
+                    <h3 class="settings-group-title">Email Notifications</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Marketing Emails</div>
+                            <div class="form-label-description">Receive promotional content</div>
+                        </div>
+                        <div class="form-control">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="marketingEmails">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Security Alerts</div>
+                            <div class="form-label-description">Get notified of security events</div>
+                        </div>
+                        <div class="form-control">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="securityAlerts" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Weekly Digest</div>
+                            <div class="form-label-description">Weekly summary of activity</div>
+                        </div>
+                        <div class="form-control">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="weeklyDigest" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Product Updates</div>
+                            <div class="form-label-description">New features and improvements</div>
+                        </div>
+                        <div class="form-control">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="productUpdates" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <h3 class="settings-group-title">Push Notifications</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Enable Push Notifications</div>
+                            <div class="form-label-description">Receive notifications in browser</div>
+                        </div>
+                        <div class="form-control">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="pushNotifications" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Sound Alerts</div>
+                            <div class="form-label-description">Play sound for notifications</div>
+                        </div>
+                        <div class="form-control">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="soundAlerts" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Notification Volume</div>
+                            <div class="form-label-description">Adjust notification sound level</div>
+                        </div>
+                        <div class="form-control">
+                            <div class="slider-container">
+                                <input type="range" id="notificationVolume" min="0" max="100" value="70">
+                                <span class="slider-value" id="volumeValue">70%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <h3 class="settings-group-title">Notification Schedule</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Quiet Hours</div>
+                            <div class="form-label-description">Mute notifications during specific hours</div>
+                        </div>
+                        <div class="form-control">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="quietHours">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Quiet Hours Start</div>
+                            <div class="form-label-description">When to start muting</div>
+                        </div>
+                        <div class="form-control">
+                            <select id="quietStart">
+                                <option value="20:00">8:00 PM</option>
+                                <option value="21:00">9:00 PM</option>
+                                <option value="22:00" selected>10:00 PM</option>
+                                <option value="23:00">11:00 PM</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Quiet Hours End</div>
+                            <div class="form-label-description">When to resume notifications</div>
+                        </div>
+                        <div class="form-control">
+                            <select id="quietEnd">
+                                <option value="06:00">6:00 AM</option>
+                                <option value="07:00" selected>7:00 AM</option>
+                                <option value="08:00">8:00 AM</option>
+                                <option value="09:00">9:00 AM</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label">
+                            <div class="form-label-title">Email Frequency</div>
+                            <div class="form-label-description">How often to receive email digests</div>
+                        </div>
+                        <div class="form-control">
+                            <select id="emailFrequency">
+                                <option value="realtime">Real-time</option>
+                                <option value="daily" selected>Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <h3 class="settings-group-title">Notification Channels</h3>
+                    
+                    <div class="form-row" style="flex-direction: column; align-items: flex-start;">
+                        <div class="form-label" style="margin-bottom: 15px;">
+                            <div class="form-label-title">Select notification channels</div>
+                            <div class="form-label-description">Choose where you want to receive notifications</div>
+                        </div>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="channelEmail" checked> Email
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="channelSMS"> SMS
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="channelPush" checked> Push Notifications
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="channelSlack"> Slack
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary">Save Preferences</button>
+                    <button class="btn btn-secondary">Unsubscribe All</button>
+                </div>
+            </section>
+
+            <a href="/" class="nav-link">← Back to Home</a>
+        </main>
+    </div>
+
+    <script>
+        // Category Navigation
+        const categoryItems = document.querySelectorAll('.category-item');
+        const settingsSections = document.querySelectorAll('.settings-section');
+
+        categoryItems.forEach(item => {
+            item.addEventListener('click', () => {
+                // Remove active class from all items
+                categoryItems.forEach(i => i.classList.remove('active'));
+                settingsSections.forEach(s => s.classList.remove('active'));
+
+                // Add active class to clicked item
+                item.classList.add('active');
+                const sectionId = item.getAttribute('data-section');
+                document.getElementById(sectionId).classList.add('active');
+            });
+        });
+
+        // Slider Value Updates
+        const fontSizeSlider = document.getElementById('fontSize');
+        const fontSizeValue = document.getElementById('fontSizeValue');
+        fontSizeSlider.addEventListener('input', () => {
+            fontSizeValue.textContent = fontSizeSlider.value + 'px';
+        });
+
+        const volumeSlider = document.getElementById('notificationVolume');
+        const volumeValue = document.getElementById('volumeValue');
+        volumeSlider.addEventListener('input', () => {
+            volumeValue.textContent = volumeSlider.value + '%';
+        });
+
+        // Save notification (demo)
+        document.querySelectorAll('.btn-primary').forEach(btn => {
+            btn.addEventListener('click', () => {
+                alert('Settings saved successfully!');
+            });
+        });
+    </script>
+</body>
+</html>
