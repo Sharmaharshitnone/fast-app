@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Resource Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --sidebar-bg: #232f3e;
+            --sidebar-hover: #37475a;
+            --sidebar-text: #d5dbdb;
+            --sidebar-active: #ec7211;
+            --header-bg: #232f3e;
+            --main-bg: #f4f6f8;
+            --card-bg: #ffffff;
+            --border-color: #e1e4e8;
+            --text-primary: #16191f;
+            --text-secondary: #545b64;
+            --accent-color: #0073bb;
+            --success-color: #1d8102;
+            --warning-color: #ff9900;
+            --tag-bg: #f2f3f3;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--main-bg);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: var(--header-bg);
+            color: white;
+            padding: 0 20px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--sidebar-hover);
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-logo svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .header-logo span {
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .header-nav a {
+            color: var(--sidebar-text);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .header-nav a:hover {
+            color: white;
+        }
+
+        .header-region {
+            background: var(--sidebar-hover);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        /* Main Layout */
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #8d9096;
+            border-bottom: 1px solid var(--sidebar-hover);
+        }
+
+        .tree-item {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .tree-header {
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
+            gap: 8px;
+            font-size: 14px;
+            transition: background 0.15s;
+        }
+
+        .tree-header:hover {
+            background: var(--sidebar-hover);
+        }
+
+        .tree-header.active {
+            background: var(--sidebar-hover);
+            border-left: 3px solid var(--sidebar-active);
+            padding-left: 13px;
+        }
+
+        .tree-icon {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .tree-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .tree-toggle {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .tree-toggle.expanded {
+            transform: rotate(90deg);
+        }
+
+        .tree-children {
+            display: none;
+            padding-left: 20px;
+        }
+
+        .tree-children.expanded {
+            display: block;
+        }
+
+        .tree-leaf {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px 8px 32px;
+            gap: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .tree-leaf:hover {
+            background: var(--sidebar-hover);
+        }
+
+        .tree-leaf.active {
+            background: var(--sidebar-hover);
+            border-left: 3px solid var(--sidebar-active);
+            padding-left: 29px;
+        }
+
+        .instance-count {
+            margin-left: auto;
+            background: var(--sidebar-hover);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            color: #8d9096;
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .content-header {
+            background: var(--card-bg);
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .breadcrumb a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .content-title {
+            font-size: 22px;
+            font-weight: 400;
+            margin-top: 8px;
+        }
+
+        .content-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            font-size: 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        .btn-primary:hover {
+            background: #005a92;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: #f4f6f8;
+        }
+
+        /* Properties Panel */
+        .properties-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .properties-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+        }
+
+        .property-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .property-card-header {
+            background: #fafbfc;
+            padding: 12px 16px;
+            font-size: 16px;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .property-card-body {
+            padding: 16px;
+        }
+
+        .property-row {
+            display: flex;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f2f4;
+        }
+
+        .property-row:last-child {
+            border-bottom: none;
+        }
+
+        .property-label {
+            width: 160px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .property-value {
+            font-size: 14px;
+            color: var(--text-primary);
+            word-break: break-all;
+        }
+
+        .property-value a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .property-value a:hover {
+            text-decoration: underline;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-running {
+            background: #d4edda;
+            color: var(--success-color);
+        }
+
+        .status-stopped {
+            background: #f8d7da;
+            color: #dc3545;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        /* Tags */
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            display: inline-flex;
+            background: var(--tag-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 12px;
+            overflow: hidden;
+        }
+
+        .tag-key {
+            background: #e9ecef;
+            padding: 4px 8px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .tag-value {
+            padding: 4px 8px;
+            color: var(--text-primary);
+        }
+
+        /* Security Groups Table */
+        .sg-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .sg-table th {
+            text-align: left;
+            padding: 10px 12px;
+            background: #fafbfc;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .sg-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f0f2f4;
+        }
+
+        .sg-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .sg-link {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .sg-link:hover {
+            text-decoration: underline;
+        }
+
+        /* IP Addresses */
+        .ip-container {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .ip-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ip-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            background: #f0f2f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 4px;
+            border-radius: 4px;
+            transition: background 0.15s;
+        }
+
+        .copy-btn:hover {
+            background: #f0f2f4;
+            color: var(--text-primary);
+        }
+
+        /* Metrics Preview */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .metric-item {
+            background: #fafbfc;
+            padding: 16px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Volume List */
+        .volume-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f2f4;
+        }
+
+        .volume-item:last-child {
+            border-bottom: none;
+        }
+
+        .volume-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .volume-id {
+            color: var(--accent-color);
+            font-size: 13px;
+        }
+
+        .volume-device {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .volume-size {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+            </svg>
+            <span>Cloud Resource Manager</span>
+        </div>
+        <nav class="header-nav">
+            <a href="#">Services</a>
+            <a href="#">Resource Groups</a>
+            <a href="#">Cost Explorer</a>
+            <div class="header-region">🌐 US East (N. Virginia)</div>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">Resources</div>
+            
+            <!-- Compute Folder -->
+            <div class="tree-item" data-folder="compute">
+                <div class="tree-header" onclick="toggleFolder('compute')">
+                    <div class="tree-toggle expanded" id="toggle-compute">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                    </div>
+                    <div class="tree-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <path d="M9 8h6M9 12h6M9 16h4"/>
+                        </svg>
+                    </div>
+                    <span>Compute</span>
+                </div>
+                <div class="tree-children expanded" id="folder-compute">
+                    <div class="tree-leaf active" onclick="selectResource('ec2', this)">
+                        <div class="tree-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#ff9900" stroke-width="2">
+                                <rect x="4" y="4" width="16" height="16" rx="2"/>
+                                <line x1="4" y1="10" x2="20" y2="10"/>
+                                <line x1="10" y1="4" x2="10" y2="20"/>
+                            </svg>
+                        </div>
+                        <span>EC2 Instances</span>
+                        <span class="instance-count">7</span>
+                    </div>
+                    <div class="tree-leaf" onclick="selectResource('lambda', this)">
+                        <div class="tree-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#ff9900" stroke-width="2">
+                                <path d="M4 20l4-16h2l3 10 3-10h2l4 16"/>
+                            </svg>
+                        </div>
+                        <span>Lambda Functions</span>
+                        <span class="instance-count">12</span>
+                    </div>
+                    <div class="tree-leaf" onclick="selectResource('ecs', this)">
+                        <div class="tree-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#ff9900" stroke-width="2">
+                                <rect x="3" y="3" width="7" height="7"/>
+                                <rect x="14" y="3" width="7" height="7"/>
+                                <rect x="3" y="14" width="7" height="7"/>
+                                <rect x="14" y="14" width="7" height="7"/>
+                            </svg>
+                        </div>
+                        <span>ECS Clusters</span>
+                        <span class="instance-count">3</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Storage Folder -->
+            <div class="tree-item" data-folder="storage">
+                <div class="tree-header" onclick="toggleFolder('storage')">
+                    <div class="tree-toggle" id="toggle-storage">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                    </div>
+                    <div class="tree-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <ellipse cx="12" cy="5" rx="9" ry="3"/>
+                            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+                            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+                        </svg>
+                    </div>
+                    <span>Storage</span>
+                </div>
+                <div class="tree-children" id="folder-storage">
+                    <div class="tree-leaf" onclick="selectResource('s3', this)">
+                        <div class="tree-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#1d8102" stroke-width="2">
+                                <path d="M4 4h16v16H4z"/>
+                                <path d="M4 4l8 8-8 8"/>
+                            </svg>
+                        </div>
+                        <span>S3 Buckets</span>
+                        <span class="instance-count">15</span>
+                    </div>
+                    <div class="tree-leaf" onclick="selectResource('ebs', this)">
+                        <div class="tree-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#1d8102" stroke-width="2">
+                                <rect x="4" y="2" width="16" height="20" rx="2"/>
+                                <line x1="4" y1="8" x2="20" y2="8"/>
+                            </svg>
+                        </div>
+                        <span>EBS Volumes</span>
+                        <span class="instance-count">24</span>
+                    </div>
+                    <div class="tree-leaf" onclick="selectResource('efs', this)">
+                        <div class="tree-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#1d8102" stroke-width="2">
+                                <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
+                            </svg>
+                        </div>
+                        <span>EFS</span>
+                        <span class="instance-count">2</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Networking Folder -->
+            <div class="tree-item" data-folder="networking">
+                <div class="tree-header" onclick="toggleFolder('networking')">
+                    <div class="tree-toggle" id="toggle-networking">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                    </div>
+                    <div class="tree-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="2" y1="12" x2="22" y2="12"/>
+                            <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+                        </svg>
+                    </div>
+                    <span>Networking</span>
+                </div>
+                <div class="tree-children" id="folder-networking">
+                    <div class="tree-leaf" onclick="selectResource('vpc', this)">
+                        <div class="tree-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#8c4fff" stroke-width="2">
+                                <rect x="2" y="6" width="20" height="12" rx="2"/>
+                                <path d="M6 12h12"/>
+                            </svg>
+                        </div>
+                        <span>VPCs</span>
+                        <span class="instance-count">4</span>
+                    </div>
+                    <div class="tree-leaf" onclick="selectResource('subnet', this)">
+                        <div class="tree-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#8c4fff" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18"/>
+                                <line x1="3" y1="12" x2="21" y2="12"/>
+                                <line x1="12" y1="3" x2="12" y2="21"/>
+                            </svg>
+                        </div>
+                        <span>Subnets</span>
+                        <span class="instance-count">16</span>
+                    </div>
+                    <div class="tree-leaf" onclick="selectResource('sg', this)">
+                        <div class="tree-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#8c4fff" stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            </svg>
+                        </div>
+                        <span>Security Groups</span>
+                        <span class="instance-count">9</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Database Folder -->
+            <div class="tree-item" data-folder="database">
+                <div class="tree-header" onclick="toggleFolder('database')">
+                    <div class="tree-toggle" id="toggle-database">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                    </div>
+                    <div class="tree-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <ellipse cx="12" cy="5" rx="9" ry="3"/>
+                            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+                            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+                        </svg>
+                    </div>
+                    <span>Database</span>
+                </div>
+                <div class="tree-children" id="folder-database">
+                    <div class="tree-leaf" onclick="selectResource('rds', this)">
+                        <div class="tree-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#0073bb" stroke-width="2">
+                                <ellipse cx="12" cy="5" rx="9" ry="3"/>
+                                <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+                                <path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/>
+                            </svg>
+                        </div>
+                        <span>RDS Instances</span>
+                        <span class="instance-count">5</span>
+                    </div>
+                    <div class="tree-leaf" onclick="selectResource('dynamodb', this)">
+                        <div class="tree-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#0073bb" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="16" rx="2"/>
+                                <line x1="3" y1="10" x2="21" y2="10"/>
+                                <line x1="9" y1="4" x2="9" y2="20"/>
+                            </svg>
+                        </div>
+                        <span>DynamoDB Tables</span>
+                        <span class="instance-count">8</span>
+                    </div>
+                    <div class="tree-leaf" onclick="selectResource('elasticache', this)">
+                        <div class="tree-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#0073bb" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                <path d="M2 17l10 5 10-5"/>
+                                <path d="M2 12l10 5 10-5"/>
+                            </svg>
+                        </div>
+                        <span>ElastiCache</span>
+                        <span class="instance-count">2</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-header">
+                <div>
+                    <div class="breadcrumb">
+                        <a href="#">Resources</a>
+                        <span>›</span>
+                        <a href="#">Compute</a>
+                        <span>›</span>
+                        <span>EC2 Instances</span>
+                        <span>›</span>
+                        <span>i-0a1b2c3d4e5f67890</span>
+                    </div>
+                    <h1 class="content-title">web-server-prod-01</h1>
+                </div>
+                <div class="content-actions">
+                    <button class="btn btn-secondary">Connect</button>
+                    <button class="btn btn-secondary">Instance State ▼</button>
+                    <button class="btn btn-primary">Actions ▼</button>
+                </div>
+            </div>
+
+            <div class="properties-container">
+                <div class="properties-grid">
+                    <!-- Instance Details -->
+                    <div class="property-card">
+                        <div class="property-card-header">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                                <rect x="4" y="4" width="16" height="16" rx="2"/>
+                                <line x1="4" y1="10" x2="20" y2="10"/>
+                                <line x1="10" y1="4" x2="10" y2="20"/>
+                            </svg>
+                            Instance Details
+                        </div>
+                        <div class="property-card-body">
+                            <div class="property-row">
+                                <div class="property-label">Instance ID</div>
+                                <div class="property-value">
+                                    <a href="#">i-0a1b2c3d4e5f67890</a>
+                                    <button class="copy-btn" onclick="copyToClipboard('i-0a1b2c3d4e5f67890')" title="Copy">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                                            <rect x="9" y="9" width="13" height="13" rx="2"/>
+                                            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="property-row">
+                                <div class="property-label">Instance State</div>
+                                <div class="property-value">
+                                    <span class="status-badge status-running">
+                                        <span class="status-dot"></span>
+                                        Running
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="property-row">
+                                <div class="property-label">Instance Type</div>
+                                <div class="property-value">t3.large</div>
+                            </div>
+                            <div class="property-row">
+                                <div class="property-label">Availability Zone</div>
+                                <div class="property-value">us-east-1a</div>
+                            </div>
+                            <div class="property-row">
+                                <div class="property-label">AMI ID</div>
+                                <div class="property-value"><a href="#">ami-0123456789abcdef0</a></div>
+                            </div>
+                            <div class="property-row">
+                                <div class="property-label">Platform</div>
+                                <div class="property-value">Amazon Linux 2023</div>
+                            </div>
+                            <div class="property-row">
+                                <div class="property-label">Launch Time</div>
+                                <div class="property-value">January 15, 2026, 09:24:31 UTC</div>
+                            </div>
+                            <div class="property-row">
+                                <div class="property-label">Key Pair</div>
+                                <div class="property-value"><a href="#">prod-web-key</a></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- IP Addresses -->
+                    <div class="property-card">
+                        <div class="property-card-header">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="2" y1="12" x2="22" y2="12"/>
+                                <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+                            </svg>
+                            Networking
+                        </div>
+                        <div class="property-card-body">
+                            <div class="property-row">
+                                <div class="property-label">Public IPv4 Address</div>
+                                <div class="property-value">
+                                    <div class="ip-container">
+                                        <div class="ip-item">
+                                            <span>54.172.89.123</span>
+                                            <button class="copy-btn" onclick="copyToClipboard('54.172.89.123')" title="Copy">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                                                    <rect x="9" y="9" width="13" height="13" rx="2"/>
+                                                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="property-row">
+                                <div class="property-label">Private IPv4 Address</div>
+                                <div class="property-value">
+                                    <div class="ip-container">
+                                        <div class="ip-item">
+                                            <span>10.0.1.47</span>
+                                            <span class="ip-label">Primary</span>
+                                            <button class="copy-btn" onclick="copyToClipboard('10.0.1.47')" title="Copy">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                                                    <rect x="9" y="9" width="13" height="13" rx="2"/>
+                                                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <div class="ip-item">
+                                            <span>10.0.1.48</span>
+                                            <span class="ip-label">Secondary</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="property-row">
+                                <div class="property-label">Public DNS</div>
+                                <div class="property-value">ec2-54-172-89-123.compute-1.amazonaws.com</div>
+                            </div>
+                            <div class="property-row">
+                                <div class="property-label">Private DNS</div>
+                                <div class="property-value">ip-10-0-1-47.ec2.internal</div>
+                            </div>
+                            <div class="property-row">
+                                <div class="property-label">VPC ID</div>
+                                <div class="property-value"><a href="#">vpc-0abc123def456789</a></div>
+                            </div>
+                            <div class="property-row">
+                                <div class="property-label">Subnet ID</div>
+                                <div class="property-value"><a href="#">subnet-0123456789abcdef</a></div>
+                            </div>
+                            <div class="property-row">
+                                <div class="property-label">Elastic IP</div>
+                                <div class="property-value"><a href="#">eipalloc-0a1b2c3d4e5f6</a> (54.172.89.123)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security Groups -->
+                    <div class="property-card">
+                        <div class="property-card-header">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            </svg>
+                            Security Groups
+                        </div>
+                        <div class="property-card-body" style="padding: 0;">
+                            <table class="sg-table">
+                                <thead>
+                                    <tr>
+                                        <th>Security Group ID</th>
+                                        <th>Name</th>
+                                        <th>Inbound Rules</th>
+                                        <th>Outbound Rules</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><a class="sg-link" href="#">sg-0abc123456789def0</a></td>
+                                        <td>web-server-sg</td>
+                                        <td>4</td>
+                                        <td>1</td>
+                                    </tr>
+                                    <tr>
+                                        <td><a class="sg-link" href="#">sg-0def456789abc1234</a></td>
+                                        <td>ssh-access</td>
+                                        <td>1</td>
+                                        <td>1</td>
+                                    </tr>
+                                    <tr>
+                                        <td><a class="sg-link" href="#">sg-0789abc123456def7</a></td>
+                                        <td>internal-alb</td>
+                                        <td>2</td>
+                                        <td>1</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tags -->
+                    <div class="property-card">
+                        <div class="property-card-header">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                                <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/>
+                                <line x1="7" y1="7" x2="7.01" y2="7"/>
+                            </svg>
+                            Tags (6)
+                        </div>
+                        <div class="property-card-body">
+                            <div class="tags-container">
+                                <div class="tag">
+                                    <span class="tag-key">Name</span>
+                                    <span class="tag-value">web-server-prod-01</span>
+                                </div>
+                                <div class="tag">
+                                    <span class="tag-key">Environment</span>
+                                    <span class="tag-value">Production</span>
+                                </div>
+                                <div class="tag">
+                                    <span class="tag-key">Project</span>
+                                    <span class="tag-value">ecommerce-platform</span>
+                                </div>
+                                <div class="tag">
+                                    <span class="tag-key">Team</span>
+                                    <span class="tag-value">Platform Engineering</span>
+                                </div>
+                                <div class="tag">
+                                    <span class="tag-key">CostCenter</span>
+                                    <span class="tag-value">CC-12345</span>
+                                </div>
+                                <div class="tag">
+                                    <span class="tag-key">Owner</span>
+                                    <span class="tag-value">john.smith@company.com</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Storage -->
+                    <div class="property-card">
+                        <div class="property-card-header">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                                <rect x="4" y="2" width="16" height="20" rx="2"/>
+                                <line x1="4" y1="8" x2="20" y2="8"/>
+                            </svg>
+                            Storage
+                        </div>
+                        <div class="property-card-body">
+                            <div class="volume-item">
+                                <div class="volume-info">
+                                    <a class="volume-id" href="#">vol-0a1b2c3d4e5f67890</a>
+                                    <span class="volume-device">/dev/xvda (Root device)</span>
+                                </div>
+                                <span class="volume-size">100 GiB gp3</span>
+                            </div>
+                            <div class="volume-item">
+                                <div class="volume-info">
+                                    <a class="volume-id" href="#">vol-0f6e5d4c3b2a19087</a>
+                                    <span class="volume-device">/dev/xvdf (Data)</span>
+                                </div>
+                                <span class="volume-size">500 GiB gp3</span>
+                            </div>
+                            <div class="volume-item">
+                                <div class="volume-info">
+                                    <a class="volume-id" href="#">vol-0123456789abcdef1</a>
+                                    <span class="volume-device">/dev/xvdg (Logs)</span>
+                                </div>
+                                <span class="volume-size">200 GiB gp2</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Monitoring -->
+                    <div class="property-card">
+                        <div class="property-card-header">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                            </svg>
+                            Monitoring (Last 1 hour)
+                        </div>
+                        <div class="property-card-body">
+                            <div class="metrics-grid">
+                                <div class="metric-item">
+                                    <div class="metric-value">24%</div>
+                                    <div class="metric-label">CPU Utilization</div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-value">67%</div>
+                                    <div class="metric-label">Memory Usage</div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-value">1.2 GB</div>
+                                    <div class="metric-label">Network In</div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-value">890 MB</div>
+                                    <div class="metric-label">Network Out</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Toggle folder expansion
+        function toggleFolder(folderId) {
+            const toggle = document.getElementById('toggle-' + folderId);
+            const children = document.getElementById('folder-' + folderId);
+            
+            toggle.classList.toggle('expanded');
+            children.classList.toggle('expanded');
+        }
+
+        // Select resource
+        function selectResource(resourceType, element) {
+            // Remove active class from all leaves
+            document.querySelectorAll('.tree-leaf').forEach(leaf => {
+                leaf.classList.remove('active');
+            });
+            
+            // Add active class to selected
+            element.classList.add('active');
+            
+            // In a real app, this would load the resource details
+            console.log('Selected resource:', resourceType);
+        }
+
+        // Copy to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Show brief feedback
+                const notification = document.createElement('div');
+                notification.textContent = 'Copied!';
+                notification.style.cssText = `
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    background: #232f3e;
+                    color: white;
+                    padding: 10px 20px;
+                    border-radius: 4px;
+                    font-size: 14px;
+                    z-index: 1000;
+                `;
+                document.body.appendChild(notification);
+                setTimeout(() => notification.remove(), 2000);
+            });
+        }
+    </script>
+</body>
+</html>
