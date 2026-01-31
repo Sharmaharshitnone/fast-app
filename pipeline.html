@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Pipeline</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a2332 0%, #2d3a4f 50%, #1e2b3d 100%);
+            min-height: 100vh;
+            color: #e0e6ed;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(100, 200, 255, 0.2);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #64c8ff;
+            text-shadow: 0 0 20px rgba(100, 200, 255, 0.5);
+            letter-spacing: 2px;
+        }
+
+        .header p {
+            margin-top: 10px;
+            color: #8fa3b8;
+            font-size: 1.1rem;
+        }
+
+        .pipeline-container {
+            overflow-x: auto;
+            padding: 40px 20px;
+            scrollbar-width: thin;
+            scrollbar-color: #64c8ff #1a2332;
+        }
+
+        .pipeline-container::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .pipeline-container::-webkit-scrollbar-track {
+            background: #1a2332;
+            border-radius: 4px;
+        }
+
+        .pipeline-container::-webkit-scrollbar-thumb {
+            background: #64c8ff;
+            border-radius: 4px;
+        }
+
+        .pipeline {
+            display: flex;
+            align-items: flex-start;
+            min-width: max-content;
+            padding: 20px;
+            gap: 0;
+        }
+
+        .stage-wrapper {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .stage {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 280px;
+        }
+
+        .stage-box {
+            width: 200px;
+            padding: 25px 20px;
+            background: linear-gradient(180deg, #2a3a52 0%, #1e2a3d 100%);
+            border: 2px solid #3d5a80;
+            border-radius: 12px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .stage-box:hover {
+            transform: translateY(-5px);
+            border-color: #64c8ff;
+            box-shadow: 0 12px 40px rgba(100, 200, 255, 0.2);
+        }
+
+        .stage-box.success {
+            border-color: #4ade80;
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.3);
+        }
+
+        .stage-box.running {
+            border-color: #fbbf24;
+            animation: pulse 2s infinite;
+        }
+
+        .stage-box.pending {
+            border-color: #6b7280;
+            opacity: 0.7;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(251, 191, 36, 0.6);
+            }
+        }
+
+        .stage-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .stage-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .stage-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-success {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+        }
+
+        .status-running {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+        }
+
+        .status-pending {
+            background: rgba(107, 114, 128, 0.2);
+            color: #9ca3af;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-dot.success {
+            background: #4ade80;
+        }
+
+        .status-dot.running {
+            background: #fbbf24;
+            animation: blink 1s infinite;
+        }
+
+        .status-dot.pending {
+            background: #6b7280;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Glowing pipe connector */
+        .pipe {
+            display: flex;
+            align-items: center;
+            height: 100px;
+            position: relative;
+        }
+
+        .pipe-line {
+            width: 80px;
+            height: 6px;
+            background: linear-gradient(90deg, #3d5a80 0%, #64c8ff 50%, #3d5a80 100%);
+            border-radius: 3px;
+            position: relative;
+            box-shadow: 0 0 10px rgba(100, 200, 255, 0.5),
+                        0 0 20px rgba(100, 200, 255, 0.3),
+                        0 0 30px rgba(100, 200, 255, 0.2);
+        }
+
+        .pipe-line::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(100, 200, 255, 0.8), transparent);
+            animation: flow 2s linear infinite;
+            border-radius: 3px;
+        }
+
+        @keyframes flow {
+            0% {
+                transform: translateY(-50%) translateX(-100%);
+            }
+            100% {
+                transform: translateY(-50%) translateX(100%);
+            }
+        }
+
+        .pipe-arrow {
+            width: 0;
+            height: 0;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-left: 12px solid #64c8ff;
+            filter: drop-shadow(0 0 6px rgba(100, 200, 255, 0.8));
+        }
+
+        /* Logs section */
+        .logs-section {
+            width: 240px;
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid rgba(100, 200, 255, 0.1);
+        }
+
+        .logs-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(100, 200, 255, 0.2);
+        }
+
+        .logs-title {
+            font-size: 0.9rem;
+            color: #8fa3b8;
+            font-weight: 600;
+        }
+
+        .logs-count {
+            font-size: 0.75rem;
+            background: rgba(100, 200, 255, 0.2);
+            color: #64c8ff;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .log-entry {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.8rem;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .log-icon {
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .log-icon.check {
+            color: #4ade80;
+        }
+
+        .log-icon.loading {
+            color: #fbbf24;
+            animation: spin 1s linear infinite;
+        }
+
+        .log-icon.wait {
+            color: #6b7280;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .log-text {
+            color: #b8c5d4;
+            line-height: 1.4;
+        }
+
+        .log-time {
+            display: block;
+            font-size: 0.7rem;
+            color: #5a6a7d;
+            margin-top: 3px;
+        }
+
+        /* Status checks */
+        .status-checks {
+            margin-top: 10px;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 0;
+            font-size: 0.8rem;
+        }
+
+        .check-badge {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+        }
+
+        .check-badge.pass {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+        }
+
+        .check-badge.running {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+        }
+
+        .check-badge.pending {
+            background: rgba(107, 114, 128, 0.2);
+            color: #6b7280;
+        }
+
+        .check-name {
+            color: #a0aec0;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #5a6a7d;
+            font-size: 0.85rem;
+            border-top: 1px solid rgba(100, 200, 255, 0.1);
+            margin-top: 20px;
+        }
+
+        .footer a {
+            color: #64c8ff;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .stage {
+                min-width: 250px;
+            }
+            
+            .stage-box {
+                width: 180px;
+            }
+            
+            .logs-section {
+                width: 220px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 DevOps Pipeline</h1>
+        <p>CI/CD Workflow Visualization</p>
+    </div>
+
+    <div class="pipeline-container">
+        <div class="pipeline">
+            <!-- Stage 1: Code -->
+            <div class="stage-wrapper">
+                <div class="stage">
+                    <div class="stage-box success">
+                        <div class="stage-icon">📝</div>
+                        <div class="stage-title">Code</div>
+                        <span class="stage-status status-success">
+                            <span class="status-dot success"></span>
+                            Completed
+                        </span>
+                    </div>
+                    <div class="logs-section">
+                        <div class="logs-header">
+                            <span class="logs-title">Logs & Status</span>
+                            <span class="logs-count">3 items</span>
+                        </div>
+                        <div class="log-entry">
+                            <span class="log-icon check">✓</span>
+                            <div class="log-text">
+                                Code committed to main
+                                <span class="log-time">2 min ago</span>
+                            </div>
+                        </div>
+                        <div class="log-entry">
+                            <span class="log-icon check">✓</span>
+                            <div class="log-text">
+                                Linting passed
+                                <span class="log-time">2 min ago</span>
+                            </div>
+                        </div>
+                        <div class="status-checks">
+                            <div class="check-item">
+                                <span class="check-badge pass">✓</span>
+                                <span class="check-name">ESLint check</span>
+                            </div>
+                            <div class="check-item">
+                                <span class="check-badge pass">✓</span>
+                                <span class="check-name">Prettier format</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pipe">
+                    <div class="pipe-line"></div>
+                    <div class="pipe-arrow"></div>
+                </div>
+            </div>
+
+            <!-- Stage 2: Build -->
+            <div class="stage-wrapper">
+                <div class="stage">
+                    <div class="stage-box success">
+                        <div class="stage-icon">🔨</div>
+                        <div class="stage-title">Build</div>
+                        <span class="stage-status status-success">
+                            <span class="status-dot success"></span>
+                            Completed
+                        </span>
+                    </div>
+                    <div class="logs-section">
+                        <div class="logs-header">
+                            <span class="logs-title">Logs & Status</span>
+                            <span class="logs-count">4 items</span>
+                        </div>
+                        <div class="log-entry">
+                            <span class="log-icon check">✓</span>
+                            <div class="log-text">
+                                Dependencies installed
+                                <span class="log-time">1 min ago</span>
+                            </div>
+                        </div>
+                        <div class="log-entry">
+                            <span class="log-icon check">✓</span>
+                            <div class="log-text">
+                                Build successful
+                                <span class="log-time">45 sec ago</span>
+                            </div>
+                        </div>
+                        <div class="status-checks">
+                            <div class="check-item">
+                                <span class="check-badge pass">✓</span>
+                                <span class="check-name">npm install</span>
+                            </div>
+                            <div class="check-item">
+                                <span class="check-badge pass">✓</span>
+                                <span class="check-name">Webpack bundle</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pipe">
+                    <div class="pipe-line"></div>
+                    <div class="pipe-arrow"></div>
+                </div>
+            </div>
+
+            <!-- Stage 3: Test -->
+            <div class="stage-wrapper">
+                <div class="stage">
+                    <div class="stage-box running">
+                        <div class="stage-icon">🧪</div>
+                        <div class="stage-title">Test</div>
+                        <span class="stage-status status-running">
+                            <span class="status-dot running"></span>
+                            Running
+                        </span>
+                    </div>
+                    <div class="logs-section">
+                        <div class="logs-header">
+                            <span class="logs-title">Logs & Status</span>
+                            <span class="logs-count">5 items</span>
+                        </div>
+                        <div class="log-entry">
+                            <span class="log-icon check">✓</span>
+                            <div class="log-text">
+                                Unit tests passed (42/42)
+                                <span class="log-time">30 sec ago</span>
+                            </div>
+                        </div>
+                        <div class="log-entry">
+                            <span class="log-icon loading">⟳</span>
+                            <div class="log-text">
+                                Running integration tests...
+                                <span class="log-time">In progress</span>
+                            </div>
+                        </div>
+                        <div class="status-checks">
+                            <div class="check-item">
+                                <span class="check-badge pass">✓</span>
+                                <span class="check-name">Unit tests</span>
+                            </div>
+                            <div class="check-item">
+                                <span class="check-badge running">⟳</span>
+                                <span class="check-name">Integration tests</span>
+                            </div>
+                            <div class="check-item">
+                                <span class="check-badge pending">○</span>
+                                <span class="check-name">E2E tests</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pipe">
+                    <div class="pipe-line"></div>
+                    <div class="pipe-arrow"></div>
+                </div>
+            </div>
+
+            <!-- Stage 4: Release -->
+            <div class="stage-wrapper">
+                <div class="stage">
+                    <div class="stage-box pending">
+                        <div class="stage-icon">📦</div>
+                        <div class="stage-title">Release</div>
+                        <span class="stage-status status-pending">
+                            <span class="status-dot pending"></span>
+                            Pending
+                        </span>
+                    </div>
+                    <div class="logs-section">
+                        <div class="logs-header">
+                            <span class="logs-title">Logs & Status</span>
+                            <span class="logs-count">3 items</span>
+                        </div>
+                        <div class="log-entry">
+                            <span class="log-icon wait">○</span>
+                            <div class="log-text">
+                                Waiting for tests...
+                                <span class="log-time">Queued</span>
+                            </div>
+                        </div>
+                        <div class="status-checks">
+                            <div class="check-item">
+                                <span class="check-badge pending">○</span>
+                                <span class="check-name">Version bump</span>
+                            </div>
+                            <div class="check-item">
+                                <span class="check-badge pending">○</span>
+                                <span class="check-name">Changelog update</span>
+                            </div>
+                            <div class="check-item">
+                                <span class="check-badge pending">○</span>
+                                <span class="check-name">Docker build</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pipe">
+                    <div class="pipe-line"></div>
+                    <div class="pipe-arrow"></div>
+                </div>
+            </div>
+
+            <!-- Stage 5: Deploy -->
+            <div class="stage-wrapper">
+                <div class="stage">
+                    <div class="stage-box pending">
+                        <div class="stage-icon">🚀</div>
+                        <div class="stage-title">Deploy</div>
+                        <span class="stage-status status-pending">
+                            <span class="status-dot pending"></span>
+                            Pending
+                        </span>
+                    </div>
+                    <div class="logs-section">
+                        <div class="logs-header">
+                            <span class="logs-title">Logs & Status</span>
+                            <span class="logs-count">4 items</span>
+                        </div>
+                        <div class="log-entry">
+                            <span class="log-icon wait">○</span>
+                            <div class="log-text">
+                                Waiting for release...
+                                <span class="log-time">Queued</span>
+                            </div>
+                        </div>
+                        <div class="status-checks">
+                            <div class="check-item">
+                                <span class="check-badge pending">○</span>
+                                <span class="check-name">Staging deploy</span>
+                            </div>
+                            <div class="check-item">
+                                <span class="check-badge pending">○</span>
+                                <span class="check-name">Health checks</span>
+                            </div>
+                            <div class="check-item">
+                                <span class="check-badge pending">○</span>
+                                <span class="check-name">Production deploy</span>
+                            </div>
+                            <div class="check-item">
+                                <span class="check-badge pending">○</span>
+                                <span class="check-name">Smoke tests</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Pipeline Status: <strong style="color: #fbbf24;">In Progress</strong> | 
+           Last updated: <span id="timestamp"></span> |
+           <a href="/">Back to Chat</a>
+        </p>
+    </div>
+
+    <script>
+        // Update timestamp
+        function updateTimestamp() {
+            const now = new Date();
+            document.getElementById('timestamp').textContent = now.toLocaleTimeString();
+        }
+        updateTimestamp();
+        setInterval(updateTimestamp, 1000);
+    </script>
+</body>
+</html>
