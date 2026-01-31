@@ -1,26 +1,377 @@
 <!DOCTYPE html>
-<html>
-<body>
-    <h2>WebSocket Chat</h2>
-    <div id="messages" style="height: 200px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;"></div>
-    <input type="text" id="msgBox" placeholder="Type a message..." />
-    <button onclick="sendMessage()">Send</button>
-
-    <script>
-        // Connect to the WebSocket (Automatic wss:// detection)
-        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-        const ws = new WebSocket(`${protocol}://${window.location.host}`);
-
-        ws.onmessage = (event) => {
-            const messages = document.getElementById('messages');
-            messages.innerHTML += `<p>${event.data}</p>`;
-        };
-
-        function sendMessage() {
-            const input = document.getElementById('msgBox');
-            ws.send(input.value);
-            input.value = '';
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engineering at Scale</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Matrix Digital Rain Canvas */
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            z-index: 1;
+        }
+
+        .hero-container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        /* Left Side - Typography */
+        .hero-text {
+            z-index: 2;
+        }
+
+        .hero-title {
+            font-size: clamp(3rem, 6vw, 5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
+        }
+
+        .hero-subtitle {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            color: #00ff00;
+            opacity: 0.9;
+            letter-spacing: 0.05em;
+            position: relative;
+        }
+
+        .hero-subtitle::before {
+            content: '> ';
+            color: #00aa00;
+        }
+
+        .hero-subtitle::after {
+            content: '█';
+            animation: blink 1s infinite;
+            margin-left: 0.25rem;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        /* Right Side - Code Editor */
+        .hero-visual {
+            perspective: 1200px;
+            z-index: 2;
+        }
+
+        .code-editor {
+            transform: rotateY(-15deg) rotateX(5deg);
+            transform-style: preserve-3d;
+            background: linear-gradient(145deg, #1a1a2e 0%, #0f0f1a 100%);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.8),
+                0 0 60px rgba(0, 255, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 0, 0.2);
+            transition: transform 0.5s ease;
+        }
+
+        .code-editor:hover {
+            transform: rotateY(-10deg) rotateX(3deg) translateZ(20px);
+        }
+
+        .editor-header {
+            background: linear-gradient(90deg, #1e1e2e 0%, #2d2d3d 100%);
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .editor-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot-red { background: #ff5f56; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #27ca40; }
+
+        .editor-title {
+            margin-left: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .editor-content {
+            padding: 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            background: #0d0d14;
+            min-height: 350px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .editor-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at center, rgba(0, 255, 0, 0.03) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* Syntax Highlighting */
+        .line {
+            display: flex;
+            margin-bottom: 0.25rem;
+        }
+
+        .line-number {
+            color: #3d3d5c;
+            width: 2.5rem;
+            text-align: right;
+            padding-right: 1rem;
+            user-select: none;
+        }
+
+        .code {
+            flex: 1;
+        }
+
+        .keyword { color: #ff79c6; text-shadow: 0 0 10px rgba(255, 121, 198, 0.5); }
+        .type { color: #8be9fd; text-shadow: 0 0 10px rgba(139, 233, 253, 0.5); }
+        .function { color: #50fa7b; text-shadow: 0 0 10px rgba(80, 250, 123, 0.5); }
+        .string { color: #f1fa8c; text-shadow: 0 0 10px rgba(241, 250, 140, 0.5); }
+        .comment { color: #6272a4; font-style: italic; }
+        .number { color: #bd93f9; text-shadow: 0 0 10px rgba(189, 147, 249, 0.5); }
+        .operator { color: #ff79c6; }
+        .macro { color: #ffb86c; text-shadow: 0 0 10px rgba(255, 184, 108, 0.5); }
+        .lifetime { color: #ff5555; }
+        .normal { color: #f8f8f2; }
+
+        /* Glow effect for the entire code block */
+        .editor-content .code {
+            text-shadow: 0 0 2px currentColor;
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            .hero-container {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+                text-align: center;
+            }
+
+            .hero-visual {
+                perspective: 800px;
+            }
+
+            .code-editor {
+                transform: rotateY(-8deg) rotateX(3deg);
+                max-width: 500px;
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Matrix Digital Rain Background -->
+    <canvas id="matrix-canvas"></canvas>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <!-- Left Side - Typography -->
+            <div class="hero-text">
+                <h1 class="hero-title">Engineering<br>at Scale</h1>
+                <p class="hero-subtitle">Building high-performance systems.</p>
+            </div>
+
+            <!-- Right Side - 3D Code Editor -->
+            <div class="hero-visual">
+                <div class="code-editor">
+                    <div class="editor-header">
+                        <span class="editor-dot dot-red"></span>
+                        <span class="editor-dot dot-yellow"></span>
+                        <span class="editor-dot dot-green"></span>
+                        <span class="editor-title">main.rs — Rust</span>
+                    </div>
+                    <div class="editor-content">
+                        <div class="line">
+                            <span class="line-number">1</span>
+                            <span class="code"><span class="keyword">use</span> <span class="type">std</span>::<span class="type">sync</span>::<span class="type">Arc</span>;</span>
+                        </div>
+                        <div class="line">
+                            <span class="line-number">2</span>
+                            <span class="code"><span class="keyword">use</span> <span class="type">tokio</span>::<span class="type">sync</span>::<span class="type">Mutex</span>;</span>
+                        </div>
+                        <div class="line">
+                            <span class="line-number">3</span>
+                            <span class="code"></span>
+                        </div>
+                        <div class="line">
+                            <span class="line-number">4</span>
+                            <span class="code"><span class="macro">#[tokio::main]</span></span>
+                        </div>
+                        <div class="line">
+                            <span class="line-number">5</span>
+                            <span class="code"><span class="keyword">async</span> <span class="keyword">fn</span> <span class="function">main</span>() -> <span class="type">Result</span>&lt;(), <span class="type">Box</span>&lt;<span class="keyword">dyn</span> <span class="type">Error</span>&gt;&gt; {</span>
+                        </div>
+                        <div class="line">
+                            <span class="line-number">6</span>
+                            <span class="code">    <span class="keyword">let</span> pool = <span class="type">Arc</span>::<span class="function">new</span>(<span class="type">Mutex</span>::<span class="function">new</span>(</span>
+                        </div>
+                        <div class="line">
+                            <span class="line-number">7</span>
+                            <span class="code">        <span class="type">ConnectionPool</span>::<span class="function">new</span>(<span class="number">1024</span>)</span>
+                        </div>
+                        <div class="line">
+                            <span class="line-number">8</span>
+                            <span class="code">    ));</span>
+                        </div>
+                        <div class="line">
+                            <span class="line-number">9</span>
+                            <span class="code"></span>
+                        </div>
+                        <div class="line">
+                            <span class="line-number">10</span>
+                            <span class="code">    <span class="comment">// High-performance async runtime</span></span>
+                        </div>
+                        <div class="line">
+                            <span class="line-number">11</span>
+                            <span class="code">    <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="number">0</span>..<span class="number">10_000</span> {</span>
+                        </div>
+                        <div class="line">
+                            <span class="line-number">12</span>
+                            <span class="code">        <span class="keyword">let</span> conn = pool.<span class="function">lock</span>().<span class="keyword">await</span>;</span>
+                        </div>
+                        <div class="line">
+                            <span class="line-number">13</span>
+                            <span class="code">        <span class="function">spawn_task</span>(conn).<span class="keyword">await</span>?;</span>
+                        </div>
+                        <div class="line">
+                            <span class="line-number">14</span>
+                            <span class="code">    }</span>
+                        </div>
+                        <div class="line">
+                            <span class="line-number">15</span>
+                            <span class="code"></span>
+                        </div>
+                        <div class="line">
+                            <span class="line-number">16</span>
+                            <span class="code">    <span class="type">Ok</span>(())</span>
+                        </div>
+                        <div class="line">
+                            <span class="line-number">17</span>
+                            <span class="code">}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Matrix Digital Rain Script -->
+    <script>
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEF';
+        const charArray = chars.split('');
+
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+
+        const drops = [];
+        for (let i = 0; i < columns; i++) {
+            drops[i] = Math.random() * -100;
+        }
+
+        function drawMatrix() {
+            // Semi-transparent black to create fade effect
+            ctx.fillStyle = 'rgba(10, 10, 10, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Very dark green for subtle effect
+            ctx.fillStyle = '#001a00';
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = charArray[Math.floor(Math.random() * charArray.length)];
+                
+                // Vary the green intensity for depth
+                const intensity = Math.random();
+                if (intensity > 0.98) {
+                    ctx.fillStyle = '#003300'; // Slightly brighter occasionally
+                } else {
+                    ctx.fillStyle = '#001500'; // Very dark green
+                }
+
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+
+                drops[i]++;
+            }
+        }
+
+        setInterval(drawMatrix, 50);
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
     </script>
 </body>
 </html>
