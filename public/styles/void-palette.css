@@ -1,0 +1,209 @@
+/**
+ * The Void Color Palette
+ * A comprehensive dark mode color palette for engineering portfolios
+ * 
+ * Design Philosophy:
+ * - Deep "Void Black" background (#050505) - not pure black for reduced eye strain
+ * - Electric Cyan (#00F0FF) for active states and glow effects
+ * - Hyper-Violet (#7000FF) for secondary accents
+ * - Blue-cool grayscale ramp for text hierarchy
+ */
+
+:root {
+  /* =============================================
+     BACKGROUND COLORS
+     ============================================= */
+  
+  /* Primary Background - Void Black (deep, not pure black) */
+  --bg-void: #050505;
+  
+  /* Surface Backgrounds - Elevated layers */
+  --bg-surface-1: #0A0A0C;  /* Slight elevation */
+  --bg-surface-2: #0F1012;  /* Card backgrounds */
+  --bg-surface-3: #141518;  /* Modal/dialog backgrounds */
+  --bg-surface-4: #1A1B1F;  /* Hover states on surfaces */
+  
+  /* =============================================
+     ACCENT COLORS
+     ============================================= */
+  
+  /* Primary Accent - Electric Cyan */
+  --accent-primary: #00F0FF;
+  --accent-primary-hover: #33F3FF;
+  --accent-primary-active: #00D4E0;
+  --accent-primary-muted: rgba(0, 240, 255, 0.15);
+  --accent-primary-glow: 0 0 20px rgba(0, 240, 255, 0.4);
+  --accent-primary-glow-intense: 0 0 30px rgba(0, 240, 255, 0.6), 0 0 60px rgba(0, 240, 255, 0.3);
+  
+  /* Secondary Accent - Hyper-Violet */
+  --accent-secondary: #7000FF;
+  --accent-secondary-hover: #8A33FF;
+  --accent-secondary-active: #5C00D4;
+  --accent-secondary-muted: rgba(112, 0, 255, 0.15);
+  --accent-secondary-glow: 0 0 20px rgba(112, 0, 255, 0.4);
+  --accent-secondary-glow-intense: 0 0 30px rgba(112, 0, 255, 0.6), 0 0 60px rgba(112, 0, 255, 0.3);
+  
+  /* =============================================
+     BORDER COLORS
+     ============================================= */
+  
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-default: rgba(255, 255, 255, 0.10);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --border-accent-primary: rgba(0, 240, 255, 0.5);
+  --border-accent-secondary: rgba(112, 0, 255, 0.5);
+  
+  /* =============================================
+     TEXT COLORS - Blue-Cool Grayscale Ramp
+     ============================================= */
+  
+  /* Primary Text - Highest contrast for headings and important content */
+  --text-primary: #F0F4F8;
+  
+  /* Secondary Text - Body text and descriptions */
+  --text-secondary: #A8B4C2;
+  
+  /* Tertiary Text - Captions, labels, and less important content */
+  --text-tertiary: #6B7A8C;
+  
+  /* Muted Text - Placeholders and disabled states */
+  --text-muted: #4A5568;
+  
+  /* Accent Text Colors */
+  --text-accent-primary: #00F0FF;
+  --text-accent-secondary: #7000FF;
+  
+  /* =============================================
+     SEMANTIC COLORS
+     ============================================= */
+  
+  --color-success: #00E676;
+  --color-warning: #FFB300;
+  --color-error: #FF5252;
+  --color-info: #00F0FF;
+  
+  /* =============================================
+     GRADIENTS
+     ============================================= */
+  
+  --gradient-primary: linear-gradient(135deg, #00F0FF 0%, #7000FF 100%);
+  --gradient-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%);
+  --gradient-glow: radial-gradient(ellipse at center, rgba(0, 240, 255, 0.15) 0%, transparent 70%);
+  
+  /* =============================================
+     SHADOWS & EFFECTS
+     ============================================= */
+  
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.6);
+  
+  /* =============================================
+     TYPOGRAPHY SCALES
+     ============================================= */
+  
+  --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-lg: 1.125rem;   /* 18px */
+  --font-size-xl: 1.25rem;    /* 20px */
+  --font-size-2xl: 1.5rem;    /* 24px */
+  --font-size-3xl: 1.875rem;  /* 30px */
+  --font-size-4xl: 2.25rem;   /* 36px */
+  --font-size-5xl: 3rem;      /* 48px */
+  
+  /* =============================================
+     SPACING SCALE
+     ============================================= */
+  
+  --space-1: 0.25rem;  /* 4px */
+  --space-2: 0.5rem;   /* 8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.5rem;   /* 24px */
+  --space-6: 2rem;     /* 32px */
+  --space-8: 3rem;     /* 48px */
+  --space-10: 4rem;    /* 64px */
+  --space-12: 6rem;    /* 96px */
+  
+  /* =============================================
+     BORDER RADIUS
+     ============================================= */
+  
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+  
+  /* =============================================
+     TRANSITIONS
+     ============================================= */
+  
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 400ms ease;
+}
+
+/* =============================================
+   BASE STYLES
+   ============================================= */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-family-primary);
+  background-color: var(--bg-void);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+/* =============================================
+   UTILITY CLASSES
+   ============================================= */
+
+/* Background Utilities */
+.bg-void { background-color: var(--bg-void); }
+.bg-surface-1 { background-color: var(--bg-surface-1); }
+.bg-surface-2 { background-color: var(--bg-surface-2); }
+.bg-surface-3 { background-color: var(--bg-surface-3); }
+.bg-surface-4 { background-color: var(--bg-surface-4); }
+
+/* Text Color Utilities */
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-tertiary { color: var(--text-tertiary); }
+.text-muted { color: var(--text-muted); }
+.text-accent-primary { color: var(--text-accent-primary); }
+.text-accent-secondary { color: var(--text-accent-secondary); }
+
+/* Border Utilities */
+.border-subtle { border: 1px solid var(--border-subtle); }
+.border-default { border: 1px solid var(--border-default); }
+.border-strong { border: 1px solid var(--border-strong); }
+.border-accent-primary { border: 1px solid var(--border-accent-primary); }
+.border-accent-secondary { border: 1px solid var(--border-accent-secondary); }
+
+/* Glow Effects */
+.glow-primary { box-shadow: var(--accent-primary-glow); }
+.glow-primary-intense { box-shadow: var(--accent-primary-glow-intense); }
+.glow-secondary { box-shadow: var(--accent-secondary-glow); }
+.glow-secondary-intense { box-shadow: var(--accent-secondary-glow-intense); }
+
+/* Text Glow Effects */
+.text-glow-primary { text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); }
+.text-glow-secondary { text-shadow: 0 0 10px rgba(112, 0, 255, 0.5); }

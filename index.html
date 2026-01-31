@@ -1,10 +1,146 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Chat - The Void Theme</title>
+    <link rel="stylesheet" href="styles/void-palette.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        .chat-container {
+            max-width: 600px;
+            margin: var(--space-8) auto;
+            padding: var(--space-6);
+        }
+
+        .chat-header {
+            text-align: center;
+            margin-bottom: var(--space-6);
+        }
+
+        .chat-header h2 {
+            font-size: var(--font-size-2xl);
+            font-weight: 600;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--space-2);
+        }
+
+        .chat-header p {
+            color: var(--text-tertiary);
+            font-size: var(--font-size-sm);
+        }
+
+        #messages {
+            height: 300px;
+            overflow-y: auto;
+            background: var(--bg-surface-2);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            margin-bottom: var(--space-4);
+        }
+
+        #messages p {
+            color: var(--text-secondary);
+            padding: var(--space-2) var(--space-3);
+            margin-bottom: var(--space-2);
+            background: var(--bg-surface-3);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-sm);
+        }
+
+        .input-group {
+            display: flex;
+            gap: var(--space-3);
+        }
+
+        #msgBox {
+            flex: 1;
+            padding: var(--space-3) var(--space-4);
+            background: var(--bg-surface-2);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-family: var(--font-family-primary);
+            font-size: var(--font-size-sm);
+            transition: border-color var(--transition-fast);
+        }
+
+        #msgBox::placeholder {
+            color: var(--text-muted);
+        }
+
+        #msgBox:focus {
+            outline: none;
+            border-color: var(--border-accent-primary);
+            box-shadow: var(--accent-primary-glow);
+        }
+
+        .send-btn {
+            padding: var(--space-3) var(--space-5);
+            background: var(--accent-primary);
+            color: var(--bg-void);
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            font-family: var(--font-family-primary);
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .send-btn:hover {
+            background: var(--accent-primary-hover);
+            box-shadow: var(--accent-primary-glow);
+        }
+
+        .send-btn:active {
+            background: var(--accent-primary-active);
+        }
+
+        .style-guide-link {
+            text-align: center;
+            margin-top: var(--space-6);
+            padding-top: var(--space-4);
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .style-guide-link a {
+            color: var(--accent-secondary);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            transition: color var(--transition-fast);
+        }
+
+        .style-guide-link a:hover {
+            color: var(--accent-secondary-hover);
+            text-shadow: 0 0 10px rgba(112, 0, 255, 0.5);
+        }
+    </style>
+</head>
 <body>
-    <h2>WebSocket Chat</h2>
-    <div id="messages" style="height: 200px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;"></div>
-    <input type="text" id="msgBox" placeholder="Type a message..." />
-    <button onclick="sendMessage()">Send</button>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2>WebSocket Chat</h2>
+            <p>Real-time messaging powered by The Void theme</p>
+        </div>
+        
+        <div id="messages"></div>
+        
+        <div class="input-group">
+            <input type="text" id="msgBox" placeholder="Type a message..." />
+            <button class="send-btn" onclick="sendMessage()">Send</button>
+        </div>
+
+        <div class="style-guide-link">
+            <a href="style-guide.html">View The Void Style Guide →</a>
+        </div>
+    </div>
 
     <script>
         // Connect to the WebSocket (Automatic wss:// detection)

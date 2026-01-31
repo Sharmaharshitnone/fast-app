@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Void Color Palette - Style Guide</title>
+    <link rel="stylesheet" href="styles/void-palette.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Style Guide Specific Styles */
+        .style-guide {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--space-8);
+        }
+
+        .header {
+            text-align: center;
+            padding: var(--space-12) 0;
+            border-bottom: 1px solid var(--border-subtle);
+            margin-bottom: var(--space-10);
+        }
+
+        .header h1 {
+            font-size: var(--font-size-5xl);
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--space-4);
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: var(--font-size-lg);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .section {
+            margin-bottom: var(--space-12);
+        }
+
+        .section-title {
+            font-size: var(--font-size-2xl);
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--space-2);
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-full);
+        }
+
+        .section-description {
+            color: var(--text-secondary);
+            margin-bottom: var(--space-6);
+        }
+
+        .swatch-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: var(--space-4);
+        }
+
+        .swatch {
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid var(--border-subtle);
+            background: var(--bg-surface-1);
+        }
+
+        .swatch-preview {
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .swatch-preview.text-preview {
+            padding: var(--space-4);
+        }
+
+        .swatch-info {
+            padding: var(--space-4);
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .swatch-name {
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: var(--space-1);
+        }
+
+        .swatch-value {
+            font-family: var(--font-family-mono);
+            font-size: var(--font-size-sm);
+            color: var(--text-tertiary);
+        }
+
+        .swatch-var {
+            font-family: var(--font-family-mono);
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            margin-top: var(--space-1);
+        }
+
+        /* Accent Swatches with Glow */
+        .accent-cyan {
+            background-color: var(--accent-primary);
+            box-shadow: var(--accent-primary-glow);
+        }
+
+        .accent-violet {
+            background-color: var(--accent-secondary);
+            box-shadow: var(--accent-secondary-glow);
+        }
+
+        /* Text Hierarchy Demo */
+        .text-demo {
+            padding: var(--space-6);
+            background: var(--bg-surface-2);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .text-demo h3 {
+            color: var(--text-primary);
+            font-size: var(--font-size-xl);
+            margin-bottom: var(--space-2);
+        }
+
+        .text-demo p {
+            color: var(--text-secondary);
+            margin-bottom: var(--space-2);
+        }
+
+        .text-demo small {
+            color: var(--text-tertiary);
+            font-size: var(--font-size-sm);
+        }
+
+        /* Component Examples */
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-6);
+        }
+
+        .component-card {
+            background: var(--bg-surface-2);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            transition: all var(--transition-base);
+        }
+
+        .component-card:hover {
+            border-color: var(--border-accent-primary);
+            box-shadow: var(--accent-primary-glow);
+        }
+
+        .component-card h4 {
+            color: var(--text-primary);
+            margin-bottom: var(--space-2);
+        }
+
+        .component-card p {
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+        }
+
+        /* Button Examples */
+        .button-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-4);
+            margin-top: var(--space-6);
+        }
+
+        .btn {
+            padding: var(--space-3) var(--space-5);
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border: none;
+            font-family: var(--font-family-primary);
+        }
+
+        .btn-primary {
+            background: var(--accent-primary);
+            color: var(--bg-void);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-primary-hover);
+            box-shadow: var(--accent-primary-glow);
+        }
+
+        .btn-secondary {
+            background: var(--accent-secondary);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent-secondary-hover);
+            box-shadow: var(--accent-secondary-glow);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--accent-primary);
+            border: 1px solid var(--border-accent-primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--accent-primary-muted);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-default);
+        }
+
+        .btn-ghost:hover {
+            background: var(--bg-surface-3);
+            color: var(--text-primary);
+        }
+
+        /* Glow Demo */
+        .glow-demo {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-8);
+            justify-content: center;
+            padding: var(--space-8);
+        }
+
+        .glow-box {
+            width: 120px;
+            height: 120px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+        }
+
+        .glow-box-cyan {
+            background: var(--bg-surface-2);
+            border: 1px solid var(--border-accent-primary);
+            color: var(--accent-primary);
+            box-shadow: var(--accent-primary-glow-intense);
+        }
+
+        .glow-box-violet {
+            background: var(--bg-surface-2);
+            border: 1px solid var(--border-accent-secondary);
+            color: var(--accent-secondary);
+            box-shadow: var(--accent-secondary-glow-intense);
+        }
+
+        /* Gradient demo */
+        .gradient-bar {
+            height: 8px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-full);
+            margin: var(--space-4) 0;
+        }
+
+        /* Code block */
+        .code-block {
+            background: var(--bg-surface-1);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: var(--space-4);
+            font-family: var(--font-family-mono);
+            font-size: var(--font-size-sm);
+            overflow-x: auto;
+            color: var(--text-secondary);
+        }
+
+        .code-block .comment {
+            color: var(--text-muted);
+        }
+
+        .code-block .property {
+            color: var(--accent-primary);
+        }
+
+        .code-block .value {
+            color: var(--accent-secondary);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: var(--space-8);
+            border-top: 1px solid var(--border-subtle);
+            margin-top: var(--space-12);
+            color: var(--text-tertiary);
+        }
+    </style>
+</head>
+<body>
+    <div class="style-guide">
+        <header class="header">
+            <h1>The Void</h1>
+            <p>A comprehensive dark mode color palette and style guide for high-end engineering portfolios</p>
+            <div class="gradient-bar"></div>
+        </header>
+
+        <!-- Background Colors Section -->
+        <section class="section">
+            <h2 class="section-title">Background Colors</h2>
+            <p class="section-description">Deep "Void Black" base with progressively lighter surface layers for elevation hierarchy.</p>
+            <div class="swatch-grid">
+                <div class="swatch">
+                    <div class="swatch-preview" style="background-color: #050505;"></div>
+                    <div class="swatch-info">
+                        <div class="swatch-name">Void Black</div>
+                        <div class="swatch-value">#050505</div>
+                        <div class="swatch-var">--bg-void</div>
+                    </div>
+                </div>
+                <div class="swatch">
+                    <div class="swatch-preview" style="background-color: #0A0A0C;"></div>
+                    <div class="swatch-info">
+                        <div class="swatch-name">Surface 1</div>
+                        <div class="swatch-value">#0A0A0C</div>
+                        <div class="swatch-var">--bg-surface-1</div>
+                    </div>
+                </div>
+                <div class="swatch">
+                    <div class="swatch-preview" style="background-color: #0F1012;"></div>
+                    <div class="swatch-info">
+                        <div class="swatch-name">Surface 2</div>
+                        <div class="swatch-value">#0F1012</div>
+                        <div class="swatch-var">--bg-surface-2</div>
+                    </div>
+                </div>
+                <div class="swatch">
+                    <div class="swatch-preview" style="background-color: #141518;"></div>
+                    <div class="swatch-info">
+                        <div class="swatch-name">Surface 3</div>
+                        <div class="swatch-value">#141518</div>
+                        <div class="swatch-var">--bg-surface-3</div>
+                    </div>
+                </div>
+                <div class="swatch">
+                    <div class="swatch-preview" style="background-color: #1A1B1F;"></div>
+                    <div class="swatch-info">
+                        <div class="swatch-name">Surface 4</div>
+                        <div class="swatch-value">#1A1B1F</div>
+                        <div class="swatch-var">--bg-surface-4</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Accent Colors Section -->
+        <section class="section">
+            <h2 class="section-title">Accent Colors</h2>
+            <p class="section-description">Vibrant neon accents for active states and visual emphasis.</p>
+            <div class="swatch-grid">
+                <div class="swatch">
+                    <div class="swatch-preview accent-cyan"></div>
+                    <div class="swatch-info">
+                        <div class="swatch-name">Electric Cyan (Primary)</div>
+                        <div class="swatch-value">#00F0FF</div>
+                        <div class="swatch-var">--accent-primary</div>
+                    </div>
+                </div>
+                <div class="swatch">
+                    <div class="swatch-preview" style="background-color: #33F3FF;"></div>
+                    <div class="swatch-info">
+                        <div class="swatch-name">Cyan Hover</div>
+                        <div class="swatch-value">#33F3FF</div>
+                        <div class="swatch-var">--accent-primary-hover</div>
+                    </div>
+                </div>
+                <div class="swatch">
+                    <div class="swatch-preview" style="background-color: #00D4E0;"></div>
+                    <div class="swatch-info">
+                        <div class="swatch-name">Cyan Active</div>
+                        <div class="swatch-value">#00D4E0</div>
+                        <div class="swatch-var">--accent-primary-active</div>
+                    </div>
+                </div>
+                <div class="swatch">
+                    <div class="swatch-preview accent-violet"></div>
+                    <div class="swatch-info">
+                        <div class="swatch-name">Hyper-Violet (Secondary)</div>
+                        <div class="swatch-value">#7000FF</div>
+                        <div class="swatch-var">--accent-secondary</div>
+                    </div>
+                </div>
+                <div class="swatch">
+                    <div class="swatch-preview" style="background-color: #8A33FF;"></div>
+                    <div class="swatch-info">
+                        <div class="swatch-name">Violet Hover</div>
+                        <div class="swatch-value">#8A33FF</div>
+                        <div class="swatch-var">--accent-secondary-hover</div>
+                    </div>
+                </div>
+                <div class="swatch">
+                    <div class="swatch-preview" style="background-color: #5C00D4;"></div>
+                    <div class="swatch-info">
+                        <div class="swatch-name">Violet Active</div>
+                        <div class="swatch-value">#5C00D4</div>
+                        <div class="swatch-var">--accent-secondary-active</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Border Colors Section -->
+        <section class="section">
+            <h2 class="section-title">Border Colors</h2>
+            <p class="section-description">Subtle borders that provide structure without overwhelming the design.</p>
+            <div class="swatch-grid">
+                <div class="swatch">
+                    <div class="swatch-preview" style="background-color: #0F1012; border: 2px solid rgba(255, 255, 255, 0.06);"></div>
+                    <div class="swatch-info">
+                        <div class="swatch-name">Border Subtle</div>
+                        <div class="swatch-value">rgba(255, 255, 255, 0.06)</div>
+                        <div class="swatch-var">--border-subtle</div>
+                    </div>
+                </div>
+                <div class="swatch">
+                    <div class="swatch-preview" style="background-color: #0F1012; border: 2px solid rgba(255, 255, 255, 0.10);"></div>
+                    <div class="swatch-info">
+                        <div class="swatch-name">Border Default</div>
+                        <div class="swatch-value">rgba(255, 255, 255, 0.10)</div>
+                        <div class="swatch-var">--border-default</div>
+                    </div>
+                </div>
+                <div class="swatch">
+                    <div class="swatch-preview" style="background-color: #0F1012; border: 2px solid rgba(255, 255, 255, 0.16);"></div>
+                    <div class="swatch-info">
+                        <div class="swatch-name">Border Strong</div>
+                        <div class="swatch-value">rgba(255, 255, 255, 0.16)</div>
+                        <div class="swatch-var">--border-strong</div>
+                    </div>
+                </div>
+                <div class="swatch">
+                    <div class="swatch-preview" style="background-color: #0F1012; border: 2px solid rgba(0, 240, 255, 0.5);"></div>
+                    <div class="swatch-info">
+                        <div class="swatch-name">Border Cyan</div>
+                        <div class="swatch-value">rgba(0, 240, 255, 0.5)</div>
+                        <div class="swatch-var">--border-accent-primary</div>
+                    </div>
+                </div>
+                <div class="swatch">
+                    <div class="swatch-preview" style="background-color: #0F1012; border: 2px solid rgba(112, 0, 255, 0.5);"></div>
+                    <div class="swatch-info">
+                        <div class="swatch-name">Border Violet</div>
+                        <div class="swatch-value">rgba(112, 0, 255, 0.5)</div>
+                        <div class="swatch-var">--border-accent-secondary</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Text Hierarchy Section -->
+        <section class="section">
+            <h2 class="section-title">Text Hierarchy</h2>
+            <p class="section-description">Blue-cool grayscale ramp optimized for readability on dark backgrounds.</p>
+            <div class="swatch-grid">
+                <div class="swatch">
+                    <div class="swatch-preview text-preview" style="background-color: #0F1012;">
+                        <span style="color: #F0F4F8; font-size: var(--font-size-lg); font-weight: 600;">Primary Text</span>
+                    </div>
+                    <div class="swatch-info">
+                        <div class="swatch-name">Primary Text</div>
+                        <div class="swatch-value">#F0F4F8</div>
+                        <div class="swatch-var">--text-primary</div>
+                    </div>
+                </div>
+                <div class="swatch">
+                    <div class="swatch-preview text-preview" style="background-color: #0F1012;">
+                        <span style="color: #A8B4C2; font-size: var(--font-size-base);">Secondary Text</span>
+                    </div>
+                    <div class="swatch-info">
+                        <div class="swatch-name">Secondary Text</div>
+                        <div class="swatch-value">#A8B4C2</div>
+                        <div class="swatch-var">--text-secondary</div>
+                    </div>
+                </div>
+                <div class="swatch">
+                    <div class="swatch-preview text-preview" style="background-color: #0F1012;">
+                        <span style="color: #6B7A8C; font-size: var(--font-size-sm);">Tertiary Text</span>
+                    </div>
+                    <div class="swatch-info">
+                        <div class="swatch-name">Tertiary Text</div>
+                        <div class="swatch-value">#6B7A8C</div>
+                        <div class="swatch-var">--text-tertiary</div>
+                    </div>
+                </div>
+                <div class="swatch">
+                    <div class="swatch-preview text-preview" style="background-color: #0F1012;">
+                        <span style="color: #4A5568; font-size: var(--font-size-sm);">Muted Text</span>
+                    </div>
+                    <div class="swatch-info">
+                        <div class="swatch-name">Muted / Disabled</div>
+                        <div class="swatch-value">#4A5568</div>
+                        <div class="swatch-var">--text-muted</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-demo" style="margin-top: var(--space-6);">
+                <h3>This is a Primary Heading</h3>
+                <p>This paragraph demonstrates secondary text color, used for body content and descriptions that need good readability while maintaining visual hierarchy.</p>
+                <small>Tertiary text is perfect for timestamps, captions, and auxiliary information.</small>
+            </div>
+        </section>
+
+        <!-- Glow Effects Section -->
+        <section class="section">
+            <h2 class="section-title">Glow Effects</h2>
+            <p class="section-description">Neon glow effects for active states and interactive elements.</p>
+            <div class="glow-demo">
+                <div class="glow-box glow-box-cyan">Electric Cyan</div>
+                <div class="glow-box glow-box-violet">Hyper-Violet</div>
+            </div>
+        </section>
+
+        <!-- Button Examples Section -->
+        <section class="section">
+            <h2 class="section-title">Button Styles</h2>
+            <p class="section-description">Interactive button components utilizing the color palette.</p>
+            <div class="button-row">
+                <button class="btn btn-primary">Primary Button</button>
+                <button class="btn btn-secondary">Secondary Button</button>
+                <button class="btn btn-outline">Outline Button</button>
+                <button class="btn btn-ghost">Ghost Button</button>
+            </div>
+        </section>
+
+        <!-- Component Cards Section -->
+        <section class="section">
+            <h2 class="section-title">Component Examples</h2>
+            <p class="section-description">Cards and components that showcase the palette in context.</p>
+            <div class="component-grid">
+                <div class="component-card">
+                    <h4>Project Card</h4>
+                    <p>A sample component showing how colors work together in a real UI context. Hover to see the glow effect.</p>
+                </div>
+                <div class="component-card">
+                    <h4>Feature Card</h4>
+                    <p>The blue-cool text colors provide excellent contrast while maintaining a cohesive dark aesthetic.</p>
+                </div>
+                <div class="component-card">
+                    <h4>Info Card</h4>
+                    <p>Surface colors create depth through subtle elevation without competing with content.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Usage Example Section -->
+        <section class="section">
+            <h2 class="section-title">CSS Usage</h2>
+            <p class="section-description">Example CSS variables usage in your stylesheets.</p>
+            <div class="code-block">
+                <span class="comment">/* Apply the void background */</span><br>
+                <span class="property">background-color</span>: <span class="value">var(--bg-void)</span>;<br><br>
+                <span class="comment">/* Use accent colors with glow */</span><br>
+                <span class="property">color</span>: <span class="value">var(--accent-primary)</span>;<br>
+                <span class="property">box-shadow</span>: <span class="value">var(--accent-primary-glow)</span>;<br><br>
+                <span class="comment">/* Text hierarchy */</span><br>
+                <span class="property">color</span>: <span class="value">var(--text-primary)</span>;  <span class="comment">/* Headings */</span><br>
+                <span class="property">color</span>: <span class="value">var(--text-secondary)</span>;  <span class="comment">/* Body */</span><br>
+                <span class="property">color</span>: <span class="value">var(--text-tertiary)</span>;  <span class="comment">/* Captions */</span>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>The Void Color Palette • Dark Mode Engineering Portfolio Style Guide</p>
+        </footer>
+    </div>
+</body>
+</html>

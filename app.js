@@ -6,6 +6,9 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({server});
 
+// Serve static files from dedicated public directory
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.get('/', (req, res) =>{
 	res.sendFile(__dirname + '/index.html');
 });
