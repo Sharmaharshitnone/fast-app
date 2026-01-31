@@ -1,26 +1,525 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Infrastructure</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #0d1b2a 50%, #1b263b 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: #ffffff;
+        }
+
+        /* Starry Background */
+        #stars-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            background: #ffffff;
+            border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* Hero Section */
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 100vh;
+            padding: 40px 80px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Left Content */
+        .hero-content {
+            flex: 1;
+            max-width: 600px;
+            z-index: 2;
+        }
+
+        .hero-content h1 {
+            font-size: 4.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #ffffff 0%, #a8c0ff 50%, #3f8efc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
+        }
+
+        .hero-content .subtitle {
+            font-size: 1.25rem;
+            color: #8b9dc3;
+            line-height: 1.6;
+            margin-bottom: 32px;
+            max-width: 500px;
+        }
+
+        .hero-content .cta-button {
+            display: inline-block;
+            padding: 16px 40px;
+            background: linear-gradient(135deg, #3f8efc 0%, #1e5aad 100%);
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(63, 142, 252, 0.3);
+        }
+
+        .hero-content .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(63, 142, 252, 0.5);
+        }
+
+        /* Stats Section */
+        .stats {
+            display: flex;
+            gap: 48px;
+            margin-top: 48px;
+        }
+
+        .stat-item {
+            text-align: left;
+        }
+
+        .stat-item .number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #3f8efc;
+        }
+
+        .stat-item .label {
+            font-size: 0.9rem;
+            color: #6b7c93;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Globe Container */
+        .globe-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            max-width: 700px;
+            height: 700px;
+        }
+
+        #globe-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .hero {
+                flex-direction: column;
+                padding: 40px 40px;
+                text-align: center;
+            }
+
+            .hero-content {
+                max-width: 100%;
+                margin-bottom: 40px;
+            }
+
+            .hero-content h1 {
+                font-size: 3rem;
+            }
+
+            .hero-content .subtitle {
+                max-width: 100%;
+            }
+
+            .stats {
+                justify-content: center;
+            }
+
+            .globe-container {
+                max-width: 500px;
+                height: 500px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .hero-content h1 {
+                font-size: 2.25rem;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 24px;
+            }
+
+            .stat-item {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
 <body>
-    <h2>WebSocket Chat</h2>
-    <div id="messages" style="height: 200px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;"></div>
-    <input type="text" id="msgBox" placeholder="Type a message..." />
-    <button onclick="sendMessage()">Send</button>
+    <!-- Starry Background -->
+    <div id="stars-container"></div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <!-- Left Content -->
+        <div class="hero-content">
+            <h1>Global Infrastructure</h1>
+            <p class="subtitle">
+                Enterprise-grade cloud infrastructure spanning 200+ data centers worldwide. 
+                Ultra-low latency, maximum uptime, infinite scalability.
+            </p>
+            <button class="cta-button">Explore Our Network</button>
+
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="number">200+</div>
+                    <div class="label">Data Centers</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number">99.99%</div>
+                    <div class="label">Uptime SLA</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number">&lt;10ms</div>
+                    <div class="label">Global Latency</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Globe -->
+        <div class="globe-container">
+            <canvas id="globe-canvas"></canvas>
+        </div>
+    </section>
 
     <script>
-        // Connect to the WebSocket (Automatic wss:// detection)
-        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-        const ws = new WebSocket(`${protocol}://${window.location.host}`);
+        // ==========================================
+        // Starry Background Generator
+        // ==========================================
+        function createStars() {
+            const container = document.getElementById('stars-container');
+            const starCount = 200;
 
-        ws.onmessage = (event) => {
-            const messages = document.getElementById('messages');
-            messages.innerHTML += `<p>${event.data}</p>`;
-        };
-
-        function sendMessage() {
-            const input = document.getElementById('msgBox');
-            ws.send(input.value);
-            input.value = '';
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                const size = Math.random() * 2 + 1;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.animationDelay = `${Math.random() * 3}s`;
+                star.style.animationDuration = `${2 + Math.random() * 3}s`;
+                
+                container.appendChild(star);
+            }
         }
+
+        // ==========================================
+        // 3D Wireframe Globe - Pure Canvas Implementation
+        // ==========================================
+        function initGlobe() {
+            const canvas = document.getElementById('globe-canvas');
+            const container = document.querySelector('.globe-container');
+            const ctx = canvas.getContext('2d');
+
+            // Globe dimensions (updated on resize)
+            let width, height, centerX, centerY, radius;
+
+            // Set canvas size and update globe dimensions
+            function resizeCanvas() {
+                const dpr = window.devicePixelRatio || 1;
+                canvas.width = container.clientWidth * dpr;
+                canvas.height = container.clientHeight * dpr;
+                canvas.style.width = container.clientWidth + 'px';
+                canvas.style.height = container.clientHeight + 'px';
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                
+                // Update globe dimensions
+                width = container.clientWidth;
+                height = container.clientHeight;
+                centerX = width / 2;
+                centerY = height / 2;
+                radius = Math.min(width, height) * 0.38;
+            }
+            resizeCanvas();
+
+            // Rotation angle
+            let rotationY = 0;
+            const rotationSpeed = 0.003;
+
+            // Server locations (lat, lng)
+            const serverLocations = [
+                // North America
+                { lat: 37.7749, lng: -122.4194, name: 'San Francisco' },
+                { lat: 40.7128, lng: -74.0060, name: 'New York' },
+                { lat: 47.6062, lng: -122.3321, name: 'Seattle' },
+                { lat: 33.4484, lng: -112.0740, name: 'Phoenix' },
+                { lat: 41.8781, lng: -87.6298, name: 'Chicago' },
+                { lat: 25.7617, lng: -80.1918, name: 'Miami' },
+                { lat: 49.2827, lng: -123.1207, name: 'Vancouver' },
+                { lat: 45.5017, lng: -73.5673, name: 'Montreal' },
+
+                // Europe
+                { lat: 51.5074, lng: -0.1278, name: 'London' },
+                { lat: 48.8566, lng: 2.3522, name: 'Paris' },
+                { lat: 52.5200, lng: 13.4050, name: 'Berlin' },
+                { lat: 52.3676, lng: 4.9041, name: 'Amsterdam' },
+                { lat: 59.3293, lng: 18.0686, name: 'Stockholm' },
+                { lat: 41.3851, lng: 2.1734, name: 'Barcelona' },
+                { lat: 50.1109, lng: 8.6821, name: 'Frankfurt' },
+                { lat: 55.6761, lng: 12.5683, name: 'Copenhagen' },
+
+                // Asia Pacific
+                { lat: 35.6762, lng: 139.6503, name: 'Tokyo' },
+                { lat: 1.3521, lng: 103.8198, name: 'Singapore' },
+                { lat: 22.3193, lng: 114.1694, name: 'Hong Kong' },
+                { lat: 37.5665, lng: 126.9780, name: 'Seoul' },
+                { lat: -33.8688, lng: 151.2093, name: 'Sydney' },
+                { lat: 19.0760, lng: 72.8777, name: 'Mumbai' },
+                { lat: 13.7563, lng: 100.5018, name: 'Bangkok' },
+                { lat: 31.2304, lng: 121.4737, name: 'Shanghai' },
+
+                // South America
+                { lat: -23.5505, lng: -46.6333, name: 'São Paulo' },
+                { lat: -34.6037, lng: -58.3816, name: 'Buenos Aires' },
+                { lat: -33.4489, lng: -70.6693, name: 'Santiago' },
+
+                // Middle East & Africa
+                { lat: 25.2048, lng: 55.2708, name: 'Dubai' },
+                { lat: 32.0853, lng: 34.7818, name: 'Tel Aviv' },
+                { lat: -33.9249, lng: 18.4241, name: 'Cape Town' },
+                { lat: -1.2921, lng: 36.8219, name: 'Nairobi' },
+            ];
+
+            // Convert lat/lng to 3D coordinates
+            function latLngTo3D(lat, lng, r) {
+                const phi = (90 - lat) * (Math.PI / 180);
+                const theta = (lng + 180) * (Math.PI / 180);
+
+                const x = -r * Math.sin(phi) * Math.cos(theta);
+                const y = r * Math.cos(phi);
+                const z = r * Math.sin(phi) * Math.sin(theta);
+
+                return { x, y, z };
+            }
+
+            // Apply Y-axis rotation
+            function rotateY(point, angle) {
+                const cos = Math.cos(angle);
+                const sin = Math.sin(angle);
+                return {
+                    x: point.x * cos - point.z * sin,
+                    y: point.y,
+                    z: point.x * sin + point.z * cos
+                };
+            }
+
+            // Project 3D to 2D with perspective
+            function project(point) {
+                const perspective = 600;
+                const scale = perspective / (perspective + point.z);
+                return {
+                    x: centerX + point.x * scale,
+                    y: centerY - point.y * scale,
+                    scale: scale,
+                    z: point.z
+                };
+            }
+
+            // Draw wireframe globe
+            function drawGlobe(time) {
+                ctx.clearRect(0, 0, width, height);
+
+                // Draw outer glow
+                const gradient = ctx.createRadialGradient(centerX, centerY, radius * 0.8, centerX, centerY, radius * 1.3);
+                gradient.addColorStop(0, 'rgba(63, 142, 252, 0.1)');
+                gradient.addColorStop(0.5, 'rgba(63, 142, 252, 0.05)');
+                gradient.addColorStop(1, 'rgba(63, 142, 252, 0)');
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius * 1.3, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Draw latitude lines
+                ctx.strokeStyle = 'rgba(63, 142, 252, 0.25)';
+                ctx.lineWidth = 1;
+
+                for (let lat = -75; lat <= 75; lat += 15) {
+                    ctx.beginPath();
+                    let firstPoint = true;
+                    
+                    for (let lng = 0; lng <= 360; lng += 5) {
+                        const point3D = latLngTo3D(lat, lng, radius);
+                        const rotated = rotateY(point3D, rotationY);
+                        const projected = project(rotated);
+
+                        // Only draw if visible (front side)
+                        if (rotated.z > -radius * 0.1) {
+                            if (firstPoint) {
+                                ctx.moveTo(projected.x, projected.y);
+                                firstPoint = false;
+                            } else {
+                                ctx.lineTo(projected.x, projected.y);
+                            }
+                        } else {
+                            firstPoint = true;
+                        }
+                    }
+                    ctx.stroke();
+                }
+
+                // Draw longitude lines
+                for (let lng = 0; lng < 360; lng += 20) {
+                    ctx.beginPath();
+                    let firstPoint = true;
+
+                    for (let lat = -90; lat <= 90; lat += 5) {
+                        const point3D = latLngTo3D(lat, lng, radius);
+                        const rotated = rotateY(point3D, rotationY);
+                        const projected = project(rotated);
+
+                        // Only draw if visible (front side)
+                        if (rotated.z > -radius * 0.1) {
+                            if (firstPoint) {
+                                ctx.moveTo(projected.x, projected.y);
+                                firstPoint = false;
+                            } else {
+                                ctx.lineTo(projected.x, projected.y);
+                            }
+                        } else {
+                            firstPoint = true;
+                        }
+                    }
+                    ctx.stroke();
+                }
+
+                // Draw globe outline
+                ctx.strokeStyle = 'rgba(63, 142, 252, 0.4)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Draw server location dots
+                const dots = [];
+                
+                serverLocations.forEach((location, index) => {
+                    const point3D = latLngTo3D(location.lat, location.lng, radius);
+                    const rotated = rotateY(point3D, rotationY);
+                    const projected = project(rotated);
+
+                    // Only draw dots on visible side
+                    if (rotated.z > 0) {
+                        dots.push({
+                            x: projected.x,
+                            y: projected.y,
+                            z: rotated.z,
+                            scale: projected.scale,
+                            index: index
+                        });
+                    }
+                });
+
+                // Sort by z-depth (draw back to front)
+                dots.sort((a, b) => a.z - b.z);
+
+                // Draw dots with pulsing glow effect
+                dots.forEach(dot => {
+                    const pulse = 0.5 + Math.sin(time * 0.003 + dot.index * 0.3) * 0.3;
+                    const baseSize = 4 * dot.scale;
+                    const glowSize = 12 * dot.scale * pulse;
+
+                    // Outer glow
+                    const glowGradient = ctx.createRadialGradient(
+                        dot.x, dot.y, 0,
+                        dot.x, dot.y, glowSize
+                    );
+                    glowGradient.addColorStop(0, `rgba(0, 255, 170, ${0.8 * pulse})`);
+                    glowGradient.addColorStop(0.3, `rgba(0, 255, 170, ${0.4 * pulse})`);
+                    glowGradient.addColorStop(1, 'rgba(0, 255, 170, 0)');
+
+                    ctx.fillStyle = glowGradient;
+                    ctx.beginPath();
+                    ctx.arc(dot.x, dot.y, glowSize, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Inner bright dot
+                    ctx.fillStyle = '#00ffaa';
+                    ctx.beginPath();
+                    ctx.arc(dot.x, dot.y, baseSize, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Core highlight
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.arc(dot.x, dot.y, baseSize * 0.4, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            }
+
+            // Animation loop with frame-rate independent timing
+            let lastTime = 0;
+            let animationTime = 0;
+
+            function animate(currentTime) {
+                const deltaTime = lastTime ? currentTime - lastTime : 16;
+                lastTime = currentTime;
+                
+                animationTime += deltaTime;
+                rotationY += rotationSpeed * (deltaTime / 16); // Normalize to 60fps
+                drawGlobe(animationTime);
+                requestAnimationFrame(animate);
+            }
+
+            requestAnimationFrame(animate);
+
+            // Handle window resize with debouncing
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(resizeCanvas, 100);
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            createStars();
+            initGlobe();
+        });
     </script>
 </body>
 </html>
