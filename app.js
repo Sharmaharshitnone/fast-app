@@ -6,19 +6,25 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({server});
 
+// Serve the Cloud Resource Manager dashboard as the main page
 app.get('/', (req, res) =>{
+	res.sendFile(__dirname + '/cloud-dashboard.html');
+});
+
+// Keep the original chat page accessible at /chat
+app.get('/chat', (req, res) =>{
 	res.sendFile(__dirname + '/index.html');
 });
 
 wss.on('connection', function connection(ws){
-	consol.log('A new client connected');
+	console.log('A new client connected');
 	ws.send("Welcome to the Real-Time web!");
 
 	ws.on('message', function incoming(message){
 		console.log('received: %s', message);
 
-		was.clients.forEach(function each(client){
-			if(client.readyState == WebSocket.OPEN){
+		wss.clients.forEach(function each(client){
+			if(client.readyState === WebSocket.OPEN){
 				client.send(message.toString());
 			}
 		});
