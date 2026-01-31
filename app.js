@@ -10,6 +10,10 @@ app.get('/', (req, res) =>{
 	res.sendFile(__dirname + '/index.html');
 });
 
+app.get('/server-health', (req, res) =>{
+	res.sendFile(__dirname + '/server-health.html');
+});
+
 wss.on('connection', function connection(ws){
 	consol.log('A new client connected');
 	ws.send("Welcome to the Real-Time web!");

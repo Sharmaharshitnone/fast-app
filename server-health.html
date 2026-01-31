@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Health Monitor</title>
+    <style>
+        :root {
+            /* Dark Mode Color Scheme */
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --bg-card: #0f3460;
+            --text-primary: #eaeaea;
+            --text-secondary: #a0a0a0;
+            --border-color: #2d4a6f;
+            
+            /* Status Indicators */
+            --success-green: #00d26a;
+            --warning-yellow: #ffc107;
+            --critical-red: #ff4757;
+            
+            /* Gauge Colors */
+            --gauge-bg: #2d3748;
+            --gauge-track: #4a5568;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--success-green), #00a8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.healthy { background: var(--success-green); }
+        .status-dot.warning { background: var(--warning-yellow); }
+        .status-dot.critical { background: var(--critical-red); }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .card-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-success { background: rgba(0, 210, 106, 0.2); color: var(--success-green); }
+        .badge-warning { background: rgba(255, 193, 7, 0.2); color: var(--warning-yellow); }
+        .badge-critical { background: rgba(255, 71, 87, 0.2); color: var(--critical-red); }
+
+        /* Circular Gauge Styles */
+        .gauges-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .gauge-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .gauge {
+            position: relative;
+            width: 140px;
+            height: 140px;
+        }
+
+        .gauge svg {
+            transform: rotate(-90deg);
+        }
+
+        .gauge-bg {
+            fill: none;
+            stroke: var(--gauge-track);
+            stroke-width: 12;
+        }
+
+        .gauge-fill {
+            fill: none;
+            stroke-width: 12;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s ease, stroke 0.5s ease;
+        }
+
+        .gauge-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .gauge-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .gauge-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 10px;
+        }
+
+        /* Bar Chart Styles */
+        .bar-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .bar-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .bar-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+        }
+
+        .bar-track {
+            height: 24px;
+            background: var(--gauge-track);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.5s ease, background 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            min-width: 40px;
+        }
+
+        /* Heatmap Styles */
+        .heatmap-container {
+            overflow-x: auto;
+        }
+
+        .heatmap {
+            display: grid;
+            grid-template-columns: auto repeat(12, 1fr);
+            gap: 4px;
+            min-width: 500px;
+        }
+
+        .heatmap-header {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-align: center;
+            padding: 5px;
+        }
+
+        .heatmap-row-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            padding-right: 10px;
+        }
+
+        .heatmap-cell {
+            aspect-ratio: 1;
+            border-radius: 4px;
+            min-width: 25px;
+            min-height: 25px;
+            transition: transform 0.2s ease, background 0.3s ease;
+            cursor: pointer;
+        }
+
+        .heatmap-cell:hover {
+            transform: scale(1.2);
+            z-index: 1;
+        }
+
+        .heat-0 { background: rgba(0, 210, 106, 0.2); }
+        .heat-1 { background: rgba(0, 210, 106, 0.4); }
+        .heat-2 { background: rgba(0, 210, 106, 0.6); }
+        .heat-3 { background: var(--success-green); }
+        .heat-4 { background: rgba(255, 193, 7, 0.6); }
+        .heat-5 { background: var(--warning-yellow); }
+        .heat-6 { background: rgba(255, 71, 87, 0.6); }
+        .heat-7 { background: var(--critical-red); }
+
+        .heatmap-legend {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .legend-scale {
+            display: flex;
+            gap: 4px;
+        }
+
+        .card-wide {
+            grid-column: span 2;
+        }
+
+        .legend-item {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        /* Server List */
+        .server-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .server-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .server-item:hover {
+            background: rgba(45, 74, 111, 0.5);
+        }
+
+        .server-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .server-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gauge-track);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .server-name {
+            font-weight: 600;
+        }
+
+        .server-ip {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .server-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mini-gauge {
+            width: 50px;
+            height: 6px;
+            background: var(--gauge-track);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .mini-gauge-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .last-update {
+            margin-top: 5px;
+            font-size: 0.8rem;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: fixed;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 1000;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .tooltip.visible {
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .gauges-container {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🖥️ Server Health Monitor</h1>
+        <p>Real-time monitoring dashboard for server cluster performance</p>
+        <div class="status-indicator">
+            <span class="status-dot healthy" id="overallStatus"></span>
+            <span id="overallStatusText">All Systems Operational</span>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- CPU & RAM Gauges Card -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">⚡ CPU & RAM Usage</span>
+                <span class="card-badge badge-success" id="cpuRamBadge">Normal</span>
+            </div>
+            <div class="gauges-container">
+                <div class="gauge-wrapper">
+                    <div class="gauge" id="cpuGauge">
+                        <svg viewBox="0 0 140 140">
+                            <circle class="gauge-bg" cx="70" cy="70" r="58"></circle>
+                            <circle class="gauge-fill" cx="70" cy="70" r="58" 
+                                stroke-dasharray="364.42" 
+                                stroke-dashoffset="364.42"
+                                id="cpuFill"></circle>
+                        </svg>
+                        <div class="gauge-center">
+                            <div class="gauge-value" id="cpuValue">0%</div>
+                        </div>
+                    </div>
+                    <span class="gauge-label">CPU Usage</span>
+                </div>
+                <div class="gauge-wrapper">
+                    <div class="gauge" id="ramGauge">
+                        <svg viewBox="0 0 140 140">
+                            <circle class="gauge-bg" cx="70" cy="70" r="58"></circle>
+                            <circle class="gauge-fill" cx="70" cy="70" r="58" 
+                                stroke-dasharray="364.42" 
+                                stroke-dashoffset="364.42"
+                                id="ramFill"></circle>
+                        </svg>
+                        <div class="gauge-center">
+                            <div class="gauge-value" id="ramValue">0%</div>
+                        </div>
+                    </div>
+                    <span class="gauge-label">RAM Usage</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Disk I/O Bar Chart Card -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">💾 Disk I/O</span>
+                <span class="card-badge badge-success" id="diskBadge">Normal</span>
+            </div>
+            <div class="bar-chart" id="diskChart">
+                <!-- Bar items will be dynamically generated -->
+            </div>
+        </div>
+
+        <!-- Network Traffic Heatmap Card -->
+        <div class="card card-wide">
+            <div class="card-header">
+                <span class="card-title">🌐 Network Traffic Heatmap</span>
+                <span class="card-badge badge-success" id="networkBadge">Normal</span>
+            </div>
+            <div class="heatmap-container">
+                <div class="heatmap" id="networkHeatmap">
+                    <!-- Heatmap will be dynamically generated -->
+                </div>
+            </div>
+            <div class="heatmap-legend">
+                <span>Low</span>
+                <div class="legend-scale">
+                    <div class="legend-item heat-0"></div>
+                    <div class="legend-item heat-1"></div>
+                    <div class="legend-item heat-2"></div>
+                    <div class="legend-item heat-3"></div>
+                    <div class="legend-item heat-4"></div>
+                    <div class="legend-item heat-5"></div>
+                    <div class="legend-item heat-6"></div>
+                    <div class="legend-item heat-7"></div>
+                </div>
+                <span>High</span>
+            </div>
+        </div>
+
+        <!-- Server Cluster Status -->
+        <div class="card card-wide">
+            <div class="card-header">
+                <span class="card-title">🏢 Server Cluster Status</span>
+                <span class="card-badge badge-success" id="clusterBadge">Healthy</span>
+            </div>
+            <div class="server-list" id="serverList">
+                <!-- Server items will be dynamically generated -->
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Server Health Monitor Dashboard v1.0</p>
+        <p class="last-update">Last updated: <span id="lastUpdate">--</span></p>
+    </div>
+
+    <!-- Tooltip -->
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // Configuration
+        const REFRESH_INTERVAL = 2000; // 2 seconds
+        const GAUGE_CIRCUMFERENCE = 364.42; // 2 * PI * 58
+
+        // Color scheme based on thresholds
+        const getStatusColor = (value) => {
+            if (value < 60) return 'var(--success-green)';
+            if (value < 80) return 'var(--warning-yellow)';
+            return 'var(--critical-red)';
+        };
+
+        const getStatusClass = (value) => {
+            if (value < 60) return 'success';
+            if (value < 80) return 'warning';
+            return 'critical';
+        };
+
+        const getBadgeClass = (status) => {
+            return `badge-${status}`;
+        };
+
+        // Simulate server health data (in production, this would come from WebSocket/API)
+        const generateMockData = () => {
+            const servers = [
+                { name: 'Web Server 01', ip: '192.168.1.10', icon: '🌐' },
+                { name: 'Database Server', ip: '192.168.1.20', icon: '🗄️' },
+                { name: 'API Gateway', ip: '192.168.1.30', icon: '🔀' },
+                { name: 'Cache Server', ip: '192.168.1.40', icon: '⚡' },
+                { name: 'Load Balancer', ip: '192.168.1.50', icon: '⚖️' }
+            ];
+
+            return {
+                cpu: Math.floor(Math.random() * 40) + 20,
+                ram: Math.floor(Math.random() * 35) + 30,
+                disks: [
+                    { name: 'Root (/)', read: Math.floor(Math.random() * 100), write: Math.floor(Math.random() * 80) },
+                    { name: 'Data (/data)', read: Math.floor(Math.random() * 90), write: Math.floor(Math.random() * 70) },
+                    { name: 'Backup (/backup)', read: Math.floor(Math.random() * 60), write: Math.floor(Math.random() * 40) },
+                    { name: 'Logs (/var/log)', read: Math.floor(Math.random() * 50), write: Math.floor(Math.random() * 90) }
+                ],
+                networkTraffic: generateHeatmapData(),
+                servers: servers.map(s => ({
+                    ...s,
+                    cpu: Math.floor(Math.random() * 80) + 10,
+                    ram: Math.floor(Math.random() * 70) + 20,
+                    status: Math.random() > 0.1 ? 'online' : 'warning'
+                }))
+            };
+        };
+
+        const generateHeatmapData = () => {
+            const hours = ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00', 
+                          '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'];
+            const interfaces = ['eth0', 'eth1', 'wlan0', 'docker0', 'lo'];
+            
+            return interfaces.map(iface => ({
+                interface: iface,
+                data: hours.map(hour => ({
+                    hour,
+                    value: Math.floor(Math.random() * 8)
+                }))
+            }));
+        };
+
+        // Update circular gauge
+        const updateGauge = (fillId, valueId, value) => {
+            const fill = document.getElementById(fillId);
+            const valueEl = document.getElementById(valueId);
+            
+            const offset = GAUGE_CIRCUMFERENCE - (GAUGE_CIRCUMFERENCE * value / 100);
+            fill.style.strokeDashoffset = offset;
+            fill.style.stroke = getStatusColor(value);
+            valueEl.textContent = `${value}%`;
+            valueEl.style.color = getStatusColor(value);
+        };
+
+        // Update disk I/O bar chart
+        const updateDiskChart = (disks) => {
+            const container = document.getElementById('diskChart');
+            container.innerHTML = '';
+
+            let maxValue = 0;
+            disks.forEach(disk => {
+                maxValue = Math.max(maxValue, disk.read, disk.write);
+            });
+
+            disks.forEach(disk => {
+                const readStatus = getStatusClass(disk.read);
+                const writeStatus = getStatusClass(disk.write);
+                
+                const html = `
+                    <div class="bar-item">
+                        <div class="bar-header">
+                            <span>${disk.name}</span>
+                            <span>R: ${disk.read}% | W: ${disk.write}%</span>
+                        </div>
+                        <div class="bar-track">
+                            <div class="bar-fill" style="width: ${disk.read}%; background: ${getStatusColor(disk.read)};">
+                                Read
+                            </div>
+                        </div>
+                        <div class="bar-track">
+                            <div class="bar-fill" style="width: ${disk.write}%; background: ${getStatusColor(disk.write)};">
+                                Write
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+
+            // Update badge
+            const maxDiskUsage = Math.max(...disks.flatMap(d => [d.read, d.write]));
+            updateBadge('diskBadge', maxDiskUsage);
+        };
+
+        // Update network traffic heatmap
+        const updateHeatmap = (networkData) => {
+            const container = document.getElementById('networkHeatmap');
+            container.innerHTML = '';
+
+            // Header row
+            const hours = ['', '00:00', '02:00', '04:00', '06:00', '08:00', '10:00', 
+                          '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'];
+            hours.forEach(hour => {
+                const cell = document.createElement('div');
+                cell.className = 'heatmap-header';
+                cell.textContent = hour;
+                container.appendChild(cell);
+            });
+
+            // Data rows
+            let maxHeat = 0;
+            networkData.forEach(row => {
+                // Row label
+                const label = document.createElement('div');
+                label.className = 'heatmap-row-label';
+                label.textContent = row.interface;
+                container.appendChild(label);
+
+                // Data cells
+                row.data.forEach(cell => {
+                    const cellEl = document.createElement('div');
+                    cellEl.className = `heatmap-cell heat-${cell.value}`;
+                    cellEl.dataset.interface = row.interface;
+                    cellEl.dataset.hour = cell.hour;
+                    cellEl.dataset.value = cell.value;
+                    
+                    cellEl.addEventListener('mouseenter', showTooltip);
+                    cellEl.addEventListener('mouseleave', hideTooltip);
+                    
+                    container.appendChild(cellEl);
+                    maxHeat = Math.max(maxHeat, cell.value);
+                });
+            });
+
+            // Update badge based on max heat
+            const networkStatus = maxHeat < 4 ? 'success' : maxHeat < 6 ? 'warning' : 'critical';
+            const badge = document.getElementById('networkBadge');
+            badge.className = `card-badge badge-${networkStatus}`;
+            badge.textContent = networkStatus === 'success' ? 'Normal' : networkStatus === 'warning' ? 'Moderate' : 'High';
+        };
+
+        // Update server list
+        const updateServerList = (servers) => {
+            const container = document.getElementById('serverList');
+            container.innerHTML = '';
+
+            let hasWarning = false;
+            let hasCritical = false;
+
+            servers.forEach(server => {
+                const cpuStatus = getStatusClass(server.cpu);
+                const ramStatus = getStatusClass(server.ram);
+                
+                if (cpuStatus === 'warning' || ramStatus === 'warning') hasWarning = true;
+                if (cpuStatus === 'critical' || ramStatus === 'critical') hasCritical = true;
+
+                const html = `
+                    <div class="server-item">
+                        <div class="server-info">
+                            <div class="server-icon">${server.icon}</div>
+                            <div>
+                                <div class="server-name">${server.name}</div>
+                                <div class="server-ip">${server.ip}</div>
+                            </div>
+                        </div>
+                        <div class="server-status">
+                            <div>
+                                <div style="font-size: 0.75rem; color: var(--text-secondary);">CPU</div>
+                                <div class="mini-gauge">
+                                    <div class="mini-gauge-fill" style="width: ${server.cpu}%; background: ${getStatusColor(server.cpu)};"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.75rem; color: var(--text-secondary);">RAM</div>
+                                <div class="mini-gauge">
+                                    <div class="mini-gauge-fill" style="width: ${server.ram}%; background: ${getStatusColor(server.ram)};"></div>
+                                </div>
+                            </div>
+                            <span class="status-dot ${server.status === 'online' ? 'healthy' : 'warning'}"></span>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+
+            // Update cluster badge
+            const clusterStatus = hasCritical ? 'critical' : hasWarning ? 'warning' : 'success';
+            const badge = document.getElementById('clusterBadge');
+            badge.className = `card-badge badge-${clusterStatus}`;
+            badge.textContent = clusterStatus === 'success' ? 'Healthy' : clusterStatus === 'warning' ? 'Warning' : 'Critical';
+        };
+
+        // Update badge helper
+        const updateBadge = (badgeId, value) => {
+            const badge = document.getElementById(badgeId);
+            const status = getStatusClass(value);
+            badge.className = `card-badge badge-${status}`;
+            badge.textContent = status === 'success' ? 'Normal' : status === 'warning' ? 'Warning' : 'Critical';
+        };
+
+        // Update overall status
+        const updateOverallStatus = (data) => {
+            const maxValue = Math.max(
+                data.cpu, 
+                data.ram,
+                ...data.disks.flatMap(d => [d.read, d.write]),
+                ...data.servers.map(s => Math.max(s.cpu, s.ram))
+            );
+
+            const statusDot = document.getElementById('overallStatus');
+            const statusText = document.getElementById('overallStatusText');
+            const status = getStatusClass(maxValue);
+
+            statusDot.className = `status-dot ${status === 'success' ? 'healthy' : status}`;
+            
+            if (status === 'success') {
+                statusText.textContent = 'All Systems Operational';
+            } else if (status === 'warning') {
+                statusText.textContent = 'Some Systems Under Load';
+            } else {
+                statusText.textContent = 'Critical: Immediate Attention Required';
+            }
+
+            // Update CPU/RAM badge
+            const cpuRamMax = Math.max(data.cpu, data.ram);
+            updateBadge('cpuRamBadge', cpuRamMax);
+        };
+
+        // Tooltip functions
+        const showTooltip = (e) => {
+            const tooltip = document.getElementById('tooltip');
+            const cell = e.target;
+            const iface = cell.dataset.interface;
+            const hour = cell.dataset.hour;
+            const value = cell.dataset.value;
+            
+            const trafficLevel = ['Very Low', 'Low', 'Light', 'Moderate', 'Medium', 'High', 'Very High', 'Critical'];
+            
+            tooltip.innerHTML = `
+                <strong>${iface}</strong><br>
+                Time: ${hour}<br>
+                Traffic: ${trafficLevel[value]}
+            `;
+            
+            tooltip.style.left = `${e.pageX + 10}px`;
+            tooltip.style.top = `${e.pageY + 10}px`;
+            tooltip.classList.add('visible');
+        };
+
+        const hideTooltip = () => {
+            document.getElementById('tooltip').classList.remove('visible');
+        };
+
+        // Update timestamp
+        const updateTimestamp = () => {
+            const now = new Date();
+            document.getElementById('lastUpdate').textContent = now.toLocaleString();
+        };
+
+        // Main update function
+        const updateDashboard = () => {
+            const data = generateMockData();
+            
+            updateGauge('cpuFill', 'cpuValue', data.cpu);
+            updateGauge('ramFill', 'ramValue', data.ram);
+            updateDiskChart(data.disks);
+            updateHeatmap(data.networkTraffic);
+            updateServerList(data.servers);
+            updateOverallStatus(data);
+            updateTimestamp();
+        };
+
+        // Initialize and start refresh
+        updateDashboard();
+        setInterval(updateDashboard, REFRESH_INTERVAL);
+
+        // WebSocket connection for real-time updates (optional)
+        const connectWebSocket = () => {
+            try {
+                const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+                const ws = new WebSocket(`${protocol}://${window.location.host}`);
+                
+                ws.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        if (data.type === 'health-update') {
+                            // Handle real-time health data
+                            console.log('Received health update:', data);
+                        }
+                    } catch (e) {
+                        // Non-JSON messages are expected from other WebSocket uses
+                        console.debug('Non-JSON WebSocket message received:', e.message);
+                    }
+                };
+                
+                ws.onclose = () => {
+                    // Reconnect after 5 seconds
+                    setTimeout(connectWebSocket, 5000);
+                };
+            } catch (e) {
+                console.log('WebSocket connection failed:', e.message || e, '- using mock data');
+            }
+        };
+
+        // Connect to WebSocket (optional - dashboard works with mock data)
+        connectWebSocket();
+    </script>
+</body>
+</html>
