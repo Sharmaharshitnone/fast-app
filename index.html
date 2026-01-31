@@ -1,25 +1,835 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity Threat Map</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #ff3333;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(180deg, #1a0000 0%, #0d0000 100%);
+            border-bottom: 2px solid #ff0000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 100;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #ff3333;
+            text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            background: #ff0000;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+            box-shadow: 0 0 10px #ff0000;
+        }
+
+        .status-text {
+            font-size: 14px;
+            color: #ff6666;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Main Container */
+        .main-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            padding-top: 60px;
+        }
+
+        /* World Map Background */
+        .map-container {
+            position: absolute;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #0a0a0a;
+            overflow: hidden;
+        }
+
+        .world-map {
+            width: 100%;
+            height: 100%;
+            opacity: 0.4;
+        }
+
+        /* SVG Map Styles */
+        .map-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .map-svg .land {
+            fill: #1a1a1a;
+            stroke: #333;
+            stroke-width: 0.5;
+        }
+
+        .map-svg .grid-line {
+            stroke: #1a0000;
+            stroke-width: 0.3;
+            opacity: 0.5;
+        }
+
+        /* Attack Arc Animations */
+        .attack-arc {
+            fill: none;
+            stroke: #ff0000;
+            stroke-width: 2;
+            opacity: 0;
+            filter: drop-shadow(0 0 4px #ff0000);
+        }
+
+        .attack-arc.active {
+            animation: arcAnimation 3s ease-out forwards;
+        }
+
+        @keyframes arcAnimation {
+            0% {
+                stroke-dasharray: 0, 1000;
+                opacity: 1;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                stroke-dasharray: 1000, 0;
+                opacity: 0;
+            }
+        }
+
+        /* Attack Points */
+        .attack-point {
+            fill: #ff0000;
+            animation: pointPulse 1.5s infinite;
+        }
+
+        @keyframes pointPulse {
+            0%, 100% { r: 3; opacity: 1; }
+            50% { r: 6; opacity: 0.5; }
+        }
+
+        /* Panel Base Styles */
+        .panel {
+            position: absolute;
+            background: linear-gradient(135deg, rgba(20, 0, 0, 0.95) 0%, rgba(10, 0, 0, 0.9) 100%);
+            border: 1px solid #ff0000;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.3), inset 0 0 30px rgba(255, 0, 0, 0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 0, 0, 0.3);
+        }
+
+        .panel-title {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #ff3333;
+            text-shadow: 0 0 5px #ff0000;
+        }
+
+        .panel-icon {
+            width: 20px;
+            height: 20px;
+            fill: #ff0000;
+        }
+
+        /* Attack Vectors Panel */
+        .attack-vectors {
+            top: 80px;
+            left: 20px;
+            width: 280px;
+        }
+
+        .attack-list {
+            list-style: none;
+        }
+
+        .attack-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 0, 0, 0.1);
+        }
+
+        .attack-item:last-child {
+            border-bottom: none;
+        }
+
+        .attack-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            color: #ff6666;
+        }
+
+        .attack-icon {
+            width: 8px;
+            height: 8px;
+            background: #ff0000;
+            border-radius: 50%;
+        }
+
+        .attack-count {
+            font-size: 14px;
+            font-weight: bold;
+            color: #ff3333;
+            background: rgba(255, 0, 0, 0.2);
+            padding: 4px 10px;
+            border-radius: 4px;
+        }
+
+        .severity-critical { background: rgba(255, 0, 0, 0.4); }
+        .severity-high { background: rgba(255, 50, 0, 0.3); }
+        .severity-medium { background: rgba(255, 100, 0, 0.2); }
+
+        /* Firewall Status Panel */
+        .firewall-status {
+            top: 80px;
+            right: 20px;
+            width: 280px;
+        }
+
+        .firewall-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .firewall-item {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 0, 0, 0.2);
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .firewall-label {
+            font-size: 10px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .firewall-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ff3333;
+        }
+
+        .firewall-value.status-active {
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        .firewall-value.status-warning {
+            color: #ffaa00;
+            text-shadow: 0 0 10px #ffaa00;
+        }
+
+        .firewall-value.status-danger {
+            color: #ff0000;
+            text-shadow: 0 0 10px #ff0000;
+        }
+
+        /* Live Incidents Panel */
+        .live-incidents {
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            max-height: 200px;
+        }
+
+        .incidents-container {
+            max-height: 140px;
+            overflow-y: auto;
+        }
+
+        .incidents-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .incidents-container::-webkit-scrollbar-track {
+            background: rgba(255, 0, 0, 0.1);
+        }
+
+        .incidents-container::-webkit-scrollbar-thumb {
+            background: #ff0000;
+            border-radius: 3px;
+        }
+
+        .incident-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px;
+            margin-bottom: 5px;
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 3px solid #ff0000;
+            border-radius: 0 4px 4px 0;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .incident-time {
+            font-size: 11px;
+            color: #666;
+            min-width: 80px;
+        }
+
+        .incident-type {
+            font-size: 10px;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 3px;
+            background: rgba(255, 0, 0, 0.3);
+            color: #ff6666;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .incident-source {
+            font-size: 12px;
+            color: #ff3333;
+            flex: 1;
+        }
+
+        .incident-target {
+            font-size: 12px;
+            color: #ff6666;
+        }
+
+        .incident-severity {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: severityPulse 1s infinite;
+        }
+
+        .incident-severity.critical {
+            background: #ff0000;
+            box-shadow: 0 0 10px #ff0000;
+        }
+
+        .incident-severity.high {
+            background: #ff4400;
+            box-shadow: 0 0 10px #ff4400;
+        }
+
+        .incident-severity.medium {
+            background: #ff8800;
+            box-shadow: 0 0 10px #ff8800;
+        }
+
+        @keyframes severityPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            position: absolute;
+            bottom: 230px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 30px;
+            background: rgba(10, 0, 0, 0.9);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px 30px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ff3333;
+            text-shadow: 0 0 10px #ff0000;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+
+        /* Connection status */
+        .connection-status {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            padding: 5px 15px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #333;
+            border-radius: 4px;
+            font-size: 11px;
+            z-index: 1000;
+        }
+
+        .connection-status.connected {
+            border-color: #00ff00;
+            color: #00ff00;
+        }
+
+        .connection-status.disconnected {
+            border-color: #ff0000;
+            color: #ff0000;
+        }
+    </style>
+</head>
 <body>
-    <h2>WebSocket Chat</h2>
-    <div id="messages" style="height: 200px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;"></div>
-    <input type="text" id="msgBox" placeholder="Type a message..." />
-    <button onclick="sendMessage()">Send</button>
+    <!-- Header -->
+    <div class="header">
+        <h1>🛡️ Threat Intelligence Map</h1>
+        <div class="status-indicator">
+            <div class="status-dot"></div>
+            <span class="status-text">MONITORING ACTIVE</span>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- World Map Background -->
+        <div class="map-container">
+            <svg class="map-svg" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid slice">
+                <!-- Grid Lines -->
+                <g class="grid">
+                    <line class="grid-line" x1="0" y1="100" x2="1000" y2="100"/>
+                    <line class="grid-line" x1="0" y1="200" x2="1000" y2="200"/>
+                    <line class="grid-line" x1="0" y1="300" x2="1000" y2="300"/>
+                    <line class="grid-line" x1="0" y1="400" x2="1000" y2="400"/>
+                    <line class="grid-line" x1="200" y1="0" x2="200" y2="500"/>
+                    <line class="grid-line" x1="400" y1="0" x2="400" y2="500"/>
+                    <line class="grid-line" x1="600" y1="0" x2="600" y2="500"/>
+                    <line class="grid-line" x1="800" y1="0" x2="800" y2="500"/>
+                </g>
+                
+                <!-- Simplified World Map Continents -->
+                <g class="continents">
+                    <!-- North America -->
+                    <path class="land" d="M120,120 L180,100 L220,110 L260,100 L280,120 L270,160 L240,180 L200,200 L160,180 L140,200 L120,180 L100,160 Z"/>
+                    <!-- South America -->
+                    <path class="land" d="M200,240 L240,220 L260,250 L270,300 L260,350 L240,380 L200,390 L180,350 L190,300 L200,260 Z"/>
+                    <!-- Europe -->
+                    <path class="land" d="M440,100 L500,90 L540,100 L560,120 L550,150 L520,160 L480,150 L450,140 L440,120 Z"/>
+                    <!-- Africa -->
+                    <path class="land" d="M460,180 L520,170 L560,200 L580,260 L560,320 L520,360 L480,350 L450,300 L440,240 L450,200 Z"/>
+                    <!-- Asia -->
+                    <path class="land" d="M560,80 L650,70 L720,90 L780,100 L820,130 L840,180 L820,220 L760,200 L700,180 L640,170 L600,150 L570,130 Z"/>
+                    <!-- Australia -->
+                    <path class="land" d="M760,300 L820,290 L860,310 L870,350 L840,380 L790,380 L760,350 L750,320 Z"/>
+                    <!-- Russia/Northern Asia -->
+                    <path class="land" d="M540,60 L620,50 L700,55 L780,60 L850,80 L880,100 L860,120 L800,110 L720,100 L640,90 L580,80 L540,75 Z"/>
+                </g>
+
+                <!-- Attack Points (will be animated) -->
+                <g id="attackPoints">
+                    <circle class="attack-point" cx="180" cy="150" r="4"/>
+                    <circle class="attack-point" cx="500" cy="130" r="4"/>
+                    <circle class="attack-point" cx="720" cy="140" r="4"/>
+                    <circle class="attack-point" cx="480" cy="250" r="4"/>
+                    <circle class="attack-point" cx="800" cy="340" r="4"/>
+                    <circle class="attack-point" cx="220" cy="300" r="4"/>
+                </g>
+
+                <!-- Attack Arcs Container -->
+                <g id="attackArcs"></g>
+            </svg>
+        </div>
+
+        <!-- Attack Vectors Panel -->
+        <div class="panel attack-vectors">
+            <div class="panel-header">
+                <span class="panel-title">⚔️ Attack Vectors</span>
+            </div>
+            <ul class="attack-list" id="attackList">
+                <li class="attack-item">
+                    <span class="attack-name"><span class="attack-icon"></span>DDoS Attacks</span>
+                    <span class="attack-count severity-critical" id="ddosCount">2,847</span>
+                </li>
+                <li class="attack-item">
+                    <span class="attack-name"><span class="attack-icon"></span>SQL Injection</span>
+                    <span class="attack-count severity-high" id="sqlCount">1,293</span>
+                </li>
+                <li class="attack-item">
+                    <span class="attack-name"><span class="attack-icon"></span>Malware</span>
+                    <span class="attack-count severity-high" id="malwareCount">892</span>
+                </li>
+                <li class="attack-item">
+                    <span class="attack-name"><span class="attack-icon"></span>Phishing</span>
+                    <span class="attack-count severity-medium" id="phishingCount">1,456</span>
+                </li>
+                <li class="attack-item">
+                    <span class="attack-name"><span class="attack-icon"></span>Brute Force</span>
+                    <span class="attack-count severity-medium" id="bruteCount">3,102</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Firewall Status Panel -->
+        <div class="panel firewall-status">
+            <div class="panel-header">
+                <span class="panel-title">🔥 Firewall Status</span>
+            </div>
+            <div class="firewall-grid">
+                <div class="firewall-item">
+                    <div class="firewall-label">Status</div>
+                    <div class="firewall-value status-active" id="fwStatus">ACTIVE</div>
+                </div>
+                <div class="firewall-item">
+                    <div class="firewall-label">Blocked</div>
+                    <div class="firewall-value" id="fwBlocked">12,847</div>
+                </div>
+                <div class="firewall-item">
+                    <div class="firewall-label">Rules Active</div>
+                    <div class="firewall-value status-active" id="fwRules">247</div>
+                </div>
+                <div class="firewall-item">
+                    <div class="firewall-label">CPU Load</div>
+                    <div class="firewall-value status-warning" id="fwCpu">67%</div>
+                </div>
+                <div class="firewall-item">
+                    <div class="firewall-label">Threats/Min</div>
+                    <div class="firewall-value status-danger" id="fwThreats">342</div>
+                </div>
+                <div class="firewall-item">
+                    <div class="firewall-label">Uptime</div>
+                    <div class="firewall-value" id="fwUptime">99.9%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-value" id="totalAttacks">9,590</div>
+                <div class="stat-label">Total Attacks Today</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="blockedAttacks">9,247</div>
+                <div class="stat-label">Blocked</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="activeThreats">343</div>
+                <div class="stat-label">Active Threats</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="countriesAffected">47</div>
+                <div class="stat-label">Countries Affected</div>
+            </div>
+        </div>
+
+        <!-- Live Incidents Panel -->
+        <div class="panel live-incidents">
+            <div class="panel-header">
+                <span class="panel-title">🚨 Live Incidents</span>
+            </div>
+            <div class="incidents-container" id="incidentsList">
+                <!-- Incidents will be populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Connection Status -->
+    <div class="connection-status disconnected" id="connectionStatus">
+        ● DISCONNECTED
+    </div>
 
     <script>
-        // Connect to the WebSocket (Automatic wss:// detection)
-        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-        const ws = new WebSocket(`${protocol}://${window.location.host}`);
+        // Attack data
+        const countries = ['USA', 'Russia', 'China', 'Germany', 'Brazil', 'India', 'UK', 'Japan', 'Australia', 'France'];
+        const attackTypes = ['DDoS', 'SQL Injection', 'Malware', 'Phishing', 'Brute Force', 'XSS', 'Ransomware'];
+        const severities = ['critical', 'high', 'medium'];
 
-        ws.onmessage = (event) => {
-            const messages = document.getElementById('messages');
-            messages.innerHTML += `<p>${event.data}</p>`;
+        // Map coordinates for countries
+        const countryCoords = {
+            'USA': { x: 180, y: 150 },
+            'Brazil': { x: 220, y: 300 },
+            'UK': { x: 470, y: 120 },
+            'Germany': { x: 500, y: 130 },
+            'France': { x: 480, y: 140 },
+            'Russia': { x: 700, y: 100 },
+            'China': { x: 720, y: 140 },
+            'India': { x: 660, y: 200 },
+            'Japan': { x: 800, y: 150 },
+            'Australia': { x: 800, y: 340 }
         };
 
-        function sendMessage() {
-            const input = document.getElementById('msgBox');
-            ws.send(input.value);
-            input.value = '';
+        // WebSocket connection
+        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+        let ws;
+        let reconnectAttempts = 0;
+
+        function connectWebSocket() {
+            ws = new WebSocket(`${protocol}://${window.location.host}`);
+
+            ws.onopen = () => {
+                document.getElementById('connectionStatus').className = 'connection-status connected';
+                document.getElementById('connectionStatus').textContent = '● CONNECTED';
+                reconnectAttempts = 0;
+            };
+
+            ws.onclose = () => {
+                document.getElementById('connectionStatus').className = 'connection-status disconnected';
+                document.getElementById('connectionStatus').textContent = '● DISCONNECTED';
+                // Attempt to reconnect
+                if (reconnectAttempts < 5) {
+                    setTimeout(connectWebSocket, 2000);
+                    reconnectAttempts++;
+                }
+            };
+
+            ws.onerror = () => {
+                console.log('WebSocket error');
+            };
+
+            ws.onmessage = (event) => {
+                // Handle incoming threat data
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'incident') {
+                        addIncident(data);
+                    }
+                } catch (e) {
+                    // Handle as text message
+                    console.log('Received:', event.data);
+                }
+            };
+        }
+
+        // Generate random incident
+        function generateIncident() {
+            const sourceCountry = countries[Math.floor(Math.random() * countries.length)];
+            let targetCountry = countries[Math.floor(Math.random() * countries.length)];
+            while (targetCountry === sourceCountry) {
+                targetCountry = countries[Math.floor(Math.random() * countries.length)];
+            }
+
+            return {
+                time: new Date().toLocaleTimeString(),
+                type: attackTypes[Math.floor(Math.random() * attackTypes.length)],
+                source: sourceCountry,
+                target: targetCountry,
+                severity: severities[Math.floor(Math.random() * severities.length)]
+            };
+        }
+
+        // Add incident to the list
+        function addIncident(incident) {
+            const container = document.getElementById('incidentsList');
+            const item = document.createElement('div');
+            item.className = 'incident-item';
+            item.innerHTML = `
+                <span class="incident-time">${incident.time}</span>
+                <span class="incident-type">${incident.type}</span>
+                <span class="incident-source">${incident.source}</span>
+                <span style="color: #666;">→</span>
+                <span class="incident-target">${incident.target}</span>
+                <span class="incident-severity ${incident.severity}"></span>
+            `;
+            container.insertBefore(item, container.firstChild);
+
+            // Keep only last 20 incidents
+            while (container.children.length > 20) {
+                container.removeChild(container.lastChild);
+            }
+
+            // Animate attack arc
+            animateAttackArc(incident.source, incident.target);
+
+            // Update stats
+            updateStats(incident);
+        }
+
+        // Animate attack arc on map
+        function animateAttackArc(source, target) {
+            const sourceCoord = countryCoords[source];
+            const targetCoord = countryCoords[target];
+
+            if (!sourceCoord || !targetCoord) return;
+
+            const arcsContainer = document.getElementById('attackArcs');
+            const arc = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+
+            // Calculate control point for curved arc
+            const midX = (sourceCoord.x + targetCoord.x) / 2;
+            const midY = (sourceCoord.y + targetCoord.y) / 2 - 50;
+
+            arc.setAttribute('d', `M ${sourceCoord.x} ${sourceCoord.y} Q ${midX} ${midY} ${targetCoord.x} ${targetCoord.y}`);
+            arc.setAttribute('class', 'attack-arc active');
+            
+            arcsContainer.appendChild(arc);
+
+            // Remove arc after animation
+            setTimeout(() => {
+                arc.remove();
+            }, 3000);
+        }
+
+        // Update statistics
+        let totalAttacks = 9590;
+        let blockedAttacks = 9247;
+        let ddosCount = 2847;
+        let sqlCount = 1293;
+        let malwareCount = 892;
+        let phishingCount = 1456;
+        let bruteCount = 3102;
+        let fwBlocked = 12847;
+        let threats = 343;
+
+        function updateStats(incident) {
+            totalAttacks++;
+            document.getElementById('totalAttacks').textContent = totalAttacks.toLocaleString();
+
+            if (Math.random() > 0.3) {
+                blockedAttacks++;
+                fwBlocked++;
+                document.getElementById('blockedAttacks').textContent = blockedAttacks.toLocaleString();
+                document.getElementById('fwBlocked').textContent = fwBlocked.toLocaleString();
+            } else {
+                threats++;
+                document.getElementById('activeThreats').textContent = threats.toLocaleString();
+            }
+
+            // Update attack type counts
+            switch (incident.type) {
+                case 'DDoS':
+                    ddosCount++;
+                    document.getElementById('ddosCount').textContent = ddosCount.toLocaleString();
+                    break;
+                case 'SQL Injection':
+                    sqlCount++;
+                    document.getElementById('sqlCount').textContent = sqlCount.toLocaleString();
+                    break;
+                case 'Malware':
+                case 'Ransomware':
+                    malwareCount++;
+                    document.getElementById('malwareCount').textContent = malwareCount.toLocaleString();
+                    break;
+                case 'Phishing':
+                    phishingCount++;
+                    document.getElementById('phishingCount').textContent = phishingCount.toLocaleString();
+                    break;
+                case 'Brute Force':
+                    bruteCount++;
+                    document.getElementById('bruteCount').textContent = bruteCount.toLocaleString();
+                    break;
+            }
+        }
+
+        // Simulate live incidents
+        function simulateIncidents() {
+            const incident = generateIncident();
+            addIncident(incident);
+
+            // Random interval between incidents (500ms to 3s)
+            const nextInterval = Math.random() * 2500 + 500;
+            setTimeout(simulateIncidents, nextInterval);
+        }
+
+        // Update firewall metrics periodically
+        function updateFirewallMetrics() {
+            const cpuLoad = Math.floor(Math.random() * 40) + 50;
+            const cpuElement = document.getElementById('fwCpu');
+            cpuElement.textContent = cpuLoad + '%';
+            
+            if (cpuLoad > 80) {
+                cpuElement.className = 'firewall-value status-danger';
+            } else if (cpuLoad > 60) {
+                cpuElement.className = 'firewall-value status-warning';
+            } else {
+                cpuElement.className = 'firewall-value status-active';
+            }
+
+            const threatsPerMin = Math.floor(Math.random() * 200) + 250;
+            document.getElementById('fwThreats').textContent = threatsPerMin;
+        }
+
+        // Initialize
+        connectWebSocket();
+        simulateIncidents();
+        setInterval(updateFirewallMetrics, 5000);
+
+        // Add some initial incidents
+        for (let i = 0; i < 5; i++) {
+            setTimeout(() => {
+                addIncident(generateIncident());
+            }, i * 200);
         }
     </script>
 </body>

@@ -11,13 +11,13 @@ app.get('/', (req, res) =>{
 });
 
 wss.on('connection', function connection(ws){
-	consol.log('A new client connected');
+	console.log('A new client connected');
 	ws.send("Welcome to the Real-Time web!");
 
 	ws.on('message', function incoming(message){
 		console.log('received: %s', message);
 
-		was.clients.forEach(function each(client){
+		wss.clients.forEach(function each(client){
 			if(client.readyState == WebSocket.OPEN){
 				client.send(message.toString());
 			}
