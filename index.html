@@ -1,10 +1,304 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glassmorphism Card System</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 40px 20px;
+            color: #ffffff;
+        }
+
+        /* Page header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #00d9ff, #00ffcc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-header p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1rem;
+        }
+
+        /* Cards container */
+        .cards-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Card wrapper for labels */
+        .card-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .card-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Glassmorphism Card Base Styles */
+        .glass-card {
+            width: 320px;
+            padding: 30px;
+            border-radius: 16px;
+            /* Dark semi-transparent background: Black at 40% opacity */
+            background: rgba(0, 0, 0, 0.4);
+            /* Background blur value of 40 */
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            /* 1px inner border: white at 10% opacity */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            /* Soft diffused drop shadow for depth */
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.4),
+                0 4px 16px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        /* Standard Card - no additional styling needed */
+        .glass-card--standard {
+            /* Base glass-card styles apply */
+        }
+
+        /* Hover State Card - cyan outer glow */
+        .glass-card--hover,
+        .glass-card:hover {
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.4),
+                0 4px 16px rgba(0, 0, 0, 0.2),
+                0 0 30px rgba(0, 217, 255, 0.3),
+                0 0 60px rgba(0, 217, 255, 0.15);
+            border: 1px solid rgba(0, 217, 255, 0.2);
+        }
+
+        /* Active State Card */
+        .glass-card--active,
+        .glass-card:active {
+            background: rgba(0, 0, 0, 0.5);
+            box-shadow: 
+                0 4px 16px rgba(0, 0, 0, 0.5),
+                0 2px 8px rgba(0, 0, 0, 0.3),
+                0 0 20px rgba(0, 217, 255, 0.4),
+                inset 0 0 20px rgba(0, 217, 255, 0.1);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            transform: scale(0.98);
+        }
+
+        /* Card content styles */
+        .glass-card__icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.2), rgba(0, 255, 204, 0.2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .glass-card__title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #ffffff;
+        }
+
+        .glass-card__description {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 20px;
+        }
+
+        .glass-card__button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.3), rgba(0, 255, 204, 0.3));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card__button:hover {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.5), rgba(0, 255, 204, 0.5));
+        }
+
+        .glass-card__button:focus,
+        .glass-card__button:focus-visible {
+            outline: 2px solid rgba(0, 217, 255, 0.6);
+            outline-offset: 2px;
+        }
+
+        /* WebSocket Chat Section */
+        .chat-section {
+            max-width: 600px;
+            margin: 80px auto 0;
+        }
+
+        .chat-section h2 {
+            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        #messages {
+            height: 200px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        #messages p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 8px;
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        #msgBox {
+            flex: 1;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 1rem;
+        }
+
+        #msgBox::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .chat-send-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.3), rgba(0, 255, 204, 0.3));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chat-send-btn:hover {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.5), rgba(0, 255, 204, 0.5));
+        }
+
+        .chat-send-btn:focus,
+        .chat-send-btn:focus-visible {
+            outline: 2px solid rgba(0, 217, 255, 0.6);
+            outline-offset: 2px;
+        }
+
+        #msgBox:focus {
+            outline: none;
+            border-color: rgba(0, 217, 255, 0.4);
+            box-shadow: 0 0 0 2px rgba(0, 217, 255, 0.2);
+        }
+    </style>
+</head>
 <body>
-    <h2>WebSocket Chat</h2>
-    <div id="messages" style="height: 200px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;"></div>
-    <input type="text" id="msgBox" placeholder="Type a message..." />
-    <button onclick="sendMessage()">Send</button>
+    <!-- Page Header -->
+    <header class="page-header">
+        <h1>Glassmorphism Card System</h1>
+        <p>Sophisticated glass-effect UI components with elegant hover and active states</p>
+    </header>
+
+    <!-- Glassmorphism Cards Showcase -->
+    <section class="cards-container">
+        <!-- Standard Card -->
+        <div class="card-wrapper">
+            <span class="card-label">Standard Card</span>
+            <div class="glass-card glass-card--standard">
+                <div class="glass-card__icon">✨</div>
+                <h3 class="glass-card__title">Standard State</h3>
+                <p class="glass-card__description">
+                    A sleek glassmorphism card with dark semi-transparent background, 
+                    40px blur, subtle inner border, and soft drop shadow.
+                </p>
+                <button class="glass-card__button">Learn More</button>
+            </div>
+        </div>
+
+        <!-- Hover State Card -->
+        <div class="card-wrapper">
+            <span class="card-label">Hover State</span>
+            <div class="glass-card glass-card--hover">
+                <div class="glass-card__icon">🔮</div>
+                <h3 class="glass-card__title">Hover Effect</h3>
+                <p class="glass-card__description">
+                    Enhanced with a beautiful cyan outer glow effect that creates 
+                    an ethereal, glowing appearance on interaction.
+                </p>
+                <button class="glass-card__button">Explore</button>
+            </div>
+        </div>
+
+        <!-- Active State Card -->
+        <div class="card-wrapper">
+            <span class="card-label">Active State</span>
+            <div class="glass-card glass-card--active">
+                <div class="glass-card__icon">⚡</div>
+                <h3 class="glass-card__title">Active State</h3>
+                <p class="glass-card__description">
+                    Pressed state with intensified cyan glow, inner shadow effect,
+                    and subtle scale transformation for tactile feedback.
+                </p>
+                <button class="glass-card__button">Activate</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- WebSocket Chat Section (existing functionality preserved) -->
+    <section class="chat-section glass-card">
+        <h2>WebSocket Chat</h2>
+        <div id="messages"></div>
+        <div class="chat-input-container">
+            <input type="text" id="msgBox" placeholder="Type a message..." aria-label="Chat message" />
+            <button class="chat-send-btn" onclick="sendMessage()">Send</button>
+        </div>
+    </section>
 
     <script>
         // Connect to the WebSocket (Automatic wss:// detection)
